@@ -2,12 +2,19 @@ import { useState } from 'react'
 
 import './App.css'
 
-function App() {
-  const [count, setCount] = useState(0)
-
+export default function App() {
   return (
-    <h1>Hotel Reservation Web Application</h1>
+    <div className="flex items-center gap-3 p-6">
+      <div className="w-8 h-8 bg-primary"></div>
+      <div className="w-8 h-8 bg-secondary"></div>
+      <div className="w-8 h-8 bg-accent"></div>
+      <div className="flex gap-2 p-6">
+        <button className="btn bg-primary text-primary-content">Primary</button>
+        <button className="btn bg-secondary text-secondary-content">Secondary</button>
+        <button className="btn bg-accent text-accent-content">Accent</button>
+      </div>
+    </div>
+    
   )
 }
 
-export default App
