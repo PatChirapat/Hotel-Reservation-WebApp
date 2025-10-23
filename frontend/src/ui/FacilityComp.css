@@ -1,0 +1,87 @@
+.facility-section {
+    background-color: #fff; 
+    padding: 4rem 2rem;
+    text-align: left;
+}
+
+.facility-title {
+    font-family: 'Optima', 'Segoe UI', sans-serif;
+    font-size: 2.2rem;
+    font-weight: 600;
+    letter-spacing: 1px;
+    color: #000; 
+    margin-bottom: 3rem;
+}
+
+.facility-comp {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.8rem;
+    justify-items: center;
+}
+
+.facility-card {
+    font-family: 'Optima', 'Segoe UI', sans-serif;
+    position: relative;
+    width: 100%;
+    max-width: 420px;
+    height: 340px; 
+    overflow: hidden;
+    cursor: pointer;
+    border-radius: 10px;
+    background: #000;
+}
+
+.facility-card img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: opacity 0.4s ease, transform 0.4s ease;
+}
+
+/* ชั้นข้อความ */
+.facility-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.25);
+    color: #fff;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.4s ease;
+}
+
+.facility-overlay h3 {
+    font-size: 1.5rem;
+    letter-spacing: 1px;
+    font-weight: 600;
+    margin: 0;
+}
+
+.learn-more {
+    margin-top: 0.8rem;
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.9rem;
+    letter-spacing: 0.5px;
+    opacity: 0;
+    transition: opacity 0.4s ease, transform 0.3s ease;
+    border-radius: 3px;
+}
+
+.facility-card:hover img {
+    opacity: 0.6;
+    transform: scale(1.05);
+}
+
+.facility-card:hover .facility-overlay {
+    background: rgba(0, 0, 0, 0.55);
+}
+
+.facility-card:hover .learn-more {
+    opacity: 1;
+    transform: translateY(0);
+}
