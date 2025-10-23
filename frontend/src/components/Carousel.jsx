@@ -53,7 +53,7 @@ function Carousel() {
             className="carousel-inner"
             style={{
             transform: `translateX(-${current * 100}%)`,
-            transition: transition ? "transform 0.8s ease-in-out" : "none"
+            transition: transition ? "transform 2.4s ease-in-out" : "none"
             }}
             onTransitionEnd={handleTransitionEnd}
         >
