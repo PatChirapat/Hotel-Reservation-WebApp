@@ -4,6 +4,7 @@ import "../ui/Home.css";
 import Navbar from '../components/Navbar';
 import Carousel from '../components/Carousel';
 import BookingBar from '../components/BookingBar';
+import Roomlist from '../components/Roomlist';
 
 function Home() {
     return (
@@ -11,6 +12,7 @@ function Home() {
             <Navbar />
             <Carousel />
             <BookingBar />
+            <Roomlist />
         </div>
     );
 }
