@@ -6,6 +6,7 @@ import Carousel from '../components/Carousel';
 import BookingBar from '../components/BookingBar';
 import Roomlist from '../components/Roomlist';
 import FacilityComp from '../components/FacilityComp';
+import Footer from '../components/Footer';
 
 function Home() {
     return (
@@ -15,6 +16,7 @@ function Home() {
             <BookingBar />
             <Roomlist />
             <FacilityComp />
+            <Footer />
         </div>
     );
 }
