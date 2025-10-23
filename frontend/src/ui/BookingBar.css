@@ -1,0 +1,119 @@
+.booking-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: white;
+    padding: 15px 25px;
+    margin-top: -10px; 
+    gap: 20px;
+    font-family: 'Optima', 'Segoe UI', sans-serif;
+}
+
+.booking-field {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+    min-width: 120px;
+}
+
+.booking-field label {
+    color: #b89a67;
+    font-size: 16px;
+    letter-spacing: 1px;
+}
+
+.booking-field input,
+.booking-field select {
+    border: none;
+    border-bottom: 2px solid #000;
+    font-size: 16px;
+    padding: 3px 0;
+    outline: none;
+    color: #203c3b;
+    background-color: transparent;
+    appearance: none;
+}
+
+.booking-field input[type="date"]::-webkit-inner-spin-button,
+.booking-field input[type="date"]::-webkit-calendar-picker-indicator {
+    filter: invert(40%);
+    opacity: 0.7;
+    cursor: pointer;
+}
+
+.booking-field input:hover,
+.booking-field select:hover {
+    border-bottom-color: #b89a67;
+}
+
+.book-btn {
+    background-color: #b89a67;
+    color: white;
+    border: none;
+    font-size: 16px;
+    padding: 25px 40px;
+    cursor: pointer;
+    letter-spacing: 2px;
+    transition: background-color 0.3s;
+}
+
+.book-btn:hover {
+    background-color: #423010;
+}
+
+/* 🔻 GUEST DROPDOWN STYLE */
+.guest-field {
+    position: relative;
+}
+
+.guest-display {
+    border-bottom: 2px solid #203c3b;
+    padding: 3px 0;
+    cursor: pointer;
+    color: #203c3b;
+    font-size: 16px;
+}
+
+.guest-dropdown {
+    position: absolute;
+    top: 60px;
+    left: 0;
+    background: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+    padding: 15px 20px;
+    border-radius: 8px;
+    z-index: 10;
+    width: 220px;
+}
+
+.guest-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.guest-row span {
+    color: #555;
+    font-size: 14px;
+}
+
+.guest-row select {
+    border: none;
+    border-bottom: 1.5px solid #203c3b;
+    font-size: 14px;
+    background-color: white; 
+    outline: none;
+    width: 60px;
+    color: #203c3b;
+}
+
+.guest-row select option {
+    background-color: white;
+    color: #203c3b;
+}
+
+.guest-row select option:hover {
+    background-color: #f2f2f2;
+}
