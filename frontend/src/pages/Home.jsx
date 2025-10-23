@@ -5,6 +5,7 @@ import Navbar from '../components/Navbar';
 import Carousel from '../components/Carousel';
 import BookingBar from '../components/BookingBar';
 import Roomlist from '../components/Roomlist';
+import FacilityComp from '../components/FacilityComp';
 
 function Home() {
     return (
@@ -13,6 +14,7 @@ function Home() {
             <Carousel />
             <BookingBar />
             <Roomlist />
+            <FacilityComp />
         </div>
     );
 }
