@@ -25,7 +25,7 @@ const rooms = [
 function Roomlist() {
     return (
         <section className="roomlist-section">
-            <h1 className="roomlist-title">Our Rooms</h1>
+            <h1 className="roomlist-title">Suites & Rooms</h1>
             <div className="roomlist">
                 {rooms.map((room) => (
                     <div key={room.id} className="room-card">
