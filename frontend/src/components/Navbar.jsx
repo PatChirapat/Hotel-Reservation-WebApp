@@ -5,13 +5,13 @@ import "../ui/Navbar.css";
 export default function Navbar() {
     return (
         <nav className="navbar">
-            <div className="navbar-upper">
+            <div className="navbar-left">
                 <Link to="/" className="navbar-logo">
                     <span>HOTEL ROOM</span>
                     <span>RESERVATION SYSTEM</span>
                 </Link>
             </div>
-            <div className="navbar-lower">
+            <div className="navbar-right">
                 <Link to="/" className="nav-link">Home</Link>
                 <Link to="/about" className="nav-link">About</Link>
                 <Link to="/rooms" className="nav-link">Rooms</Link>
@@ -21,4 +21,3 @@ export default function Navbar() {
         </nav>
     );
 }
-
