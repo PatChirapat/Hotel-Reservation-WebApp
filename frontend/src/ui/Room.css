@@ -1,13 +1,14 @@
 .room {
     font-family: 'Optima', 'URW Classico', 'Palatino Linotype', 'Book Antiqua', serif;
     color: #333;
-    background-color: #fafafa;
+    background-color: #fff;
     padding: 40px 100px;
 }
 
 .room h1 {
     text-align: center;
     font-size: 3rem;
+    font-weight: 400;
     margin-bottom: 0.5rem;
     color: #b89a67;
 }
@@ -26,6 +27,8 @@
     margin: 0 auto 60px;
     line-height: 1.7;
     color: #555;
+    font-size: 1rem;    
+    font-weight: 400; 
 }
 
 .room-list {
@@ -40,7 +43,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 50px;
-    background-color: #f8f8f6;
+    background-color: #fff;
     padding: 40px;
     border-radius: 10px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.05);
@@ -69,6 +72,7 @@
     bottom: 15px;
     left: 50%;
     transform: translateX(-50%);
+    background: transparent;
     display: flex;
     gap: 8px;
 }
@@ -88,6 +92,7 @@
 }
 
 .room-info {
+    background-color: #fff;
     width: 40%;
 }
 
@@ -95,11 +100,13 @@
     font-size: 1.8rem;
     color: #b89a67;
     margin-bottom: 1rem;
+    background-color: #fff;
 }
 
 .room-info p {
     line-height: 1.6;
     color: #444;
+    background-color: #fff;
     text-align: left;
     margin-bottom: 0.5rem;
 }

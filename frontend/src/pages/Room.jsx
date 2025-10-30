@@ -151,7 +151,7 @@ function Room() {
                 <h2>Luxury Accommodation in the City Centre</h2>
                 <p>
                     Overlooking vibrant Bangkok city, our newly renovated rooms and suites offer
-                    light-filled accommodation featuring pastel-hued silk embroidered bedheads
+                    light-filled accommodation <br />featuring pastel-hued silk embroidered bedheads
                     and custom-made furniture throughout.
                 </p>
 
