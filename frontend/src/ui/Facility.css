@@ -1,0 +1,107 @@
+.facility {
+    font-family: 'Optima', 'URW Classico', 'Palatino Linotype', 'Book Antiqua', serif;
+    color: #333;
+    background-color: #fff;
+    padding: 60px 100px;
+}
+
+.facility h1 {
+    text-align: center;
+    font-size: 3rem;
+    font-weight: 400;
+    margin-bottom: 0.5rem;
+    color: #b89a67;
+}
+
+.facility h2 {
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 400;
+    color: #666;
+    margin-bottom: 2.5rem;
+}
+
+.facility p {
+    text-align: center;
+    max-width: 850px;
+    margin: 0 auto 80px;
+    line-height: 1.8;
+    color: #555;
+    font-size: 1rem;
+}
+
+/* Facility list layout */
+.facility-list {
+    display: flex;
+    flex-direction: column;
+    gap: 120px;
+}
+
+/* Each section */
+.facility-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 50px;
+    background-color: #fff;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+}
+
+.facility-image-container {
+    flex: 1;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.facility-image {
+    width: 100%;
+    max-width: 600px;
+    height: 400px;
+    object-fit: cover;
+    border-radius: 15px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.1);
+}
+
+.image-dots {
+    position: absolute;
+    bottom: 15px;
+    display: flex;
+    gap: 8px;
+}
+
+.image-dots span {
+    width: 10px;
+    height: 10px;
+    background-color: #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.image-dots span.active {
+    background-color: #b89a67;
+}
+
+.facility-info {
+    flex: 1;
+    padding: 0 30px;
+}
+
+.facility-info h3 {
+    font-size: 1.8rem;
+    color: #b89a67;
+    margin-bottom: 1rem;
+}
+
+.facility-info p {
+    text-align: left;
+    color: #555;
+    font-size: 1rem;
+    line-height: 1.8;
+}
+
+
