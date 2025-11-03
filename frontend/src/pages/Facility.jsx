@@ -101,9 +101,13 @@ function Facility() {
                         const images = facility_list[facilityKey];
                         const imgIndex = currentImages[facilityKey];
                         return (
-                            <div className="facility-item">
+                            <div 
+                            className="facility-item" 
+                            id={detail.name.replace(/\s+/g, '').toLowerCase()}
+                            key={facilityKey}
+                            >
                                 <div className="facility-image-container">
-                                    <img src={images[imgIndex]} alt={detail.name} className="facility-image"/>
+                                    <img src={images[imgIndex]} alt={detail.name} className="facility-image" />
                                     <div className="image-dots">
                                         {images.map((_, index) => (
                                             <span
