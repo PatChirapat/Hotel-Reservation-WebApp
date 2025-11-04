@@ -2,9 +2,102 @@
     background-color: #fff;
     color: #b89a67;
     font-family: 'Optima', 'URW Classico', 'Palatino Linotype', 'Book Antiqua', serif;
-    height : 100vh;
     width: 100%;
-    margin: 0;
-    padding: 0;
     box-sizing: border-box;
 }
+
+.admin-content {
+    padding: 24px 40px;
+    margin: 0 auto;
+    background-color: #fff;
+    min-height: 70vh;
+    max-width: 1200px;
+}
+
+.admin-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.admin-header h1 {
+    font-size: 2.5rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #b89a67;
+}
+
+.admin-header p {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #666;
+}
+
+.admin-body {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 28px;
+    justify-content: center;
+    padding-top: 20px;
+}
+
+/* กล่องหลัก */
+.admin-link {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    width: 480px;
+    padding: 28px 32px;
+    background-color: #fff;
+    border: 1px solid #e6e6e6;
+    border-radius: 12px;
+    text-decoration: none;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    transition: all 0.25s ease;
+}
+
+.admin-link:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.admin-user-icon,
+.admin-room-icon,
+.admin-booking-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 12px;
+    background-color: #b89a67;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.admin-user-icon svg,
+.admin-room-icon svg,
+.admin-booking-icon svg {
+    width: 28px;
+    height: 28px;
+    stroke: #fff;
+}
+
+/* ข้อความ */
+.admin-user-txt h1,
+.admin-room-txt h1,
+.admin-booking-txt h1 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #666;
+    margin: 0 0 6px;
+}
+
+.admin-user-txt p,
+.admin-room-txt p,
+.admin-booking-txt p {
+    font-size: 0.95rem;
+    color: #555;
+    margin: 0;
+}
+
+
+
