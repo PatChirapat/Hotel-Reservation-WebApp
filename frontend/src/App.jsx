@@ -6,6 +6,7 @@ import Home from "./pages/Home";
 import Room from "./pages/Room";
 import Facility from "./pages/Facility";
 import Signin from "./pages/Signin";
+import Admin from "./pages/Admin";
 
 export default function App() {
   return (
@@ -18,6 +19,7 @@ export default function App() {
         <Route path="/contact" element={<div>Contact Page</div>} />
         <Route path="/booking" element={<div>Booking Page</div>} />
         <Route path="/signin" element={<Signin />} />
+        <Route path="/admin" element={<Admin />} />
       </Routes>
     </BrowserRouter>
   );
