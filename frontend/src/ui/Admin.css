@@ -40,7 +40,6 @@
     padding-top: 20px;
 }
 
-/* กล่องหลัก */
 .admin-link {
     display: flex;
     align-items: center;
@@ -81,7 +80,6 @@
     stroke: #fff;
 }
 
-/* ข้อความ */
 .admin-user-txt h1,
 .admin-room-txt h1,
 .admin-booking-txt h1 {
