@@ -99,21 +99,18 @@
     font-size: 14px;
 }
 
-.guest-row select {
+.guest-row input[type="number"] {
     border: none;
     border-bottom: 1.5px solid #203c3b;
     font-size: 14px;
-    background-color: white; 
+    background-color: white;
     outline: none;
     width: 60px;
     color: #203c3b;
+    text-align: center;
 }
 
-.guest-row select option {
-    background-color: white;
-    color: #203c3b;
+.guest-row input[type="number"]:hover {
+    border-bottom-color: #b89a67;
 }
 
-.guest-row select option:hover {
-    background-color: #f2f2f2;
-}
