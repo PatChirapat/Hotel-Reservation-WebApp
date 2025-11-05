@@ -18,7 +18,7 @@ function Admin(){
             <div className="admin-content">
                 <div className="admin-header">
                     <h1>Admin Dashboard</h1>
-                    <p>Welcome to the admin dashboard. Here you can manage users, rooms, and bookings.</p>
+                    <p>Welcome to the admin dashboard. Here you can manage users and bookings.</p>
                 </div>
                 <div className="admin-body">
                     <Link to="/admin/users" className="admin-link">
