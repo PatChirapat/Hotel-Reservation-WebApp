@@ -13,12 +13,20 @@ function BookingBar() {
         <div className="booking-bar">
         <div className="booking-field">
             <label>ARRIVAL</label>
-            <input type="date" defaultValue="2025-10-23" />
+            <input
+            type="date"
+            min={new Date().toISOString().split("T")[0]}
+            defaultValue={new Date().toISOString().split("T")[0]}
+            />
         </div>
 
         <div className="booking-field">
             <label>DEPARTURE</label>
-            <input type="date" defaultValue="2025-10-24" />
+            <input
+            type="date"
+            min={new Date(Date.now() + 86400000).toISOString().split("T")[0]}
+            defaultValue={new Date(Date.now() + 86400000).toISOString().split("T")[0]}
+            />
         </div>
 
         {/* GUESTS DROPDOWN */}
