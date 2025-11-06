@@ -9,6 +9,8 @@ import BookingBar from '../components/BookingBar';
 import Roomlist from '../components/Roomlist';
 import FacilityComp from '../components/FacilityComp';
 import Footer from '../components/Footer';
+import Reviews from '../components/Reviews';
+
 
 function Home() {
   const location = useLocation();
@@ -49,6 +51,10 @@ function Home() {
       {/* เมนู Facilities จะเลื่อนมาที่นี่ */}
       <section id="facilities">
         <FacilityComp />
+      </section>
+
+      <section id= "reviews">
+        <Reviews />
       </section>
 
       <Footer />

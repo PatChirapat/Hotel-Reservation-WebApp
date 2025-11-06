@@ -65,10 +65,17 @@ export default function Navbar() {
           Facilities
         </button>
 
+        <button type="button" className="nav-link" onClick={() => go("reviews")}>
+          Reviews
+        </button>
+
+
         {/* เมนูที่เป็นหน้าคนละ route ใช้ Link เหมือนเดิม */}
         <Link to="/booking" className="booking">
           Book Now
         </Link>
+
+
 
         <Link to="/signin" className="nav-link flex items-center gap-1">
           <svg
@@ -90,3 +97,4 @@ export default function Navbar() {
     </nav>
   );
 }
+
