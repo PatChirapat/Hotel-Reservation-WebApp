@@ -6,6 +6,9 @@ import Home from "./pages/Home";
 import Room from "./pages/Room";
 import Facility from "./pages/Facility";
 import Signin from "./pages/Signin";
+import Admin from "./pages/Admin";
+import AdminUser from "./pages/AdminUser";
+import AdminBooking from "./pages/AdminBooking";
 import Booking from "./pages/Booking";
 
 export default function App() {
@@ -19,6 +22,9 @@ export default function App() {
         <Route path="/contact" element={<div>Contact Page</div>} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/signin" element={<Signin />} />
+        <Route path="/admin" element={<Admin />} />
+        <Route path="/admin/users" element={<AdminUser />} />
+        <Route path="/admin/bookings" element={<AdminBooking />} />
       </Routes>
     </BrowserRouter>
   );
