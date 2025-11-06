@@ -31,6 +31,7 @@ export default function Footer() {
                 <li><a href="#" className="footer-link">Rooms & Suites</a></li>
                 <li><a href="#" className="footer-link">Book Now</a></li>
                 <li><a href="#" className="footer-link">Facilities</a></li>
+                <li><a href="#" className="footer-link">Reviews</a></li>
                 <li><a href="#" className="footer-link">Contact Us</a></li>
             </ul>
             </div>
