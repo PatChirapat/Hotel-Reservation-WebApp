@@ -64,3 +64,28 @@
 .booking-confirmation tr:hover {
     background-color: #f2f2f2;
 }
+
+.booking-confirmation-button{
+    color: white;
+    padding: auto;
+    margin-top: 10%;
+    text-align: right;
+
+}
+.Up-button{
+    background-color: #b89a67;
+    padding: 8px 16px;
+    margin-right: 10px;
+    border-radius: 10px;
+    border: solid 1px #b89a67;
+}
+.Del-button{
+    background-color:#f5f5f5;
+    padding: 8px 16px;
+    border-radius: 10px;
+    color: #b89a67;
+    border: solid 1px #b89a67;
+}
+
+
+

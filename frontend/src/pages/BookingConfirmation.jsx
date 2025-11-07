@@ -46,6 +46,11 @@ function BookingConfirmation() {
                                 ))}
                             </tbody> */}
                         </table>
+
+                        <div className="booking-confirmation-button">
+                                <button className="Up-button">Update</button>
+                                <button className="Del-button">Delete</button>
+                        </div>
                     </div>
                 </div>
                 
