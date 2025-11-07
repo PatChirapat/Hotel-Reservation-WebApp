@@ -124,14 +124,14 @@
 
 .change-photo-text {
   margin-top: 8px;
-  color: #000;        /* สีดำธรรมดา */
-  font-weight: normal; /* ไม่หนา */
+  color: #000;        
+  font-weight: normal; 
   cursor: pointer; 
   display: inline-block;
   transition: 0.25s;
 }
 
 .change-photo-text:hover {
-  color: #333;         /* hover มืดขึ้นนิดเดียว */
+  color: #333;        
   text-decoration: underline;
 }
