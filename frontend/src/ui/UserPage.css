@@ -1,0 +1,137 @@
+.userpage { background:#fff; min-height:100vh; display:flex; flex-direction:column; }
+.user-container { width:min(1100px, 92%); margin:40px auto 60px; }
+
+.user-header { margin-bottom:18px; }
+.header-line { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.title-side h1 { margin:0 0 4px; }
+.muted { color:#777; font-size:.95rem; }
+
+.stats-row {
+  display:grid; grid-template-columns: repeat(4, minmax(0,1fr));
+  gap:12px; margin-top:14px;
+}
+.stat { border:1px solid #eee; border-radius:12px; padding:12px; background:#fff; }
+.stat-title { color:#555; font-weight:600; margin-bottom:6px; }
+.stat-value { font-size:1.25rem; font-weight:800; color:#333; }
+
+.tier-badge {
+  display:inline-flex; align-items:center;
+  padding:6px 12px; border-radius:999px; font-weight:700; letter-spacing:.3px;
+  border:1px solid transparent;
+}
+.tier-badge.silver { color:#6f6f6f; background:#fafafa; border-color:#d9d9d9; }
+.tier-badge.gold { color:#B89A67; background:#fffaf0; border-color:#eed9b6; }
+.tier-badge.platinum { color:#5a6470; background:#f7f9fb; border-color:#dfe6ee; }
+
+.user-tabs { display:flex; align-items:center; gap:10px; margin:18px 0; }
+.tab {
+  border:1px solid #ddd; background:#fff; padding:8px 14px; border-radius:8px; cursor:pointer;
+  font-weight:600;
+}
+.tab.active { border-color:#B89A67; color:#B89A67; }
+.spacer { flex:1; }
+.to-home { border:1px solid #ddd; background:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
+
+.panel { border:1px solid #eee; border-radius:14px; background:#fff; padding:18px; }
+.gold { color:#B89A67; }
+
+.form-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
+.field { display:flex; flex-direction:column; gap:6px; }
+.field label { font-weight:600; color:#333; }
+.field input { border:1px solid #ddd; border-radius:8px; padding:10px 12px; outline:none; background:#fafafa; }
+
+.table { width:100%; overflow:auto; border:1px solid #eee; border-radius:10px; margin-top:10px; }
+.thead, .trow {
+  display:grid; grid-template-columns: 80px 1fr 140px 140px 140px 140px;
+  gap:12px; padding:10px 12px;
+}
+.thead { background:#fafafa; font-weight:700; color:#444; }
+.trow { border-top:1px solid #f0f0f0; }
+
+.user-error { background:#ffecec; color:#a12626; border:1px solid #f1c4c4; padding:10px 12px; border-radius:8px; margin:10px 0; }
+.userpage-loading { padding:40px; text-align:center; color:#555; }
+
+@media (max-width: 960px) {
+  .stats-row { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .form-grid { grid-template-columns: 1fr; }
+  .thead, .trow { grid-template-columns: 70px 1fr 120px 120px 120px 140px; }
+}
+@media (max-width: 640px) {
+  .thead, .trow { grid-template-columns: 60px 1fr 100px 100px 100px 120px; gap:8px; }
+}
+.photo-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.upload-btn, .reset-btn {
+  background: #B89A67;
+  padding: 6px 12px;
+  border-radius: 6px;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+  border: none;
+  transition: .2s;
+}
+
+.reset-btn {
+  background: #6f6f6f;
+}
+
+.upload-btn:hover {
+  background: #8b6f45;
+}
+
+.reset-btn:hover {
+  background: #555;
+}
+
+.profile-photo {
+  width: 120px;
+  height: 120px;
+  border-radius: 10px;     
+  object-fit: cover;
+  border: 3px solid #B89A67;
+  background: #fff;
+  transition: 0.3s ease;
+}
+
+.profile-photo-box {
+  text-align: center;
+  margin-bottom: 20px;
+
+  display: flex;
+  flex-direction: column;      
+  justify-content: center;     
+  align-items: center;         
+}
+
+.gold-btn {
+  background: #B89A67;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+.gold-btn:hover {
+  background: #8b6f45;
+}
+
+.change-photo-text {
+  margin-top: 8px;
+  color: #000;        /* สีดำธรรมดา */
+  font-weight: normal; /* ไม่หนา */
+  cursor: pointer; 
+  display: inline-block;
+  transition: 0.25s;
+}
+
+.change-photo-text:hover {
+  color: #333;         /* hover มืดขึ้นนิดเดียว */
+  text-decoration: underline;
+}
