@@ -6,6 +6,7 @@ import "../ui/Home.css";
 import Navbar from '../components/Navbar';
 import Carousel from '../components/Carousel';
 import BookingBar from '../components/BookingBar';
+import About from '../components/About';
 import Roomlist from '../components/Roomlist';
 import FacilityComp from '../components/FacilityComp';
 import Footer from '../components/Footer';
@@ -33,27 +34,24 @@ function Home() {
   return (
     <div className="home-container">
       <Navbar />
-
-      {/* หมุดให้เมนู "Home" เลื่อนมาบนสุด */}
-      <div id="home" />
-
-      {/* ถ้ามี About อยู่ในหน้านี้ สามารถเลื่อนได้ด้วยการวางหมุดไว้ก่อนคอมโพเนนต์/บล็อกที่ต้องการ */}
-      <div id="about" />
+      <div id="home"></div>
 
       <Carousel />
       <BookingBar />
 
-      {/* เมนู Rooms & Suites จะเลื่อนมาที่นี่ */}
+      <section id="about">
+        <About />
+      </section>
+
       <section id="rooms">
         <Roomlist />
       </section>
 
-      {/* เมนู Facilities จะเลื่อนมาที่นี่ */}
       <section id="facilities">
         <FacilityComp />
       </section>
 
-      <section id= "reviews">
+      <section id="reviews">
         <Reviews />
       </section>
 
