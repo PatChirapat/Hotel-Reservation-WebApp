@@ -11,16 +11,7 @@ function AdminUser() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [toastMessage, setToastMessage] = useState("");
-
-    const [showAddPUD, setShowAddPUD] = useState(false);
-    const [newUser, setNewUser] = useState({
-        first_name: "",
-        last_name: "",
-        phone: "",
-        username: "",
-        email: "",
-        tier: "SILVER",
-    });
+    
 
     const apiBase = import.meta.env.VITE_API_URL;
 
@@ -80,6 +71,17 @@ function AdminUser() {
         setFilteredUsers(filtered);
     };
 
+    // ADD
+    const [showAddPUD, setShowAddPUD] = useState(false);
+    const [newUser, setNewUser] = useState({
+        first_name: "",
+        last_name: "",
+        phone: "",
+        username: "",
+        email: "",
+        tier: "SILVER",
+    });
+
     const handleAddUser = () => setShowAddPUD(true);
 
     const handleInputChange = (e) => {
@@ -113,6 +115,55 @@ function AdminUser() {
             setTimeout(() => setToastMessage(""), 3000);
         }
     };
+
+    // EDIT
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [editField, setEditField] = useState("");
+    const [newValue, setNewValue] = useState("");
+
+    const handleEditClick = (user) => {
+        setSelectedUser(user);
+        setEditField("");
+        setNewValue("");
+        setShowEditModal(true);
+    };
+
+    const handleFieldChange = (e) => {
+        const field = e.target.value;
+        setEditField(field);
+        setNewValue(selectedUser ? selectedUser[field] || "" : "");
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        if (!editField) {
+            setToastMessage("Please select a field to edit.");
+            setTimeout(() => setToastMessage(""), 2000);
+            return;
+        }
+
+        try {
+            const res = await axios.post(`${apiBase}/Admin/editUser.php`, {
+                member_id: selectedUser.member_id,
+                field: editField,
+                value: newValue,
+            });
+            if (res.data.success) {
+                setToastMessage("User updated successfully!");
+                setTimeout(() => setToastMessage(""), 2500);
+                setShowEditModal(false);
+                fetchUsers();
+            } else {
+                setToastMessage("Failed: " + res.data.message);
+                setTimeout(() => setToastMessage(""), 2500);
+            }
+        } catch (err) {
+            setToastMessage("Error updating user: " + err.message);
+            setTimeout(() => setToastMessage(""), 3000);
+        }
+    };
+
 
     return (
         <div className="adminUser">
@@ -176,7 +227,7 @@ function AdminUser() {
                                             <td>{user.tier}</td>
                                             <td>{user.join_date}</td>
                                             <td className="actions">
-                                                <button className="edit-btn">{EditIcon}</button>
+                                                <button className="edit-btn" onClick={() => handleEditClick(user)}>{EditIcon}</button>
                                                 <button className="delete-btn">{DeleteIcon}</button>
                                             </td>
                                         </tr>
@@ -215,6 +266,62 @@ function AdminUser() {
                     </div>
                 </div>
             )}
+            {showEditModal && selectedUser && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Edit User (ID: {selectedUser.member_id})</h2>
+                        <form onSubmit={handleEditSubmit} className="add-user-form">
+                            <label>Select field to edit</label>
+                            <select value={editField} onChange={handleFieldChange} required>
+                                <option value="">-- Select field --</option>
+                                <option value="username">Username</option>
+                                <option value="first_name">First Name</option>
+                                <option value="last_name">Last Name</option>
+                                <option value="phone">Phone</option>
+                                <option value="email">Email</option>
+                                <option value="tier">Tier</option>
+                            </select>
+
+                            {editField && (
+                                <>
+                                    <label>Old Value</label>
+                                    <input
+                                        type="text"
+                                        value={selectedUser[editField] || ""}
+                                        readOnly
+                                    />
+
+                                    <label>New Value</label>
+                                    {editField === "tier" ? (
+                                    <select
+                                        value={newValue}
+                                        onChange={(e) => setNewValue(e.target.value)}
+                                        required
+                                    >
+                                        <option value="SILVER">SILVER</option>
+                                        <option value="GOLD">GOLD</option>
+                                        <option value="PLATINUM">PLATINUM</option>
+                                    </select>
+                                ) : (
+                                    <input
+                                        type="text"
+                                        value={newValue}
+                                        onChange={(e) => setNewValue(e.target.value)}
+                                        required
+                                    />
+                                )}
+                                </>
+                            )}
+
+                            <div className="modal-buttons">
+                                <button type="submit" className="save-btn">Save</button>
+                                <button type="button" className="cancel-btn" onClick={() => setShowEditModal(false)}>Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
