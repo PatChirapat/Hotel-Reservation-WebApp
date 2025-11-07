@@ -11,6 +11,7 @@ import AdminUser from "./pages/AdminUser";
 import AdminBooking from "./pages/AdminBooking";
 import Booking from "./pages/Booking";
 import UserPage from "./pages/UserPage";
+import ConfirmBooking from "./pages/ConfirmBooking";
 
 export default function App() {
   return (
@@ -29,6 +30,7 @@ export default function App() {
         <Route path="/admin" element={<Admin />} />
         <Route path="/admin/users" element={<AdminUser />} />
         <Route path="/admin/bookings" element={<AdminBooking />} />
+        <Route path="/confirm" element={<ConfirmBooking />} />
 
       </Routes>
     </BrowserRouter>
