@@ -5,14 +5,6 @@ import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 
 function AdminUser() {
-    const [users, setUsers] = useState([]);
-    const [filteredUsers, setFilteredUsers] = useState([]);
-    const [searchTerm, setSearchTerm] = useState("");
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
-    const [toastMessage, setToastMessage] = useState("");
-    
-
     const apiBase = import.meta.env.VITE_API_URL;
 
     const EditIcon = (
@@ -32,6 +24,15 @@ function AdminUser() {
         <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
     );
+
+    const [users, setUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [searchTerm, setSearchTerm] = useState("");
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [toastMessage, setToastMessage] = useState("");
+
+    //VIEW
 
     const fetchUsers = async () => {
         try {
@@ -167,6 +168,37 @@ function AdminUser() {
         }
     };
 
+    // DELETE
+    const [showDelModal, setShowDelModal] = useState(false);
+    const [delUser, setDelUser] = useState(null);
+
+    const handleDelClick = (user) => {
+        setShowDelModal(true);
+        setDelUser(user);
+    };
+
+    const handleConfirmDelete = async () => {
+        try {
+            const res = await axios.post(`${apiBase}/Admin/deleteUser.php`, {
+                member_id: delUser.member_id,
+            });
+            if (res.data.success) {
+                setToastMessage("User deleted successfully!");
+                setTimeout(() => setToastMessage(""), 2500);
+                setShowDelModal(false);
+                setDelUser(null);
+                fetchUsers();
+            } 
+            else {
+                setToastMessage("Failed: " + res.data.message);
+                setTimeout(() => setToastMessage(""), 2500);
+            }
+        } 
+        catch (err) {
+            setToastMessage("Error deleting user: " + err.message);
+            setTimeout(() => setToastMessage(""), 3000);
+        }
+    };
 
     return (
         <div className="adminUser">
@@ -207,7 +239,7 @@ function AdminUser() {
                             <table className="user-table">
                                 <thead>
                                     <tr>
-                                        <th>ID</th>
+                                        {/* <th>ID</th> */}
                                         <th>Username</th>
                                         <th>First Name</th>
                                         <th>Last Name</th>
@@ -221,7 +253,7 @@ function AdminUser() {
                                 <tbody>
                                     {filteredUsers.map((user) => (
                                         <tr key={user.member_id}>
-                                            <td>{user.member_id}</td>
+                                            {/* <td>{user.member_id}</td> */}
                                             <td>{user.username}</td>
                                             <td>{user.first_name}</td>
                                             <td>{user.last_name}</td>
@@ -231,7 +263,7 @@ function AdminUser() {
                                             <td>{user.join_date}</td>
                                             <td className="actions">
                                                 <button className="edit-btn" onClick={() => handleEditClick(user)}>{EditIcon}</button>
-                                                <button className="delete-btn">{DeleteIcon}</button>
+                                                <button className="delete-btn" onClick={() => handleDelClick(user)}>{DeleteIcon}</button>
                                             </td>
                                         </tr>
                                     ))}
@@ -317,14 +349,28 @@ function AdminUser() {
                             )}
 
                             <div className="modal-buttons">
-                                <button type="submit" className="save-btn">Save</button>
+                                <button type="submit" className="save-btn" >Save</button>
                                 <button type="button" className="cancel-btn" onClick={() => setShowEditModal(false)}>Cancel</button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-
+            {showDelModal && delUser &&(
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Confirm Delete</h2>
+                        <p className="del-p">
+                            Are you sure you want to delete user <br />
+                            <strong>{delUser.username}</strong>?
+                        </p>
+                        <div className="modal-buttons del">
+                            <button className="del-save-btn" onClick={handleConfirmDelete}>Confirm, Delete</button>
+                            <button className="del-cancel-btn" onClick={() => setShowDelModal(false)}>Cancel</button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }
