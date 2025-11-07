@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import "../ui/Booking.css";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
+import axios from "axios";
+
 
 function Booking() {
     const location = useLocation();
@@ -121,6 +123,40 @@ function Booking() {
         }
     }, [totalGuests, totalCapacity, selectedRooms]);
 
+    const apiBase = import.meta.env.VITE_API_URL;
+
+    // Booking details to send to backend
+    //booking confirm function
+    const handleConfirm = async () => {
+  try {
+    // ตัวอย่างข้อมูลที่ส่งไป backend
+    const bookingData = {
+      member_id: 12, // เปลี่ยนตามระบบ login ของคุณ
+      phone_entered: "0636975829", // หรือรับจาก user input
+      checkin_date: checkin,
+      checkout_date: checkout,
+      guest_count: totalGuests,
+      subtotal_amount: totalPrice,
+      discount_amount: 0,
+      total_amount: totalPrice,
+    };
+
+    // เรียกใช้ API (POST)
+    const res = await axios.post(`${apiBase}/Booking/addBooking.php`, bookingData, {
+      headers: { "Content-Type": "application/json" },
+    });
+
+    if (res.data.success) {
+      alert("✅ Booking created successfully! Booking ID: " + res.data.booking_id);
+    } else {
+      alert("❌ Error: " + res.data.message);
+    }
+    } catch (err) {
+    console.error("Error:", err);
+    alert("⚠️ Failed to connect to backend. Please check your PHP path or server.");
+        }
+    };
+
     return (
         <div className="booking-page">
         <Navbar />
@@ -233,12 +269,18 @@ function Booking() {
             <p>Nights: {nights}</p>
             <p>Total Price: THB {totalPrice.toLocaleString()}</p>
             {warning && <p className="warning-text">{warning}</p>}
+            
+            {/* /* Confirm Button */ }
+
+            <Link to = "/BookingConfirmation">
             <button
                 className="confirm-btn"
                 disabled={totalGuests > totalCapacity}
+                onClick={handleConfirm}
             >
                 Confirm Booking
             </button>
+            </Link>
             </div>
         </div>
         <Footer />
