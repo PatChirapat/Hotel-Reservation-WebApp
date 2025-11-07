@@ -80,6 +80,23 @@
     transition: background-color 1s ease-in-out;
 }
 
+.auth-area {
+  display: flex;
+  align-items: center;
+  gap: 20px; /* ระยะระหว่างชื่อกับ Logout */
+}
 
+.user-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* ระยะระหว่าง Hi, กับชื่อ */
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.username {
+  font-weight: 600;
+  letter-spacing: 0.2px;
+}
 
 

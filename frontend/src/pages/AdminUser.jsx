@@ -11,15 +11,7 @@ function AdminUser() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [toastMessage, setToastMessage] = useState("");
-
-    const [showAddPUD, setShowAddPUD] = useState(false);
-    const [newUser, setNewUser] = useState({
-        first_name: "",
-        last_name: "",
-        phone: "",
-        email: "",
-        tier: "SILVER",
-    });
+    
 
     const apiBase = import.meta.env.VITE_API_URL;
 
@@ -75,11 +67,23 @@ function AdminUser() {
             u.first_name.toLowerCase().includes(value) ||
             u.last_name.toLowerCase().includes(value) ||
             u.phone.includes(value) ||
-            u.email.toLowerCase().includes(value) ||
+            (u.username && u.username.toLowerCase().includes(value)) ||
+            (u.email && u.email.toLowerCase().includes(value)) ||
             u.tier.toLowerCase().includes(value)
         );
         setFilteredUsers(filtered);
     };
+
+    // ADD
+    const [showAddPUD, setShowAddPUD] = useState(false);
+    const [newUser, setNewUser] = useState({
+        first_name: "",
+        last_name: "",
+        phone: "",
+        username: "",
+        email: "",
+        tier: "SILVER",
+    });
 
     const handleAddUser = () => setShowAddPUD(true);
 
@@ -91,30 +95,86 @@ function AdminUser() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-        const res = await axios.post(`${apiBase}/Admin/addUser.php`, newUser);
-        if (res.data.success) {
-            setToastMessage("User added successfully!");
-            setTimeout(() => setToastMessage(""), 2500);
-            setShowAddPUD(false);
-            setNewUser({ first_name: "", last_name: "", phone: "", email: "", tier: "SILVER" });
-            fetchUsers();
-        } else {
-            setToastMessage("Failed: " + res.data.message);
-            setTimeout(() => setToastMessage(""), 2500);
-        }
+            const res = await axios.post(`${apiBase}/Admin/addUser.php`, newUser);
+            if (res.data.success) {
+                setToastMessage("User added successfully!");
+                setTimeout(() => setToastMessage(""), 2500);
+                setShowAddPUD(false);
+                setNewUser({
+                    first_name: "",
+                    last_name: "",
+                    phone: "",
+                    username: "",
+                    email: "",
+                    tier: "SILVER",
+                });
+                fetchUsers();
+            } else {
+                setToastMessage("Failed: " + res.data.message);
+                setTimeout(() => setToastMessage(""), 2500);
+            }
         } catch (err) {
-        setToastMessage("Error adding user: " + err.message);
-        setTimeout(() => setToastMessage(""), 3000);
+            setToastMessage("Error adding user: " + err.message);
+            setTimeout(() => setToastMessage(""), 3000);
         }
     };
+
+    // EDIT
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [editField, setEditField] = useState("");
+    const [newValue, setNewValue] = useState("");
+
+    const handleEditClick = (user) => {
+        setSelectedUser(user);
+        setEditField("");
+        setNewValue("");
+        setShowEditModal(true);
+    };
+
+    const handleFieldChange = (e) => {
+        const field = e.target.value;
+        setEditField(field);
+        setNewValue(selectedUser ? selectedUser[field] || "" : "");
+    };
+
+    const handleEditSubmit = async (e) => {
+        e.preventDefault();
+        if (!editField) {
+            setToastMessage("Please select a field to edit.");
+            setTimeout(() => setToastMessage(""), 2000);
+            return;
+        }
+
+        try {
+            const res = await axios.post(`${apiBase}/Admin/editUser.php`, {
+                member_id: selectedUser.member_id,
+                field: editField,
+                value: newValue,
+            });
+            if (res.data.success) {
+                setToastMessage("User updated successfully!");
+                setTimeout(() => setToastMessage(""), 2500);
+                setShowEditModal(false);
+                fetchUsers();
+            } else {
+                setToastMessage("Failed: " + res.data.message);
+                setTimeout(() => setToastMessage(""), 2500);
+            }
+        } catch (err) {
+            setToastMessage("Error updating user: " + err.message);
+            setTimeout(() => setToastMessage(""), 3000);
+        }
+    };
+
 
     return (
         <div className="adminUser">
             <Navbar />
             {loading && (
                 <div className="loading-overlay">
-                <div className="spinner"></div>
-                <p>Loading users...</p>
+                    <div className="spinner"></div>
+                    <p>Loading users...</p>
                 </div>
             )}
             {toastMessage && <div className="toast-message">{toastMessage}</div>}
@@ -142,43 +202,45 @@ function AdminUser() {
                 </div>
 
                 <div className="adminUser-body">
-                {!loading && !error && (
-                    Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
-                    <table className="user-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Tier</th>
-                                <th>Join Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {filteredUsers.map((user) => (
-                            <tr key={user.member_id}>
-                                <td>{user.member_id}</td>
-                                <td>{user.first_name}</td>
-                                <td>{user.last_name}</td>
-                                <td>{user.phone}</td>
-                                <td>{user.email}</td>
-                                <td>{user.tier}</td>
-                                <td>{user.join_date}</td>
-                                <td className="actions">
-                                    <button className="edit-btn">{EditIcon}</button>
-                                    <button className="delete-btn">{DeleteIcon}</button>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                    ) : (
-                    <p>Users Not found.</p>
-                    )
-                )}
+                    {!loading && !error && (
+                        Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
+                            <table className="user-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Tier</th>
+                                        <th>Join Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredUsers.map((user) => (
+                                        <tr key={user.member_id}>
+                                            <td>{user.member_id}</td>
+                                            <td>{user.username}</td>
+                                            <td>{user.first_name}</td>
+                                            <td>{user.last_name}</td>
+                                            <td>{user.phone}</td>
+                                            <td>{user.email}</td>
+                                            <td>{user.tier}</td>
+                                            <td>{user.join_date}</td>
+                                            <td className="actions">
+                                                <button className="edit-btn" onClick={() => handleEditClick(user)}>{EditIcon}</button>
+                                                <button className="delete-btn">{DeleteIcon}</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p>Users Not found.</p>
+                        )
+                    )}
                 </div>
             </div>
             <Footer />
@@ -188,10 +250,11 @@ function AdminUser() {
                     <div className="modal-content">
                         <h2>Add New User</h2>
                         <form onSubmit={handleSubmit} className="add-user-form">
+                            <input name="username" placeholder="Username" value={newUser.username} onChange={handleInputChange} required />
                             <input name="first_name" placeholder="First Name" value={newUser.first_name} onChange={handleInputChange} required />
                             <input name="last_name" placeholder="Last Name" value={newUser.last_name} onChange={handleInputChange} required />
                             <input name="phone" placeholder="Phone Number" value={newUser.phone} onChange={handleInputChange} required />
-                            <input type="email" name="email" placeholder="Email" value={newUser.email} onChange={handleInputChange} required />
+                            <input type="email" name="email" placeholder="Email" value={newUser.email} onChange={handleInputChange} />
                             <select name="tier" value={newUser.tier} onChange={handleInputChange}>
                                 <option value="SILVER">SILVER</option>
                                 <option value="GOLD">GOLD</option>
@@ -206,6 +269,62 @@ function AdminUser() {
                     </div>
                 </div>
             )}
+            {showEditModal && selectedUser && (
+                <div className="modal-overlay">
+                    <div className="modal-content">
+                        <h2>Edit User (ID: {selectedUser.member_id})</h2>
+                        <form onSubmit={handleEditSubmit} className="add-user-form">
+                            <label>Select field to edit</label>
+                            <select value={editField} onChange={handleFieldChange} required>
+                                <option value="">-- Select field --</option>
+                                <option value="username">Username</option>
+                                <option value="first_name">First Name</option>
+                                <option value="last_name">Last Name</option>
+                                <option value="phone">Phone</option>
+                                <option value="email">Email</option>
+                                <option value="tier">Tier</option>
+                            </select>
+
+                            {editField && (
+                                <>
+                                    <label>Old Value</label>
+                                    <input
+                                        type="text"
+                                        value={selectedUser[editField] || ""}
+                                        readOnly
+                                    />
+
+                                    <label>New Value</label>
+                                    {editField === "tier" ? (
+                                    <select
+                                        value={newValue}
+                                        onChange={(e) => setNewValue(e.target.value)}
+                                        required
+                                    >
+                                        <option value="SILVER">SILVER</option>
+                                        <option value="GOLD">GOLD</option>
+                                        <option value="PLATINUM">PLATINUM</option>
+                                    </select>
+                                ) : (
+                                    <input
+                                        type="text"
+                                        value={newValue}
+                                        onChange={(e) => setNewValue(e.target.value)}
+                                        required
+                                    />
+                                )}
+                                </>
+                            )}
+
+                            <div className="modal-buttons">
+                                <button type="submit" className="save-btn">Save</button>
+                                <button type="button" className="cancel-btn" onClick={() => setShowEditModal(false)}>Cancel</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 }
