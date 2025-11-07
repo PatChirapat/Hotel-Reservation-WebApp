@@ -17,6 +17,7 @@ function AdminUser() {
         first_name: "",
         last_name: "",
         phone: "",
+        username: "",
         email: "",
         tier: "SILVER",
     });
@@ -25,37 +26,34 @@ function AdminUser() {
 
     const EditIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
         </svg>
     );
 
     const DeleteIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
         </svg>
     );
 
     const AddIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+            <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
     );
 
     const fetchUsers = async () => {
         try {
-        const res = await axios.get(`${apiBase}/Admin/viewUser.php`);
-        if (Array.isArray(res.data)) {
-            setUsers(res.data);
-            setFilteredUsers(res.data);
-        } 
-        else {
-            setUsers([]);
-            setFilteredUsers([]);
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        } 
-        catch (err) {
+            const res = await axios.get(`${apiBase}/Admin/viewUser.php`);
+            if (Array.isArray(res.data)) {
+                setUsers(res.data);
+                setFilteredUsers(res.data);
+            } else {
+                setUsers([]);
+                setFilteredUsers([]);
+            }
+            await new Promise((resolve) => setTimeout(resolve, 800));
+        } catch (err) {
             console.error("Error fetching users:", err);
             setError("Failed to fetch users");
         } 
@@ -75,7 +73,8 @@ function AdminUser() {
             u.first_name.toLowerCase().includes(value) ||
             u.last_name.toLowerCase().includes(value) ||
             u.phone.includes(value) ||
-            u.email.toLowerCase().includes(value) ||
+            (u.username && u.username.toLowerCase().includes(value)) ||
+            (u.email && u.email.toLowerCase().includes(value)) ||
             u.tier.toLowerCase().includes(value)
         );
         setFilteredUsers(filtered);
@@ -91,20 +90,27 @@ function AdminUser() {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-        const res = await axios.post(`${apiBase}/Admin/addUser.php`, newUser);
-        if (res.data.success) {
-            setToastMessage("User added successfully!");
-            setTimeout(() => setToastMessage(""), 2500);
-            setShowAddPUD(false);
-            setNewUser({ first_name: "", last_name: "", phone: "", email: "", tier: "SILVER" });
-            fetchUsers();
-        } else {
-            setToastMessage("Failed: " + res.data.message);
-            setTimeout(() => setToastMessage(""), 2500);
-        }
+            const res = await axios.post(`${apiBase}/Admin/addUser.php`, newUser);
+            if (res.data.success) {
+                setToastMessage("User added successfully!");
+                setTimeout(() => setToastMessage(""), 2500);
+                setShowAddPUD(false);
+                setNewUser({
+                    first_name: "",
+                    last_name: "",
+                    phone: "",
+                    username: "",
+                    email: "",
+                    tier: "SILVER",
+                });
+                fetchUsers();
+            } else {
+                setToastMessage("Failed: " + res.data.message);
+                setTimeout(() => setToastMessage(""), 2500);
+            }
         } catch (err) {
-        setToastMessage("Error adding user: " + err.message);
-        setTimeout(() => setToastMessage(""), 3000);
+            setToastMessage("Error adding user: " + err.message);
+            setTimeout(() => setToastMessage(""), 3000);
         }
     };
 
@@ -113,8 +119,8 @@ function AdminUser() {
             <Navbar />
             {loading && (
                 <div className="loading-overlay">
-                <div className="spinner"></div>
-                <p>Loading users...</p>
+                    <div className="spinner"></div>
+                    <p>Loading users...</p>
                 </div>
             )}
             {toastMessage && <div className="toast-message">{toastMessage}</div>}
@@ -122,17 +128,17 @@ function AdminUser() {
             <div className="adminUser-content">
                 <div className="adminUser-header">
                     <h1>Hotel User Dashboard</h1>
-                    <p>Keep track of your hotel's users with simple and powerful management tools.</p>
+                    <p>Manage hotel members and user accounts efficiently.</p>
                 </div>
 
                 <div className="adminUser-controls">
                     <div className="search-container">
                         <input
-                        type="text"
-                        placeholder="Search users..."
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        className="search-input"
+                            type="text"
+                            placeholder="Search users..."
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="search-input"
                         />
                     </div>
                     <button className="add-btn" onClick={handleAddUser}>
@@ -142,43 +148,45 @@ function AdminUser() {
                 </div>
 
                 <div className="adminUser-body">
-                {!loading && !error && (
-                    Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
-                    <table className="user-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>First Name</th>
-                                <th>Last Name</th>
-                                <th>Phone</th>
-                                <th>Email</th>
-                                <th>Tier</th>
-                                <th>Join Date</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        {filteredUsers.map((user) => (
-                            <tr key={user.member_id}>
-                                <td>{user.member_id}</td>
-                                <td>{user.first_name}</td>
-                                <td>{user.last_name}</td>
-                                <td>{user.phone}</td>
-                                <td>{user.email}</td>
-                                <td>{user.tier}</td>
-                                <td>{user.join_date}</td>
-                                <td className="actions">
-                                    <button className="edit-btn">{EditIcon}</button>
-                                    <button className="delete-btn">{DeleteIcon}</button>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                    ) : (
-                    <p>Users Not found.</p>
-                    )
-                )}
+                    {!loading && !error && (
+                        Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
+                            <table className="user-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>First Name</th>
+                                        <th>Last Name</th>
+                                        <th>Phone</th>
+                                        <th>Email</th>
+                                        <th>Tier</th>
+                                        <th>Join Date</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {filteredUsers.map((user) => (
+                                        <tr key={user.member_id}>
+                                            <td>{user.member_id}</td>
+                                            <td>{user.username}</td>
+                                            <td>{user.first_name}</td>
+                                            <td>{user.last_name}</td>
+                                            <td>{user.phone}</td>
+                                            <td>{user.email}</td>
+                                            <td>{user.tier}</td>
+                                            <td>{user.join_date}</td>
+                                            <td className="actions">
+                                                <button className="edit-btn">{EditIcon}</button>
+                                                <button className="delete-btn">{DeleteIcon}</button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        ) : (
+                            <p>Users Not found.</p>
+                        )
+                    )}
                 </div>
             </div>
             <Footer />
@@ -188,10 +196,11 @@ function AdminUser() {
                     <div className="modal-content">
                         <h2>Add New User</h2>
                         <form onSubmit={handleSubmit} className="add-user-form">
+                            <input name="username" placeholder="Username" value={newUser.username} onChange={handleInputChange} required />
                             <input name="first_name" placeholder="First Name" value={newUser.first_name} onChange={handleInputChange} required />
                             <input name="last_name" placeholder="Last Name" value={newUser.last_name} onChange={handleInputChange} required />
                             <input name="phone" placeholder="Phone Number" value={newUser.phone} onChange={handleInputChange} required />
-                            <input type="email" name="email" placeholder="Email" value={newUser.email} onChange={handleInputChange} required />
+                            <input type="email" name="email" placeholder="Email" value={newUser.email} onChange={handleInputChange} />
                             <select name="tier" value={newUser.tier} onChange={handleInputChange}>
                                 <option value="SILVER">SILVER</option>
                                 <option value="GOLD">GOLD</option>
