@@ -11,6 +11,7 @@ import AdminUser from "./pages/AdminUser";
 import AdminBooking from "./pages/AdminBooking";
 import Booking from "./pages/Booking";
 import BookingConfirmation from "./pages/BookingConfirmation";
+import UserPage from "./pages/UserPage";
 
 export default function App() {
   return (
@@ -27,6 +28,7 @@ export default function App() {
         <Route path="/admin/users" element={<AdminUser />} />
         <Route path="/admin/bookings" element={<AdminBooking />} />
         <Route path="/BookingConfirmation" element={<BookingConfirmation/>}/>
+        <Route path="/account" element={<UserPage />} />
       </Routes>
     </BrowserRouter>
   );
