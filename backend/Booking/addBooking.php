@@ -4,6 +4,8 @@ header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
+
+
 // เชื่อมต่อฐานข้อมูล
 $servername = "localhost";
 $username = "root";
@@ -160,7 +162,35 @@ if ($stmt->execute()) {
         "success" => false,
         "message" => "Error: " . $stmt->error
     ]);
+
 }
+
+/* 
+==========================================
+🟨 ส่วนเสริมพิเศษ: รวมให้ frontend ใช้ค่า booking_ids ได้เสมอ
+(ไม่ว่าจะจองหลายห้องหรือห้องเดียว)
+==========================================
+*/
+if (!headers_sent()) { // ป้องกันซ้ำกับส่วนบน
+    $response = [
+        "success" => true,
+        "message" => "✅ Booking(s) added successfully",
+    ];
+
+    // ถ้ามี booking_ids หลายตัว
+    if (!empty($booking_ids)) {
+        $response["booking_ids"] = $booking_ids;
+    }
+    // ถ้ามี booking_id เดี่ยว
+    elseif (isset($stmt) && isset($stmt->insert_id) && $stmt->insert_id > 0) {
+        $response["booking_ids"] = [$stmt->insert_id];
+    }
+
+    echo json_encode($response);
+}
+
+
+
 
 $stmt->close();
 $conn->close();

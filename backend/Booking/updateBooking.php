@@ -4,6 +4,7 @@ header("Access-Control-Allow-Methods: POST, PUT, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
+
 // Connect to database
 $servername = "localhost";
 $username = "root";
