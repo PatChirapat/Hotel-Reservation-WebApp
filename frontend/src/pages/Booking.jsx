@@ -1,13 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { Link, useLocation,useNavigate } from "react-router-dom";
 import "../ui/Booking.css";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
+import axios from "axios";
 
 function Booking() {
     const location = useLocation();
     const today = new Date().toISOString().split("T")[0];
+    const navigate = useNavigate();
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+
+    const roomTypeMap = {
+    classic: 1,
+    premier: 2,
+    executive: 3,
+    diplomatic: 4,
+    royal: 5,
+    };
 
     // input from Bookingbar.jsx
     const {
@@ -121,6 +131,88 @@ function Booking() {
         }
     }, [totalGuests, totalCapacity, selectedRooms]);
 
+    const apiBase = import.meta.env.VITE_API_URL;
+
+    // Booking details to send to backend
+
+    //booking confirm function
+    const handleConfirm = async () => {
+    try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+        alert("⚠️ Please log in before making a booking.");
+        navigate("/Signin");
+        return;
+        }
+
+        if (Object.keys(selectedRooms).length === 0) {
+        alert("⚠️ Please select at least one room before confirming.");
+        return;
+        }
+
+        // 🟢 สร้าง array ของ bookings ทั้งหมด
+        const bookings = [];
+        for (const [roomKey, count] of Object.entries(selectedRooms)) {
+        const room_type_id = roomTypeMap[roomKey];
+        for (let i = 0; i < count; i++) {
+            bookings.push({
+            member_id: user.member_id,
+            room_type_id,
+            phone_entered: user.phone,
+            checkin_date: checkin,
+            checkout_date: checkout,
+            guest_count: totalGuests,
+            subtotal_amount: room_details[roomKey].price * nights,
+            discount_amount: 0,
+            total_amount: room_details[roomKey].price * nights,
+            });
+        }
+        }
+
+        // 🟩 เชื่อมไปที่ addBooking.php (ไฟล์เดียว รองรับหลายห้องแล้ว)
+        const res = await axios.post(
+        `${apiBase}/Booking/addBooking.php`,
+        { bookings }, // ✅ ส่ง array bookings
+        { headers: { "Content-Type": "application/json" } }
+        );
+
+    if (res.data.success) {
+    console.log("📦 Backend Response:", res.data);
+
+    // 🟢 ตรวจให้แน่ใจว่า booking_ids เป็น array เสมอ
+    let booking_ids = [];
+
+    // ✅ ถ้า backend ส่ง booking_ids มา (หลายห้อง)
+    if (Array.isArray(res.data.booking_ids)) {
+        booking_ids = res.data.booking_ids;
+    }
+    // ✅ ถ้า backend ส่ง booking_id ตัวเดียว (จองห้องเดียว)
+    else if (res.data.booking_id) {
+        booking_ids = [res.data.booking_id];
+    }
+
+    console.log("➡️ Booking IDs prepared to send:", booking_ids);
+
+    // ⚠️ ถ้าไม่มี booking_id ใดเลย
+    if (booking_ids.length === 0) {
+        alert("⚠️ Booking created but no booking IDs returned from backend!");
+        return;
+    }
+
+    alert("✅ All bookings created successfully!");
+    navigate("/BookingConfirmation", {
+        state: {booking_ids},
+    });
+    } else {
+    alert("❌ Error: " + res.data.message);
+    }
+
+    } catch (err) {
+        console.error("Error:", err);
+        alert("⚠️ Failed to connect to backend. Please check server path.");
+    }
+};
+
     return (
         <div className="booking-page">
         <Navbar />
@@ -233,9 +325,14 @@ function Booking() {
             <p>Nights: {nights}</p>
             <p>Total Price: THB {totalPrice.toLocaleString()}</p>
             {warning && <p className="warning-text">{warning}</p>}
+            
+            {/* /* Confirm Button */ }
+
+            
             <button
                 className="confirm-btn"
                 disabled={totalGuests > totalCapacity}
+                onClick={handleConfirm}
             >
                 Confirm Booking
             </button>
