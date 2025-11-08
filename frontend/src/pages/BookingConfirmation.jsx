@@ -95,8 +95,7 @@ function BookingConfirmation() {
     }
   };
 
-  if (loading) return <p>Loading booking data...</p>;
-  if (!bookings || bookings.length === 0) return <p>No booking found.</p>;
+    if (loading) return <p>Loading booking data...</p>;
 
   const EditIcon = (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
@@ -136,27 +135,41 @@ function BookingConfirmation() {
               </tr>
             </thead>
             <tbody>
-              {bookings.map((b) => (
-                <tr key={b.booking_id}>
-                  <td>{b.booking_id}</td>
-                  <td>{b.room_type_name}</td>
-                  <td>{b.checkin_date}</td>
-                  <td>{b.checkout_date}</td>
-                  <td>{b.guest_count}</td>
-                  <td>{b.booking_status}</td>
-                  <td>{b.subtotal_amount}</td>
-                  <td>{b.discount_amount}</td>
-                  <td>{b.total_amount}</td>
-                  <td className="actions">
-                    <button className="edit-btn" onClick={() => handleUpdate(b)}>{EditIcon}</button>
-                    <button className="delete-btn" onClick={() => handleDelete(b.booking_id)}>{DeleteIcon}</button>
-                  </td>
-                </tr>
-              ))}
+              {bookings.length > 0 ? (
+                bookings.map((b) => (
+                  <tr key={b.booking_id}>
+                    <td>{b.booking_id}</td>
+                    <td>{b.room_type_name}</td>
+                    <td>{b.checkin_date}</td>
+                    <td>{b.checkout_date}</td>
+                    <td>{b.guest_count}</td>
+                    <td>{b.booking_status}</td>
+                    <td>{b.subtotal_amount}</td>
+                    <td>{b.discount_amount}</td>
+                    <td>{b.total_amount}</td>
+                    <td className="actions">
+                      <button type="button" className="edit-btn" onClick={() => handleUpdate(b)}>
+                        {EditIcon}
+                      </button>
+                      <button type="button" className="delete-btn" onClick={() => handleDelete(b.booking_id)}>
+                        {DeleteIcon}
+                      </button>
+                    </td>
+                  </tr>
+                    ))
+                    ) : (
+                // 🔹 ถ้าลบหมดแล้ว ให้ขึ้นข้อความสวย ๆ แทน แต่ยังอยู่ในหน้าเดิม
+                  <tr>
+                    <td colSpan="10" style={{ textAlign: "center", padding: "20px", color: "#888" }}>
+                      🗑️ All bookings have been deleted.
+                    </td>
+                  </tr>
+                )}
             </tbody>
           </table>
 
           <div className="booking-confirmation-button">
+            {/* UpdateAll */}
             <button
               className="save-btn"
               onClick={() => bookings.forEach((b) => handleUpdate(b))}
