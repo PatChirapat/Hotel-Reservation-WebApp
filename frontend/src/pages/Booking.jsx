@@ -1,15 +1,23 @@
 import React, { useState, useEffect } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation,useNavigate } from "react-router-dom";
 import "../ui/Booking.css";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import axios from "axios";
 
-
 function Booking() {
     const location = useLocation();
     const today = new Date().toISOString().split("T")[0];
+    const navigate = useNavigate();
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
+
+    const roomTypeMap = {
+    classic: 1,
+    premier: 2,
+    executive: 3,
+    diplomatic: 4,
+    royal: 5,
+    };
 
     // input from Bookingbar.jsx
     const {
@@ -126,36 +134,61 @@ function Booking() {
     const apiBase = import.meta.env.VITE_API_URL;
 
     // Booking details to send to backend
+
     //booking confirm function
     const handleConfirm = async () => {
-  try {
-    // ตัวอย่างข้อมูลที่ส่งไป backend
-    const bookingData = {
-      member_id: 12, // เปลี่ยนตามระบบ login ของคุณ
-      phone_entered: "0636975829", // หรือรับจาก user input
-      checkin_date: checkin,
-      checkout_date: checkout,
-      guest_count: totalGuests,
-      subtotal_amount: totalPrice,
-      discount_amount: 0,
-      total_amount: totalPrice,
-    };
-
-    // เรียกใช้ API (POST)
-    const res = await axios.post(`${apiBase}/Booking/addBooking.php`, bookingData, {
-      headers: { "Content-Type": "application/json" },
-    });
-
-    if (res.data.success) {
-      alert("✅ Booking created successfully! Booking ID: " + res.data.booking_id);
-    } else {
-      alert("❌ Error: " + res.data.message);
-    }
-    } catch (err) {
-    console.error("Error:", err);
-    alert("⚠️ Failed to connect to backend. Please check your PHP path or server.");
+    try {
+        const user = JSON.parse(localStorage.getItem("user"));
+        if (!user) {
+        alert("⚠️ Please log in before making a booking.");
+        navigate("/Signin");
+        return;
         }
-    };
+
+        if (Object.keys(selectedRooms).length === 0) {
+        alert("⚠️ Please select at least one room before confirming.");
+        return;
+        }
+
+        // 🟢 สร้าง array ของ bookings ทั้งหมด
+        const bookings = [];
+        for (const [roomKey, count] of Object.entries(selectedRooms)) {
+        const room_type_id = roomTypeMap[roomKey];
+        for (let i = 0; i < count; i++) {
+            bookings.push({
+            member_id: user.member_id,
+            room_type_id,
+            phone_entered: user.phone,
+            checkin_date: checkin,
+            checkout_date: checkout,
+            guest_count: totalGuests,
+            subtotal_amount: room_details[roomKey].price * nights,
+            discount_amount: 0,
+            total_amount: room_details[roomKey].price * nights,
+            });
+        }
+        }
+
+        // 🟩 เชื่อมไปที่ addBooking.php (ไฟล์เดียว รองรับหลายห้องแล้ว)
+        const res = await axios.post(
+        `${apiBase}/Booking/addBooking.php`,
+        { bookings }, // ✅ ส่ง array bookings
+        { headers: { "Content-Type": "application/json" } }
+        );
+
+        if (res.data.success) {
+        alert("✅ All bookings created successfully!");
+        navigate("/BookingConfirmation", {
+            state: { booking_ids: res.data.booking_ids },
+        });
+        } else {
+        alert("❌ Error: " + res.data.message);
+        }
+    } catch (err) {
+        console.error("Error:", err);
+        alert("⚠️ Failed to connect to backend. Please check server path.");
+    }
+};
 
     return (
         <div className="booking-page">
@@ -272,7 +305,7 @@ function Booking() {
             
             {/* /* Confirm Button */ }
 
-            <Link to = "/BookingConfirmation">
+            
             <button
                 className="confirm-btn"
                 disabled={totalGuests > totalCapacity}
@@ -280,7 +313,6 @@ function Booking() {
             >
                 Confirm Booking
             </button>
-            </Link>
             </div>
         </div>
         <Footer />
