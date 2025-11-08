@@ -10,11 +10,41 @@ function BookingConfirmation() {
   console.log("📨 BookingConfirmation received state:", location.state);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // 🔹 คำนวณจำนวนคืน (night count)
+  const calculateNights = (checkin, checkout) => {
+    const inDate = new Date(checkin);
+    const outDate = new Date(checkout);
+    const diffTime = outDate - inDate;
+    const nights = Math.max(1, diffTime / (1000 * 60 * 60 * 24));
+    return nights;
+  };
+
+  // 🔹 คำนวณ subtotal/total ใหม่
+  const recalculatePrice = (booking) => {
+    const nights = calculateNights(booking.checkin_date, booking.checkout_date);
+    const roomPrice = roomPrices[booking.room_type_id] || 0;
+    const subtotal = roomPrice * nights;
+    const total = subtotal - (booking.discount_amount || 0);
+    return { subtotal, total };
+  };
+
+
   // 🟦 สำหรับ modal edit
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [editField, setEditField] = useState("");
   const [newValue, setNewValue] = useState("");
+
+    // 💰 Room price mapping
+  const roomPrices = {
+    1: 3200, // Classic
+    2: 4200, // Premier
+    3: 5600, // Executive
+    4: 7800, // Diplomatic
+    5: 9900, // Royal
+  };
+
 
 
   // 🟢 รับ booking_ids จาก Booking.jsx
@@ -137,20 +167,38 @@ function BookingConfirmation() {
       }
 
       try {
-        const res = await axios.post(`${apiBase}/Booking/updateBooking.php`, {
-          booking_id: selectedBooking.booking_id,
+        // 🟢 สร้าง booking object ใหม่ที่อัปเดตแล้ว
+        let updatedBooking = {
+          ...selectedBooking,
           [editField]: newValue,
-        });
+        };
+
+        // ถ้าเปลี่ยน field ที่เกี่ยวกับราคา → recalculates
+        if (
+          editField === "room_type_id" ||
+          editField === "checkin_date" ||
+          editField === "checkout_date"
+        ) {
+          const { subtotal, total } = recalculatePrice(updatedBooking);
+          updatedBooking = {
+            ...updatedBooking,
+            subtotal_amount: subtotal,
+            total_amount: total,
+          };
+        }
+
+        // 🔹 ส่งข้อมูลอัปเดตไป backend
+        const res = await axios.post(`${apiBase}/Booking/updateBooking.php`, updatedBooking);
 
         if (res.data.success) {
           alert(`✅ Booking #${selectedBooking.booking_id} updated successfully!`);
+
           setShowEditModal(false);
-          // อัปเดตใน state ทันที
+
+          // 🔹 อัปเดต state ทันที (ให้ราคาปรับ dynamic)
           setBookings((prev) =>
             prev.map((b) =>
-              b.booking_id === selectedBooking.booking_id
-                ? { ...b, [editField]: newValue }
-                : b
+              b.booking_id === selectedBooking.booking_id ? updatedBooking : b
             )
           );
         } else {
@@ -198,9 +246,10 @@ function BookingConfirmation() {
                     <td>{b.checkout_date}</td>
                     <td>{b.guest_count}</td>
                     <td>{b.booking_status}</td>
-                    <td>{b.subtotal_amount}</td>
-                    <td>{b.discount_amount}</td>
-                    <td>{b.total_amount}</td>
+                    <td>{Number(b.subtotal_amount).toLocaleString()}</td>
+                    <td>{Number(b.discount_amount).toLocaleString()}</td>
+                    <td><strong>{Number(b.total_amount).toLocaleString()}</strong></td>
+                    
                     <td className="actions">
                       <button type="button" className="edit-btn" onClick={() => handleEditClick(b)}>
                         {EditIcon}
