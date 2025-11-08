@@ -10,6 +10,12 @@ function BookingConfirmation() {
   console.log("📨 BookingConfirmation received state:", location.state);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
+  // 🟦 สำหรับ modal edit
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [editField, setEditField] = useState("");
+  const [newValue, setNewValue] = useState("");
+
 
   // 🟢 รับ booking_ids จาก Booking.jsx
   const booking_ids = location.state?.booking_ids || [];
@@ -108,6 +114,54 @@ function BookingConfirmation() {
       <path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
     </svg>
   );
+    //Edit each Room
+    const handleEditClick = (booking) => {
+      setSelectedBooking(booking);
+      setEditField("");
+      setNewValue("");
+      setShowEditModal(true);
+    };
+
+    const handleFieldChange = (e) => {
+      const field = e.target.value;
+      setEditField(field);
+      setNewValue(selectedBooking ? selectedBooking[field] || "" : "");
+    };
+
+    const handleEditSubmit = async (e) => {
+      e.preventDefault();
+
+      if (!editField) {
+        alert("⚠️ Please select a field to edit.");
+        return;
+      }
+
+      try {
+        const res = await axios.post(`${apiBase}/Booking/updateBooking.php`, {
+          booking_id: selectedBooking.booking_id,
+          [editField]: newValue,
+        });
+
+        if (res.data.success) {
+          alert(`✅ Booking #${selectedBooking.booking_id} updated successfully!`);
+          setShowEditModal(false);
+          // อัปเดตใน state ทันที
+          setBookings((prev) =>
+            prev.map((b) =>
+              b.booking_id === selectedBooking.booking_id
+                ? { ...b, [editField]: newValue }
+                : b
+            )
+          );
+        } else {
+          alert("❌ Update failed: " + res.data.message);
+        }
+      } catch (err) {
+        console.error("Error updating booking:", err);
+        alert("❌ Error connecting to backend.");
+      }
+    };
+
 
   return (
     <div className="booking-confirmation-page">
@@ -148,7 +202,7 @@ function BookingConfirmation() {
                     <td>{b.discount_amount}</td>
                     <td>{b.total_amount}</td>
                     <td className="actions">
-                      <button type="button" className="edit-btn" onClick={() => handleUpdate(b)}>
+                      <button type="button" className="edit-btn" onClick={() => handleEditClick(b)}>
                         {EditIcon}
                       </button>
                       <button type="button" className="delete-btn" onClick={() => handleDelete(b.booking_id)}>
@@ -179,6 +233,80 @@ function BookingConfirmation() {
           </div>
         </div>
       </div>
+        {/* modal */}
+        {showEditModal && selectedBooking && (
+          <div className="modal-overlay">
+            <div className="modal-content">
+              <h2>Edit Booking #{selectedBooking.booking_id}</h2>
+              <form onSubmit={handleEditSubmit} className="add-user-form">
+                <label>Select field to edit</label>
+                <select value={editField} onChange={handleFieldChange} required>
+                  <option value="">-- Select field --</option>
+                  <option value="room_type_id">Room Type</option>
+                  <option value="checkin_date">Check-In Date</option>
+                  <option value="checkout_date">Check-Out Date</option>
+                  <option value="guest_count">Guests</option>
+                </select>
+
+                {editField && (
+                  <>
+                    <label>Old Value</label>
+                    <input
+                      type="text"
+                      value={selectedBooking[editField] || ""}
+                      readOnly
+                    />
+
+                    <label>New Value</label>
+
+                    {editField === "room_type_id" ? (
+                      <select
+                        value={newValue}
+                        onChange={(e) => setNewValue(e.target.value)}
+                        required
+                      >
+                        <option value="1">Classic</option>
+                        <option value="2">Premier</option>
+                        <option value="3">Executive</option>
+                        <option value="4">Diplomatic</option>
+                        <option value="5">Royal</option>
+                      </select>
+                    ) : editField.includes("date") ? (
+                      <input
+                        type="date"
+                        value={newValue}
+                        onChange={(e) => setNewValue(e.target.value)}
+                        required
+                      />
+                    ) : (
+                      <input
+                        type="number"
+                        min="1"
+                        value={newValue}
+                        onChange={(e) => setNewValue(e.target.value)}
+                        required
+                      />
+                    )}
+                  </>
+                )}
+
+                <div className="modal-buttons">
+                  <button type="submit" className="save-btn">
+                    Save
+                  </button>
+                  <button
+                    type="button"
+                    className="cancel-btn"
+                    onClick={() => setShowEditModal(false)}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+            
       <Footer />
     </div>
   );
