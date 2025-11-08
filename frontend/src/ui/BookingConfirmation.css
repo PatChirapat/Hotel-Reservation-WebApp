@@ -1,0 +1,264 @@
+.booking-confirmation-page {
+    background-color: #fff;
+    color: #b89a67;
+    font-family: 'Optima', 'URW Classico', 'Palatino Linotype', 'Book Antiqua', serif;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.booking-confirmation-content {
+    padding: 50px 80px;
+    margin: 0 auto;
+    background-color: #fff;
+    min-height: 75vh;
+    max-width: 1200px;
+}
+
+.booking-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.booking-header h1 {
+    font-size: 2.5rem;
+    font-weight: 500;
+    color: #b89a67;
+}
+
+.booking-header p {
+    color: #666;
+    font-size: 1rem;
+    font-weight: 300;
+}
+
+/* Table */
+.booking-confirmation-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.booking-confirmation-table th,
+.booking-confirmation-table td {
+    border: 1px solid #ddd;
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.booking-confirmation-table th {
+    background-color: #f5f5f5;
+    color: #b89a67;
+    font-weight: 600;
+}
+
+.booking-confirmation-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.booking-confirmation-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+/* Actions */
+.actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.actions .edit-btn svg,
+.actions .delete-btn svg {
+    width: 22px;
+    height: 22px;
+    color: #b89a67;
+    transition: 0.2s;
+}
+
+.actions .edit-btn svg:hover,
+.actions .delete-btn svg:hover {
+    color: #a2824d;
+    transform: scale(1.1);
+}
+
+/* Buttons */
+.booking-confirmation-button {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 30px;
+    gap: 10px;
+}
+
+.save-btn {
+    background-color: #b89a67;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.save-btn:hover {
+    background-color: #a2824d;
+}
+
+.cancel-btn {
+    background-color: #f5f5f5;
+    border: 1px solid #b89a67;
+    color: #b89a67;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: 0.3s ease;
+}
+
+.cancel-btn:hover {
+    background-color: #f0e8da;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.save-btn {
+    background-color: #b89a67;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.cancel-btn {
+    background-color: #ccc;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.save-btn:hover {
+    background-color: #a2824d;
+}
+
+.cancel-btn:hover {
+    background-color: #b5b5b5;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+/* 🔹 Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* 🔹 Modal Box */
+.modal-content {
+  background: #f9f9f9;
+  padding: 30px;
+  border-radius: 12px;
+  width: 420px;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+  color: #b89a67;
+  animation: fadeIn 0.3s ease;
+}
+
+.modal-content h2 {
+  color: #b89a67;
+  font-size: 1.4rem;
+  margin-bottom: 15px;
+  text-align: center;
+}
+
+/* 🔹 Form Styling */
+.add-user-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+  background: #f9f9f9;
+  color: #b89a67;
+}
+
+.add-user-form input,
+.add-user-form select {
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  transition: 0.2s ease;
+  background: #fff;
+  color: #b89a67;
+}
+
+.add-user-form input:focus,
+.add-user-form select:focus {
+  border-color: #b89a67;
+  box-shadow: 0 0 3px rgba(184, 154, 103, 0.4);
+  outline: none;
+}
+
+/* 🔹 Buttons in modal */
+.modal-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.save-btn {
+  background-color: #b89a67;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.cancel-btn {
+  background-color: #ccc;
+  border: none;
+  border-radius: 6px;
+  padding: 8px 14px;
+  cursor: pointer;
+  font-size: 15px;
+  transition: 0.3s;
+}
+
+.save-btn:hover {
+  background-color: #a2824d;
+}
+
+.cancel-btn:hover {
+  background-color: #b5b5b5;
+}
