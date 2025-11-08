@@ -7,6 +7,7 @@ import axios from "axios";
 
 function BookingConfirmation() {
   const location = useLocation();
+  console.log("📨 BookingConfirmation received state:", location.state);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -15,6 +16,10 @@ function BookingConfirmation() {
   const apiBase = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
+
+    console.log("📨 Received booking_ids:", booking_ids);
+    console.log("📤 Sending booking_ids to backend:", booking_ids);
+    
     const fetchBookings = async () => {
       try {
         if (!booking_ids || booking_ids.length === 0) {
@@ -24,7 +29,7 @@ function BookingConfirmation() {
 
         // ✅ ดึงข้อมูลทั้งหมดจาก backend (ส่ง array booking_ids)
         const res = await axios.post(
-          `${apiBase}/Booking/viewMultipleBookings.php`,
+          `${apiBase}/Booking/viewBooking.php`,
           { booking_ids },
           { headers: { "Content-Type": "application/json" } }
         );

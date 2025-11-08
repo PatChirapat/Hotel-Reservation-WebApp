@@ -176,14 +176,37 @@ function Booking() {
         { headers: { "Content-Type": "application/json" } }
         );
 
-        if (res.data.success) {
-        alert("✅ All bookings created successfully!");
-        navigate("/BookingConfirmation", {
-            state: { booking_ids: res.data.booking_ids },
-        });
-        } else {
-        alert("❌ Error: " + res.data.message);
-        }
+    if (res.data.success) {
+    console.log("📦 Backend Response:", res.data);
+
+    // 🟢 ตรวจให้แน่ใจว่า booking_ids เป็น array เสมอ
+    let booking_ids = [];
+
+    // ✅ ถ้า backend ส่ง booking_ids มา (หลายห้อง)
+    if (Array.isArray(res.data.booking_ids)) {
+        booking_ids = res.data.booking_ids;
+    }
+    // ✅ ถ้า backend ส่ง booking_id ตัวเดียว (จองห้องเดียว)
+    else if (res.data.booking_id) {
+        booking_ids = [res.data.booking_id];
+    }
+
+    console.log("➡️ Booking IDs prepared to send:", booking_ids);
+
+    // ⚠️ ถ้าไม่มี booking_id ใดเลย
+    if (booking_ids.length === 0) {
+        alert("⚠️ Booking created but no booking IDs returned from backend!");
+        return;
+    }
+
+    alert("✅ All bookings created successfully!");
+    navigate("/BookingConfirmation", {
+        state: {booking_ids},
+    });
+    } else {
+    alert("❌ Error: " + res.data.message);
+    }
+
     } catch (err) {
         console.error("Error:", err);
         alert("⚠️ Failed to connect to backend. Please check server path.");
