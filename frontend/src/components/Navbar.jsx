@@ -1,12 +1,14 @@
+// frontend/src/components/Navbar.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import "../ui/Navbar.css";
+import UserMenu from "./UserMenu";
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // --- Auth state (read from localStorage) ---
+  // --- Auth state (อ่านข้อมูล user จาก localStorage) ---
   const [user, setUser] = useState(null);
 
   useEffect(() => {
@@ -14,22 +16,26 @@ export default function Navbar() {
       const raw = localStorage.getItem("user");
       if (raw) setUser(JSON.parse(raw));
     } catch {}
-    // Sync across tabs
+
+    // Sync user ระหว่างแท็บ
     const onStorage = (e) => {
-      if (e.key === "user") setUser(e.newValue ? JSON.parse(e.newValue) : null);
+      if (e.key === "user")
+        setUser(e.newValue ? JSON.parse(e.newValue) : null);
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
   }, []);
 
+  // --- Logout ---
   const logout = () => {
-    const ok = window.confirm("Do you want to Logout?");
+    const ok = window.confirm("Do you want to Sign Out?");
     if (!ok) return;
     localStorage.removeItem("user");
     setUser(null);
     navigate("/signin");
   };
 
+  // --- Scroll within the same page ---
   const scrollToId = (id) => {
     const el = document.getElementById(id);
     if (el) {
@@ -37,16 +43,16 @@ export default function Navbar() {
     }
   };
 
+  // --- Go to a section (or navigate home first if not on /) ---
   const go = (id) => {
-    // ถ้าอยู่หน้า Home ("/") ให้เลื่อนเลย
     if (location.pathname === "/") {
       scrollToId(id);
     } else {
-      // ถ้าอยู่หน้าที่ไม่ใช่ "/" ให้นำทางไป "/" แล้วให้ Home จัดการเลื่อน
       navigate("/", { state: { targetId: id } });
     }
   };
 
+  // --- Handle logo click ---
   const handleLogoClick = () => {
     if (location.pathname === "/") {
       scrollToId("home");
@@ -58,7 +64,7 @@ export default function Navbar() {
   return (
     <nav className="navbar">
       <div className="navbar-left">
-        {/* เดิมใช้ Link ไป "/", เปลี่ยนเป็นปุ่มเพื่อเลื่อนขึ้นบนเมื่ออยู่หน้า Home */}
+        {/* ปุ่มโลโก้ */}
         <button
           type="button"
           onClick={handleLogoClick}
@@ -71,7 +77,7 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-right">
-        {/* เมนูที่เลื่อนในหน้าเดียว */}
+        {/* เมนูภายในหน้า Home */}
         <button type="button" className="nav-link" onClick={() => go("home")}>
           Home
         </button>
@@ -88,42 +94,28 @@ export default function Navbar() {
         >
           Facilities
         </button>
-
-        <button type="button" className="nav-link" onClick={() => go("reviews")}>
+        <button
+          type="button"
+          className="nav-link"
+          onClick={() => go("reviews")}
+        >
           Reviews
         </button>
 
-        {/* เมนูที่เป็นหน้าคนละ route ใช้ Link เหมือนเดิม */}
+        {/* ปุ่มไปหน้า Booking */}
         <Link to="/booking" className="booking">
           Book Now
         </Link>
 
-        {/* Auth area: show Sign In when no user, otherwise show name + Logout */}
-        {!user ? (
-          <Link to="/signin" className="nav-link flex items-center gap-1">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="w-5 h-5"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z"
-              />
-            </svg>
-          </Link>
+        {/* ส่วนแสดงสถานะล็อกอิน */}
+        {user ? (
+          // เมื่อ login แล้ว
+          <UserMenu user={user} onLogout={logout} />
         ) : (
-          <div className="auth-area">
-            <div className="nav-link user-info">
-              <span className="hi">Hi,</span>
-              <strong className="username">{user.username}</strong>
-            </div>
-            <button onClick={logout} className="nav-link btn-logout">Logout</button>
-          </div>
+          // เมื่อยังไม่ได้ login
+          <Link to="/signin" className="nav-link flex items-center gap-1">
+            Sign In
+          </Link>
         )}
       </div>
     </nav>

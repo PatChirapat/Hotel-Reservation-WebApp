@@ -1,0 +1,107 @@
+/* Centered, quiet-luxury typography */
+.about {
+    padding: 72px 0;
+    background: #fff;
+    border-top: 1px solid #eee;
+    border-bottom: 1px solid #eee;
+    font-family: 'Optima','URW Classico','Palatino Linotype','Book Antiqua',serif;
+    color: #222;
+  }
+  
+  .about__wrap {
+    max-width: 980px;     
+    margin: 0 auto;
+    text-align: center;
+    padding: 0 18px;
+  }
+  
+  /* Tiny heading */
+  .about__eyebrow {
+    letter-spacing: 0.32em;
+    font-size: 12px;
+    color: #B89A67;
+    font-weight: 600;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  
+  /* Title */
+  .about__title {
+    font-size: 32px;
+    line-height: 1.35;
+    margin: 0 0 22px;
+    color: #222;
+  }
+  
+  /* Paragraphs */
+  .about__desc {
+    font-size: 17px;
+    line-height: 1.9;
+    color: #444;
+    margin: 14px 0;
+  }
+  
+  /* Bullets centered but left-aligned inside block */
+  .about__points {
+    list-style: none;
+    margin: 10px auto 0;
+    padding: 0;
+    display: inline-block;
+    text-align: left;
+    color: #333;
+    font-size: 16px;
+  }
+  
+  .about__points li {
+    position: relative;
+    margin: 10px 0;
+    padding-left: 16px;
+    line-height: 1.85;
+  }
+  
+  .about__points li::before {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: #B89A67;
+    border-radius: 50%;
+    position: absolute;
+    left: 0;
+    top: 0.9em;          
+  }
+  
+  /* Divider + tagline */
+  .about__line {
+    width: 180px;
+    height: 1px;
+    margin: 30px auto 16px;
+    background: linear-gradient(to right, transparent, #d8c4a5, transparent);
+  }
+  
+  .about__tagline {
+    color: #666;
+    font-style: italic;
+    letter-spacing: 0.2px;
+    line-height: 4;
+    font-size: 16px;
+  }
+  
+  .reveal {
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity .6s ease, transform .6s ease;
+    transition-delay: var(--d, 0ms);  /* ดีเลย์ทีละชั้น */
+  }
+  
+  .reveal.in {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  
+  /* Responsive */
+  @media (max-width: 720px) {
+    .about { padding: 56px 0; }
+    .about__title { font-size: 26px; }
+    .about__desc { font-size: 16px; }
+  }
+ 

@@ -1,7 +1,238 @@
-.adminbooking {
+.admin-booking {
     background-color: #fff;
     color: #b89a67;
     font-family: 'Optima', 'URW Classico', 'Palatino Linotype', 'Book Antiqua', serif;
     width: 100%;
     box-sizing: border-box;
 }
+
+.admin-booking-content {
+    padding: 24px 40px;
+    margin: 0 auto;
+    background-color: #fff;
+    min-height: 70vh;
+    max-width: 100%;
+}
+
+.admin-booking-header{
+    margin-bottom: 2rem;
+    text-align: center;
+}
+
+.admin-booking-header h1 {
+    font-size: 2.5rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #b89a67;
+}
+
+.admin-booking-header p {
+    font-size: 1rem;
+    font-weight: 300;
+    color: #666;
+}
+
+.booking-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 16px;
+    margin-top: 20px;
+}
+
+.booking-table th, 
+.booking-table td{
+    border: 1px solid #ddd;
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.booking-table th {
+    background-color: #f5f5f5;
+    color: #b89a67;
+    font-weight: 600;
+}
+
+.booking-table tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+.booking-table tr:hover {
+    background-color: #f2f2f2;
+}
+
+.actions button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    margin: 0 5px;
+}
+
+.actions .edit-btn svg {
+    color: #b89a67;
+}
+
+.actions .delete-btn svg {
+    color: #b89a67;
+}
+
+.admin-booking-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.search-container {
+    flex: 1;
+}
+
+.search-input {
+    padding: 10px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    width: 250px;
+    font-size: 16px;
+    transition: 0.2s ease;
+    background-color: #f5f5f5;
+}
+
+.search-input:focus {
+    outline: none;
+    border-color: #b89a67;
+    box-shadow: 0 0 3px rgba(184, 154, 103, 0.5);
+}
+
+.add-btn {
+    display: flex;
+    align-items: center;
+    background-color: #b89a67;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.3s ease;
+}
+
+.add-btn svg {
+    width: 20px;
+    height: 20px;
+    margin-right: 6px;
+    stroke: #fff;
+}
+
+.add-btn:hover {
+    background-color: #a2824d;
+}
+
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+.modal-content {
+    background: #f9f9f9;
+    padding: 30px;
+    border-radius: 12px;
+    width: 420px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.25);
+    color: #fff;
+    animation: fadeIn 0.3sleUp 0.25s ease-in-out;
+}
+
+.modal-content h2 {
+    color: #b89a67;
+    font-size: 1.4rem;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.modal-content p {
+    text-align: center;
+    font-size: 1rem;
+    margin-bottom: 20px;
+    color: #af1414;
+}
+
+.edit-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+    background: #f9f9f9;
+    color: #b89a67;
+}
+
+.edit-form label {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+.edit-form select,
+.edit-form input {
+    padding: 10px 12px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: 0.2s ease;
+    background: #fff;
+    color: #b89a67;
+}
+
+.modal-buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+}
+
+.save-btn {
+    background-color: #b89a67;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.cancel-btn {
+    background-color: #ccc;
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.3s;
+}
+
+.save-btn:hover {
+    background-color: #a2824d;
+}
+
+.cancel-btn:hover {
+    background-color: #b5b5b5;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes scaleUp {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
