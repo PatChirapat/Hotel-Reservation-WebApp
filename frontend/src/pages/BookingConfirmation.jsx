@@ -7,6 +7,8 @@ import axios from "axios";
 
 function BookingConfirmation() {
   const location = useLocation();
+  const currentUser = JSON.parse(localStorage.getItem("user") || "null");
+  const memberId = currentUser?.member_id || null;
   console.log("📨 BookingConfirmation received state:", location.state);
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -49,33 +51,35 @@ function BookingConfirmation() {
 
   // 🟢 รับ booking_ids จาก Booking.jsx
   const booking_ids = location.state?.booking_ids || [];
-  const apiBase = import.meta.env.VITE_API_URL;
+  const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
   useEffect(() => {
-
-    console.log("📨 Received booking_ids:", booking_ids);
-    console.log("📤 Sending booking_ids to backend:", booking_ids);
-    
     const fetchBookings = async () => {
       try {
-        if (!booking_ids || booking_ids.length === 0) {
-          alert("❌ Missing booking IDs (please book first)");
+        // Build payload: prefer booking_ids from navigation state; otherwise use signed-in memberId
+        let payload = null;
+        if (Array.isArray(booking_ids) && booking_ids.length > 0) {
+          payload = { booking_ids };
+        } else if (memberId) {
+          payload = { member_id: memberId };
+        } else {
+          alert("Please sign in first");
+          setLoading(false);
           return;
         }
 
-        // ✅ ดึงข้อมูลทั้งหมดจาก backend (ส่ง array booking_ids)
+        console.log("📤 Fetching bookings with payload:", payload);
         const res = await axios.post(
           `${apiBase}/Booking/viewBooking.php`,
-          { booking_ids },
+          payload,
           { headers: { "Content-Type": "application/json" } }
         );
 
         console.log("📥 Bookings fetched:", res.data);
-
-        if (res.data.success) {
-          setBookings(res.data.bookings);
+        if (res.data?.success) {
+          setBookings(Array.isArray(res.data.bookings) ? res.data.bookings : []);
         } else {
-          alert("⚠️ " + res.data.message);
+          alert(res.data?.message || "Failed to load bookings");
         }
       } catch (err) {
         console.error("Error fetching bookings:", err);
@@ -86,7 +90,8 @@ function BookingConfirmation() {
     };
 
     fetchBookings();
-  }, [booking_ids]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [apiBase, memberId, JSON.stringify(booking_ids)]);
 
   // 🟩 อัปเดต booking เดี่ยว
   const handleUpdate = async (booking) => {

@@ -76,6 +76,27 @@ if (!password_verify($password, $user['password_hash'])) {
 }
 
 // -----------------------------------------------------------------------------
+// Determine role via server-side allowlist loaded from config (no DB change)
+// -----------------------------------------------------------------------------
+$allow = @require __DIR__ . '/../../config/admin_allowlist.php';
+if (!is_array($allow)) {
+  // Fallback to empty allowlist if the config is missing/misconfigured
+  $allow = ['usernames' => [], 'emails' => [], 'member_ids' => []];
+}
+
+$isAdmin = false;
+if (!empty($allow['usernames']) && in_array($user['username'], $allow['usernames'], true)) {
+  $isAdmin = true;
+}
+if (!$isAdmin && !empty($allow['emails']) && in_array($user['email'], $allow['emails'], true)) {
+  $isAdmin = true;
+}
+if (!$isAdmin && !empty($allow['member_ids']) && in_array((int)$user['member_id'], $allow['member_ids'], true)) {
+  $isAdmin = true;
+}
+$role = $isAdmin ? 'ADMIN' : 'USER';
+
+// -----------------------------------------------------------------------------
 // Respond
 // -----------------------------------------------------------------------------
 $out = [
@@ -88,6 +109,7 @@ $out = [
   'email'      => $user['email'],
   'tier'       => $user['tier'],
   'join_date'  => $user['join_date'],
+  'role'       => $role,
 ];
 
 $conn->close();
