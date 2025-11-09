@@ -177,34 +177,60 @@ function Booking() {
         );
 
     if (res.data.success) {
-    console.log("📦 Backend Response:", res.data);
+      console.log("📦 Backend Response:", res.data);
 
-    // 🟢 ตรวจให้แน่ใจว่า booking_ids เป็น array เสมอ
-    let booking_ids = [];
-
-    // ✅ ถ้า backend ส่ง booking_ids มา (หลายห้อง)
-    if (Array.isArray(res.data.booking_ids)) {
+      // 🟢 Ensure booking_ids is always an array
+      let booking_ids = [];
+      if (Array.isArray(res.data.booking_ids)) {
         booking_ids = res.data.booking_ids;
-    }
-    // ✅ ถ้า backend ส่ง booking_id ตัวเดียว (จองห้องเดียว)
-    else if (res.data.booking_id) {
+      } else if (res.data.booking_id) {
         booking_ids = [res.data.booking_id];
-    }
+      }
 
-    console.log("➡️ Booking IDs prepared to send:", booking_ids);
-
-    // ⚠️ ถ้าไม่มี booking_id ใดเลย
-    if (booking_ids.length === 0) {
+      console.log("➡️ Booking IDs prepared to send:", booking_ids);
+      if (booking_ids.length === 0) {
         alert("⚠️ Booking created but no booking IDs returned from backend!");
         return;
-    }
+      }
 
-    alert("✅ All bookings created successfully!");
-    navigate("/BookingConfirmation", {
-        state: {booking_ids},
-    });
+      // 🧾 Build a summary booking object (for ConfirmBooking immediate display)
+      const bookingSummary = {
+        booking_id: booking_ids[0],
+        member_id: user.member_id,
+        phone_entered: user.phone,
+        checkin_date: checkin,
+        checkout_date: checkout,
+        guest_count: totalGuests,
+        subtotal_amount: totalPrice,
+        discount_amount: 0,
+        total_amount: totalPrice,
+        created_at: new Date().toISOString(),
+      };
+
+      // 🏨 Provide a simple room summary (first selected type)
+      const firstKey = Object.keys(selectedRooms)[0];
+      const room = firstKey
+        ? {
+            name: room_details[firstKey].name,
+            room_number: "-",
+            capacity: room_details[firstKey].occupancy,
+          }
+        : { name: "-", room_number: "-", capacity: totalGuests };
+
+      // (Optional) you can persist last booking ids for later use
+      try { localStorage.setItem("last_booking_ids", JSON.stringify(booking_ids)); } catch {}
+
+      alert("✅ All bookings created successfully!");
+      navigate("/BookingConfirmation", {
+        state: {
+          booking_ids,       // for backend fetch if needed
+          booking: bookingSummary, // for instant render
+          room,              // lightweight room info
+          payment: null,     // (you can fill after integrating payment)
+        },
+      });
     } else {
-    alert("❌ Error: " + res.data.message);
+      alert("❌ Error: " + res.data.message);
     }
 
     } catch (err) {
