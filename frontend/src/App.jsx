@@ -12,6 +12,7 @@ import AdminBooking from "./pages/AdminBooking";
 import Booking from "./pages/Booking";
 import BookingConfirmation from "./pages/BookingConfirmation";
 import UserPage from "./pages/UserPage";
+import AdminRoute from "./components/AdminRoute";
 
 export default function App() {
   return (
@@ -24,9 +25,9 @@ export default function App() {
         <Route path="/contact" element={<div>Contact Page</div>} />
         <Route path="/booking" element={<Booking />} />
         <Route path="/signin" element={<Signin />} />
-        <Route path="/admin" element={<Admin />} />
-        <Route path="/admin/users" element={<AdminUser />} />
-        <Route path="/admin/bookings" element={<AdminBooking />} />
+        <Route path="/admin" element={<AdminRoute><Admin /></AdminRoute>} />
+        <Route path="/admin/users" element={<AdminRoute><AdminUser /></AdminRoute>} />
+        <Route path="/admin/bookings" element={<AdminRoute><AdminBooking /></AdminRoute>} />
         <Route path="/BookingConfirmation" element={<BookingConfirmation/>}/>
         <Route path="/account" element={<UserPage />} />
       </Routes>

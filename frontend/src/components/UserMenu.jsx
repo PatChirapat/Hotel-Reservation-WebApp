@@ -57,9 +57,14 @@ export default function UserMenu({ user, onLogout }) {
           <Link to="/account" className="usermenu-item">
             Account
           </Link>
-          <Link to="/my-bookings" className="usermenu-item">
+          <Link to="/BookingConfirmation" className="usermenu-item">
             My Bookings
           </Link>
+          {user?.role === "ADMIN" && (
+            <Link to="/admin" className="usermenu-item">
+              Admin
+            </Link>
+          )}
           <button onClick={onLogout} className="usermenu-item danger">
             Sign out
           </button>
