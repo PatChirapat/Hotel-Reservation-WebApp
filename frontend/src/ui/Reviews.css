@@ -64,22 +64,23 @@
   color: #b64b4b;
 }
 
+
 .reviews-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 20px;
+  gap: 24px;
 }
 
 .review-card {
   background: #fff;
-  border: 1px solid #eee;
-  border-radius: 14px;
-  padding: 20px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+  border: 1px solid #eee2cc;
+  border-radius: 18px;
+  padding: 22px 24px;
+  box-shadow: 0 12px 32px rgba(32, 22, 3, 0.08);
   transition: transform 0.25s ease, box-shadow 0.25s ease;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
 .review-card:hover {
@@ -89,13 +90,13 @@
 
 .review-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 14px;
 }
 
 .avatar {
-  width: 44px;
-  height: 44px;
+  width: 46px;
+  height: 46px;
   border-radius: 50%;
   background: #b89a67;
   color: #fff;
@@ -136,19 +137,44 @@
 }
 
 .rating {
-  display: flex;
+  margin-left: auto;
+  display: inline-flex;
   align-items: center;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: #f5ede0;
+  border: 1px solid #eadbc4;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.rating .stars {
+  font-size: 1.05rem;
 }
 
 .review-body {
-  color: #444;
-  line-height: 1.6;
+  color: #3f372c;
+  line-height: 1.65;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
 .review-body .room {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6f5b36;
+  background: #f7efe0;
+  border-radius: 999px;
+  padding: 6px 12px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.review-body .room::before {
+  content: "\1F6CF";
   font-size: 0.9rem;
-  color: #777;
-  margin-bottom: 6px;
 }
 
 .review-body .text {
@@ -159,17 +185,21 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  color: #777;
+  color: #7a6b55;
   font-size: 0.85rem;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 8px;
 }
 
 .review-foot .bid {
-  background: #f3e9d7;
-  color: #8b6a30;
-  padding: 3px 8px;
-  border-radius: 6px;
+  background: #efe2ca;
+  color: #7c5a21;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+
+.review-foot .when {
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {

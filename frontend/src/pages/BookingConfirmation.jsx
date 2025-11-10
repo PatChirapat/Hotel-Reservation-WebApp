@@ -158,6 +158,33 @@ function BookingConfirmation() {
     });
   };
 
+  const handleGoToPayment = (booking) => {
+    if (!booking?.booking_id) return;
+    if (!memberId) {
+      alert("Please sign in to manage payments.");
+      navigate("/signin");
+      return;
+    }
+
+    navigate("/payment", {
+      state: {
+        booking_id: booking.booking_id,
+        booking,
+      },
+    });
+  };
+
+  const handleViewPdf = (booking) => {
+    if (!booking?.booking_id) return;
+
+    navigate("/ConfirmBooking", {
+      state: {
+        booking_id: booking.booking_id,
+        booking,
+      },
+    });
+  };
+
     if (loading) return <p>Loading booking data...</p>;
 
   const EditIcon = (
@@ -260,44 +287,99 @@ function BookingConfirmation() {
                 <th>Subtotal</th>
                 <th>Discount</th>
                 <th>Total</th>
+                <th>Payment Status</th>
+                <th>Pay</th>
+                <th>Summary</th>
+                <th>Review</th>
                 <th>Action</th>
               </tr>
             </thead>
             <tbody>
               {bookings.length > 0 ? (
-                bookings.map((b) => (
-                  <tr key={b.booking_id}>
-                    <td>{b.booking_id}</td>
-                    <td>{b.room_type_name}</td>
-                    <td>{b.checkin_date}</td>
-                    <td>{b.checkout_date}</td>
-                    <td>{b.guest_count}</td>
-                    <td>{b.booking_status}</td>
-                    <td>{Number(b.subtotal_amount).toLocaleString()}</td>
-                    <td>{Number(b.discount_amount).toLocaleString()}</td>
-                    <td><strong>{Number(b.total_amount).toLocaleString()}</strong></td>
-                    
-                    <td className="actions">
-                      <button
-                        type="button"
-                        className="review-btn"
-                        onClick={() => handleWriteReview(b)}
-                      >
-                        Write Review
-                      </button>
-                      <button type="button" className="edit-btn" onClick={() => handleEditClick(b)}>
-                        {EditIcon}
-                      </button>
-                      <button type="button" className="delete-btn" onClick={() => handleDelete(b.booking_id)}>
-                        {DeleteIcon}
-                      </button>
-                    </td>
-                  </tr>
-                    ))
-                    ) : (
+                bookings.map((b) => {
+                  const paymentStatusRaw = String(
+                    b.payment_status || b.booking_status || ""
+                  ).trim();
+                  const paymentStatus = paymentStatusRaw.toUpperCase();
+                  const statusClass = paymentStatus
+                    ? paymentStatus.replace(/\s+/g, "-").toLowerCase()
+                    : "pending";
+                  const canViewPdf = paymentStatus === "CONFIRMED";
+
+                  return (
+                    <tr key={b.booking_id}>
+                      <td>{b.booking_id}</td>
+                      <td>{b.room_type_name}</td>
+                      <td>{b.checkin_date}</td>
+                      <td>{b.checkout_date}</td>
+                      <td>{b.guest_count}</td>
+                      <td>{b.booking_status}</td>
+                      <td>{Number(b.subtotal_amount).toLocaleString()}</td>
+                      <td>{Number(b.discount_amount).toLocaleString()}</td>
+                      <td>
+                        <strong>{Number(b.total_amount).toLocaleString()}</strong>
+                      </td>
+                      <td>
+                        <span className={`status-badge ${statusClass}`}>
+                          {paymentStatus || "PENDING"}
+                        </span>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="payment-btn"
+                          onClick={() => handleGoToPayment(b)}
+                        >
+                          {canViewPdf ? "Manage" : "Pay Now"}
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="pdf-btn"
+                          onClick={() => handleViewPdf(b)}
+                          disabled={!canViewPdf}
+                          title={
+                            canViewPdf
+                              ? "View booking PDF"
+                              : "Available once payment is confirmed"
+                          }
+                        >
+                          View PDF
+                        </button>
+                      </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="review-btn"
+                          onClick={() => handleWriteReview(b)}
+                        >
+                          Write Review
+                        </button>
+                      </td>
+                      <td className="actions">
+                        <button
+                          type="button"
+                          className="edit-btn"
+                          onClick={() => handleEditClick(b)}
+                        >
+                          {EditIcon}
+                        </button>
+                        <button
+                          type="button"
+                          className="delete-btn"
+                          onClick={() => handleDelete(b.booking_id)}
+                        >
+                          {DeleteIcon}
+                        </button>
+                      </td>
+                    </tr>
+                  );
+                })
+              ) : (
                 // 🔹 ถ้าลบหมดแล้ว ให้ขึ้นข้อความสวย ๆ แทน แต่ยังอยู่ในหน้าเดิม
                   <tr>
-                    <td colSpan="10" style={{ textAlign: "center", padding: "20px", color: "#888" }}>
+                    <td colSpan="14" style={{ textAlign: "center", padding: "20px", color: "#888" }}>
                       🗑️ All bookings have been deleted.
                     </td>
                   </tr>
