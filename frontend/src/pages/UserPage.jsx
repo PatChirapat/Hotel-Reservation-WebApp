@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../ui/UserPage.css";
+import { apiUrl } from "../utils/api";
 
 export default function UserPage() {
   const navigate = useNavigate();
@@ -40,9 +41,8 @@ export default function UserPage() {
   const [payments, setPayments] = useState([]);
 
   // base URL ไป backend
-  const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
-  const api = (p) => `${apiBase}${p}`;
+  const api = (p) => apiUrl(p);
 
   const tierPretty = useMemo(() => ({SILVER:"Silver", GOLD:"Gold", PLATINUM:"Platinum"}[profile.tier] || "Silver"), [profile.tier]);
   const tierClass  = tierPretty.toLowerCase();

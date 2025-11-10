@@ -1,0 +1,146 @@
+.write-review-container {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 60px 20px 80px;
+  font-family: "Optima", "URW Classico", "Palatino Linotype", "Book Antiqua", serif;
+  color: #3c2f1d;
+}
+
+.write-review-container h2 {
+  font-size: 2.2rem;
+  margin-bottom: 6px;
+  color: #b89a67;
+}
+
+.write-review-container .muted {
+  color: #807060;
+  margin-bottom: 26px;
+}
+
+.write-form {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.form-line {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-line label {
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  color: #6d5530;
+}
+
+.rate-picker {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.rate-btn {
+  background: none;
+  border: 1px solid #d9c9a7;
+  border-radius: 50%;
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  font-size: 1.3rem;
+  color: #b8a582;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease, transform 0.2s ease;
+}
+
+.rate-btn:hover {
+  transform: translateY(-2px);
+  background: #f4ecde;
+}
+
+.rate-btn.on {
+  background: #b89a67;
+  color: #fff;
+  border-color: #b89a67;
+}
+
+.rate-num {
+  font-weight: 600;
+  color: #6d5530;
+  min-width: 48px;
+}
+
+textarea {
+  resize: vertical;
+  min-height: 140px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #d0c2a5;
+  background: #fffdf8;
+  font-size: 1rem;
+  color: #473522;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+textarea:focus {
+  outline: none;
+  border-color: #b89a67;
+  box-shadow: 0 0 0 3px rgba(184, 154, 103, 0.25);
+}
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+.btn {
+  border: 1px solid #b89a67;
+  color: #6d5530;
+  background: #fff;
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.25s ease, color 0.25s ease, transform 0.2s ease;
+}
+
+.btn:hover:not(:disabled) {
+  background: #f3e5cc;
+  transform: translateY(-1px);
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-gold {
+  background: #b89a67;
+  color: #fff;
+  border-color: #b89a67;
+}
+
+.btn-gold:hover:not(:disabled) {
+  background: #9d7b41;
+  color: #fff;
+}
+
+@media (max-width: 600px) {
+  .write-review-container {
+    padding: 40px 16px 60px;
+  }
+
+  .form-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .btn,
+  .btn-gold {
+    width: 100%;
+    text-align: center;
+  }
+}

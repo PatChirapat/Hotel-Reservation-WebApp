@@ -4,6 +4,7 @@ import "../ui/Booking.css";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import axios from "axios";
+import { apiUrl } from "../utils/api";
 
 function Booking() {
     const location = useLocation();
@@ -131,8 +132,6 @@ function Booking() {
         }
     }, [totalGuests, totalCapacity, selectedRooms]);
 
-    const apiBase = import.meta.env.VITE_API_URL;
-
     // Booking details to send to backend
 
     //booking confirm function
@@ -171,7 +170,7 @@ function Booking() {
 
         // 🟩 เชื่อมไปที่ addBooking.php (ไฟล์เดียว รองรับหลายห้องแล้ว)
         const res = await axios.post(
-        `${apiBase}/Booking/addBooking.php`,
+        apiUrl("Booking/addBooking.php"),
         { bookings }, // ✅ ส่ง array bookings
         { headers: { "Content-Type": "application/json" } }
         );
