@@ -48,54 +48,6 @@ function BookingConfirmation() {
     5: 9900, // Royal
   };
 
-  // ==== Payment Popup (demo) ====
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
-  const [paymentRow, setPaymentRow] = useState(null);
-  const [paymentMethod, setPaymentMethod] = useState('QR'); // Credit | Debit | Cash | QR
-  const [paymentData, setPaymentData] = useState({});
-  const [processingPayment, setProcessingPayment] = useState(false);
-  const isAdmin = currentUser?.role === 'ADMIN';
-
-  const openPaymentModal = (row) => {
-    setPaymentRow(row);
-    setPaymentMethod('QR');
-    setPaymentData({});
-    setShowPaymentModal(true);
-  };
-  const closePaymentModal = () => {
-    setShowPaymentModal(false);
-    setPaymentRow(null);
-    setProcessingPayment(false);
-  };
-
-  // Simulate QR loading when modal opens with QR selected
-  useEffect(() => {
-    if (!showPaymentModal || paymentMethod !== 'QR') return;
-    setPaymentData((p) => ({ ...p, qrReady: false }));
-    const t = setTimeout(() => setPaymentData((p) => ({ ...p, qrReady: true })), 800);
-    return () => clearTimeout(t);
-  }, [showPaymentModal, paymentMethod]);
-
-  const submitPaymentDemo = async () => {
-    if (!paymentRow) return;
-    if (paymentMethod === 'Cash' && !isAdmin) {
-      alert('Cash payments can only be confirmed by an admin (demo).');
-      return;
-    }
-    setProcessingPayment(true);
-    await new Promise((r) => setTimeout(r, 700));
-
-    // Update status locally (demo only)
-    setBookings((prev) => prev.map((b) => (
-      b.booking_id === paymentRow.booking_id
-        ? { ...b, booking_status: 'Success', payment_method: paymentMethod, paid_at: new Date().toISOString() }
-        : b
-    )));
-
-    setProcessingPayment(false);
-    alert('Payment recorded (demo). Status = Success');
-    closePaymentModal();
-  };
 
 
 
@@ -189,6 +141,17 @@ function BookingConfirmation() {
   const goToPdfSummary = (row) => {
     if (!row?.booking_id) return;
     navigate("/ConfirmBooking", {
+      state: {
+        booking_id: row.booking_id,
+        booking: row,
+      },
+    });
+  };
+
+  const goToPayment = (row) => {
+    if (!row?.booking_id) return;
+    if (!currentUser?.member_id) { navigate('/signin'); return; }
+    navigate('/payment', {
       state: {
         booking_id: row.booking_id,
         booking: row,
@@ -338,7 +301,7 @@ function BookingConfirmation() {
                       <button
                         type="button"
                         className="payment-btn"
-                        onClick={() => openPaymentModal(b)}
+                        onClick={() => goToPayment(b)}
                       >
                         {String(b.booking_status).toLowerCase() === 'success' ? 'Paid' : 'Pay / Manage'}
                       </button>
@@ -390,108 +353,6 @@ function BookingConfirmation() {
           </div>
         </div>
       </div>
-        {showPaymentModal && paymentRow && (
-          <div className="modal-overlay">
-            <div className="modal-content">
-              <h2>Payment · Booking #{paymentRow.booking_id}</h2>
-
-              <div className="payment-methods" style={{marginTop:8}}>
-                <label style={{fontWeight:600}}>Choose method</label>
-                <div style={{display:'flex', gap:12, marginTop:6, flexWrap:'wrap'}}>
-                  {['Credit','Debit','Cash','QR'].map((m) => (
-                    <label key={m} style={{display:'inline-flex', alignItems:'center', gap:6}}>
-                      <input
-                        type="radio"
-                        name="pmethod"
-                        value={m}
-                        checked={paymentMethod===m}
-                        onChange={(e)=>{ setPaymentMethod(e.target.value); setPaymentData({}); }}
-                      />
-                      <span>{m}</span>
-                    </label>
-                  ))}
-                </div>
-              </div>
-
-              <div className="payment-form" style={{marginTop:12}}>
-                {paymentMethod === 'QR' && (
-                  <div>
-                    {!paymentData.qrReady ? (
-                      <p>Loading QR…</p>
-                    ) : (
-                      <>
-                        <img src="/images/demo/demo-qr.png" alt="QR (demo)" style={{width:220,height:220,objectFit:'contain',border:'1px solid #eee',borderRadius:8}} />
-                        <p className="muted" style={{marginTop:8}}>Scan to pay (demo)</p>
-                      </>
-                    )}
-                  </div>
-                )}
-
-                {(paymentMethod === 'Credit' || paymentMethod === 'Debit') && (
-                  <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:10}}>
-                    <label style={{gridColumn:'1 / -1'}}>Cardholder Name
-                      <input type="text" value={paymentData.card_name||''} onChange={(e)=>setPaymentData({...paymentData, card_name:e.target.value})} />
-                    </label>
-                    <label>Card Number
-                      <input type="text" value={paymentData.card_number||''} onChange={(e)=>setPaymentData({...paymentData, card_number:e.target.value})} />
-                    </label>
-                    <label>Expiry (MM)
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={2}
-                        placeholder="MM"
-                        value={paymentData.expiry_mm || ''}
-                        onChange={(e) => {
-                          const v = (e.target.value || '').replace(/\D/g, '').slice(0, 2);
-                          setPaymentData({ ...paymentData, expiry_mm: v });
-                        }}
-                      />
-                    </label>
-                    <label>Year (YY)
-                      <input
-                        type="text"
-                        inputMode="numeric"
-                        maxLength={2}
-                        placeholder="YY"
-                        value={paymentData.expiry_yy || ''}
-                        onChange={(e) => {
-                          const v = (e.target.value || '').replace(/\D/g, '').slice(0, 2);
-                          setPaymentData({ ...paymentData, expiry_yy: v });
-                        }}
-                      />
-                    </label>
-                    <label>CVV
-                      <input type="password" value={paymentData.cvv||''} onChange={(e)=>setPaymentData({...paymentData, cvv:e.target.value})} />
-                    </label>
-                  </div>
-                )}
-
-                {paymentMethod === 'Cash' && (
-                  <div>
-                    <p>Cash can only be confirmed by an <strong>admin</strong> in this demo.</p>
-                  </div>
-                )}
-              </div>
-
-              <div className="modal-buttons">
-                <button type="button" className="cancel-btn" onClick={closePaymentModal}>Cancel</button>
-
-                {paymentMethod === 'Cash' && isAdmin && (
-                  <button type="button" className="save-btn" onClick={submitPaymentDemo} disabled={processingPayment}>
-                    {processingPayment ? 'Processing…' : 'Mark as Received'}
-                  </button>
-                )}
-
-                {paymentMethod !== 'Cash' && (
-                  <button type="button" className="save-btn" onClick={submitPaymentDemo} disabled={processingPayment}>
-                    {processingPayment ? 'Processing…' : 'Confirm Payment'}
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
         {/* modal */}
         {showEditModal && selectedBooking && (
           <div className="modal-overlay">
@@ -565,7 +426,6 @@ function BookingConfirmation() {
             </div>
           </div>
         )}
-            
       <Footer />
     </div>
   );
