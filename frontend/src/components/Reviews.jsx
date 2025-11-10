@@ -1,104 +1,144 @@
-import React, { useMemo } from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
+import { apiUrl, getApiBase } from "../utils/api";
 import "../ui/Reviews.css";
 
-const defaultReviews = [
-  {
-    id: 1,
-    name: "Nicha T.",
-    country: "Thailand",
-    date: "2025-10-12",
-    rating: 5,
-    text:
-      "ห้องพักสะอาด กลิ่นผ้าปูดีมาก บริการรวดเร็ว ประทับใจแถบจองห้องใช้ง่ายสุดๆ!"
-  },
-  {
-    id: 2,
-    name: "Kenji A.",
-    country: "Japan",
-    date: "2025-09-03",
-    rating: 4,
-    text:
-      "Location ดี เดินทางสะดวก อาหารเช้าหลากหลาย อยากให้สระว่ายน้ำเปิดถึงดึกกว่านี้อีกนิด"
-  },
-  {
-    id: 3,
-    name: "Marie C.",
-    country: "France",
-    date: "2025-08-21",
-    rating: 5,
-    text:
-      "Design สวยมาก ละเอียดทุกจุด Club lounge ดีงาม เครื่องดื่มคัดคุณภาพ"
-  }
-];
+export default function Reviews({ limit = 6 }) {
+  const [items, setItems] = useState([]);
+  const [avg, setAvg] = useState(0);
+  const [count, setCount] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-function Stars({ value }) {
-  const stars = Array.from({ length: 5 }, (_, i) => i < value);
-  return (
-    <div className="stars" aria-label={`Rating ${value} out of 5`}>
-      {stars.map((on, i) => (
-        <svg
-          key={i}
-          className={`star ${on ? "on" : ""}`}
-          viewBox="0 0 24 24"
-          width="18"
-          height="18"
-          aria-hidden="true"
-        >
-          <path d="M12 .587l3.668 7.429 8.2 1.193-5.934 5.787 1.402 8.167L12 18.896l-7.336 3.867 1.402-8.167L.132 9.209l8.2-1.193L12 .587z" />
-        </svg>
-      ))}
-    </div>
-  );
-}
+  const apiBase = getApiBase();
 
-export default function Reviews({ items = defaultReviews, ctaTo = "/signin" }) {
-  const avg = useMemo(() => {
-    if (!items.length) return 0;
-    return (
-      Math.round(
-        (items.reduce((s, r) => s + (r.rating || 0), 0) / items.length) * 10
-      ) / 10
-    );
-  }, [items]);
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        setLoading(true);
+        setError("");
+
+        const res = await axios.get(apiUrl("reviewuser/getReviews.php"), {
+          params: { limit, offset: 0 },
+        });
+        if (!alive) return;
+
+        const rows = Array.isArray(res.data?.rows) ? res.data.rows : [];
+        setItems(rows);
+        setCount(Number(res.data?.total ?? rows.length));
+
+        const avgValue = res.data?.avg ?? (rows.length
+          ? rows.reduce((sum, row) => sum + Number(row.rating || 0), 0) / rows.length
+          : 0);
+        setAvg(Number.isFinite(avgValue) ? Number(avgValue) : 0);
+      } catch (err) {
+        if (alive) setError("Unable to load reviews.");
+      } finally {
+        if (alive) setLoading(false);
+      }
+    })();
+    return () => {
+      alive = false;
+    };
+  }, [apiBase, limit]);
+
+  const avgDisplay = Number.isFinite(avg) ? avg : 0;
 
   return (
-    <section id="reviews" className="reviews-section">
+    <section className="reviews-section" id="reviews">
       <div className="reviews-header">
-        <h2 className="reviews-title">Guest Reviews & Testimonials</h2>
-        <div className="reviews-summary">
-          <Stars value={Math.round(avg)} />
-          <span className="reviews-avg">{avg}/5</span>
-          <span className="reviews-count">({items.length} reviews)</span>
+        <h2>Guest Reviews</h2>
+        <div className="reviews-stats">
+          <Stars value={avgDisplay} />
+          <span className="avg">{avgDisplay.toFixed(2)}</span>
+          <span className="count">({count} reviews)</span>
         </div>
       </div>
 
-      <div className="reviews-grid">
-        {items.map((r) => (
-          <article key={r.id} className="review-card">
-            <div className="review-top">
-              <div className="reviewer">
-                <div className="avatar" aria-hidden="true">
-                  {r.name?.[0] ?? "G"}
-                </div>
-                <div>
-                  <div className="name">{r.name}</div>
-                  <div className="meta">
-                    {r.country} • {new Date(r.date).toLocaleDateString()}
-                  </div>
-                </div>
-              </div>
-              <Stars value={r.rating} />
-            </div>
-            <p className="review-text">{r.text}</p>
-          </article>
-        ))}
+      {error && <div className="reviews-error">{error}</div>}
+      {loading ? (
+        <div className="reviews-loading">Loading reviews…</div>
+      ) : items.length === 0 ? (
+        <p className="reviews-empty">Be the first to write a review.</p>
+      ) : (
+        <div className="reviews-grid">
+          {items.map((rv) => (
+            <ReviewCard key={rv.review_id} review={rv} />
+          ))}
+        </div>
+      )}
+    </section>
+  );
+}
+
+function Stars({ value = 0 }) {
+  const full = Math.floor(value);
+  const half = value - full >= 0.5;
+  return (
+    <span className="stars" aria-label={`Rating ${value} of 5`}>
+      {Array.from({ length: 5 }).map((_, i) => {
+        if (i < full) return (
+          <span key={i} className="star full">
+            ★
+          </span>
+        );
+        if (i === full && half)
+          return (
+            <span key={i} className="star half">
+              ★
+            </span>
+          );
+        return (
+          <span key={i} className="star">
+            ☆
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+function ReviewCard({ review }) {
+  const name =
+    review?.member_name ||
+    (review?.member?.first_name && review?.member?.last_name
+      ? `${review.member.first_name} ${review.member.last_name}`
+      : review?.member?.first_name || review?.member?.last_name
+      ? `${review.member.first_name || ""}${review.member.last_name ? ` ${review.member.last_name}` : ""}`.trim()
+      : `Guest #${review?.member_id}`);
+
+  const tier = (review?.member?.tier || review?.tier || "SILVER").toUpperCase();
+  const room = review?.room_type_name || review?.room_name || null;
+  const createdRaw = review?.created_at || review?.createdAt;
+  const created = createdRaw ? new Date(createdRaw) : new Date();
+
+  return (
+    <article className="review-card">
+      <div className="review-top">
+        <div className="avatar" aria-hidden>
+          {name?.[0]?.toUpperCase() || "G"}
+        </div>
+        <div className="who">
+          <div className="name">{name}</div>
+          <div className={`tier ${tier.toLowerCase()}`}>{tier}</div>
+        </div>
+        <div className="rating">
+          <Stars value={Number(review?.rating || 0)} />
+        </div>
       </div>
 
-      <div className="reviews-cta">
-        <a className="reviews-button" href={ctaTo}>
-          Write a Review
-        </a>
+      <div className="review-body">
+        {room && <div className="room">Stayed in: {room}</div>}
+        <p className="text">{review?.text}</p>
       </div>
-    </section>
+
+      <div className="review-foot">
+        <time className="when">{created.toLocaleString()}</time>
+        {review?.booking_id && (
+          <span className="bid">Booking #{review.booking_id}</span>
+        )}
+      </div>
+    </article>
   );
 }

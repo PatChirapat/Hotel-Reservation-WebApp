@@ -51,9 +51,7 @@ function Home() {
         <FacilityComp />
       </section>
 
-      <section id="reviews">
-        <Reviews />
-      </section>
+      <Reviews />
 
       <Footer />
     </div>
