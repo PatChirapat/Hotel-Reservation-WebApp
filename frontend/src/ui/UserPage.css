@@ -1,0 +1,39 @@
+.userpage { background:#fff; min-height:100vh; display:flex; flex-direction:column; }
+.user-container { width:min(1100px, 92%); margin:40px auto 60px; }
+.user-header { margin-bottom:18px; }
+.header-line { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.title-side h1 { margin:0 0 4px; }
+.muted { color:#777; font-size:.95rem; }
+
+.user-tabs { display:flex; align-items:center; gap:10px; margin:18px 0; }
+.tab { border:1px solid #ddd; background:#fff; padding:8px 14px; border-radius:8px; font-weight:600; }
+.tab.active { border-color:#B89A67; color:#B89A67; }
+.spacer { flex:1; }
+.to-home { border:1px solid #ddd; background:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
+
+.panel { border:1px solid #eee; border-radius:14px; background:#fff; padding:18px; }
+.gold { color:#B89A67; }
+
+.form-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
+.field { display:flex; flex-direction:column; gap:6px; }
+.field label { font-weight:600; color:#333; }
+.field input { border:1px solid #ddd; border-radius:8px; padding:10px 12px; outline:none; background:#fafafa; }
+.actions { display:flex; gap:10px; justify-content:flex-end; margin-top:10px; }
+
+.primary { background:#B89A67; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:600; cursor:pointer; transition:.25s; }
+.primary:hover { background:#8b6f45; }
+.cancel-btn { background:#6f6f6f; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:600; cursor:pointer; transition:.25s; }
+.cancel-btn:hover { background:#555; }
+
+.profile-photo-box { text-align:center; margin-bottom: 20px; display:flex; flex-direction:column; justify-content:center; align-items:center; }
+.profile-photo { width:120px; height:120px; border-radius:10px; object-fit:cover; border:3px solid #B89A67; background:#fff; }
+
+.user-error { background:#ffecec; color:#a12626; border:1px solid #f1c4c4; padding:10px 12px; border-radius:8px; margin:10px 0; }
+.userpage-loading { padding:40px; text-align:center; color:#555; }
+
+.tier-badge { display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px; font-weight:700; border:1px solid transparent; }
+.tier-badge.silver { color:#6f6f6f; background:#fafafa; border-color:#d9d9d9; }
+.tier-badge.gold { color:#B89A67; background:#fffaf0; border-color:#eed9b6; }
+.tier-badge.platinum { color:#5a6470; background:#f7f9fb; border-color:#dfe6ee; }
+
+@media (max-width: 960px) { .form-grid { grid-template-columns: 1fr; } }
