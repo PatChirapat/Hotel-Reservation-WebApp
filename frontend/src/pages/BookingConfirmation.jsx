@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../ui/BookingConfirmation.css";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import axios from "axios";
+import { apiUrl, getApiBase } from "../utils/api";
 
 function BookingConfirmation() {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
   const memberId = currentUser?.member_id || null;
   console.log("📨 BookingConfirmation received state:", location.state);
@@ -51,7 +53,7 @@ function BookingConfirmation() {
 
   // 🟢 รับ booking_ids จาก Booking.jsx
   const booking_ids = location.state?.booking_ids || [];
-  const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+  const apiBase = getApiBase();
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -70,7 +72,7 @@ function BookingConfirmation() {
 
         console.log("📤 Fetching bookings with payload:", payload);
         const res = await axios.post(
-          `${apiBase}/Booking/viewBooking.php`,
+          apiUrl("Booking/viewBooking.php"),
           payload,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -97,7 +99,7 @@ function BookingConfirmation() {
   const handleUpdate = async (booking) => {
     try {
       const response = await axios.post(
-        `${apiBase}/Booking/updateBooking.php`,
+        apiUrl("Booking/updateBooking.php"),
         booking,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -119,7 +121,7 @@ function BookingConfirmation() {
 
     try {
       const response = await axios.post(
-        `${apiBase}/Booking/deleteBooking.php`,
+        apiUrl("Booking/deleteBooking.php"),
         { booking_id },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -134,6 +136,26 @@ function BookingConfirmation() {
       console.error("Error deleting booking:", err);
       alert("❌ Error connecting to backend.");
     }
+  };
+
+  const handleWriteReview = (booking) => {
+    if (!memberId) {
+      alert("Please sign in before writing a review.");
+      navigate("/signin");
+      return;
+    }
+    if (!booking?.booking_id) {
+      alert("Booking information is missing.");
+      return;
+    }
+
+    navigate("/reviews/new", {
+      state: {
+        booking_id: booking.booking_id,
+        room_type_id: booking.room_type_id,
+        room_type_name: booking.room_type_name,
+      },
+    });
   };
 
     if (loading) return <p>Loading booking data...</p>;
@@ -193,7 +215,7 @@ function BookingConfirmation() {
         }
 
         // 🔹 ส่งข้อมูลอัปเดตไป backend
-        const res = await axios.post(`${apiBase}/Booking/updateBooking.php`, updatedBooking);
+        const res = await axios.post(apiUrl("Booking/updateBooking.php"), updatedBooking);
 
         if (res.data.success) {
           alert(`✅ Booking #${selectedBooking.booking_id} updated successfully!`);
@@ -256,6 +278,13 @@ function BookingConfirmation() {
                     <td><strong>{Number(b.total_amount).toLocaleString()}</strong></td>
                     
                     <td className="actions">
+                      <button
+                        type="button"
+                        className="review-btn"
+                        onClick={() => handleWriteReview(b)}
+                      >
+                        Write Review
+                      </button>
                       <button type="button" className="edit-btn" onClick={() => handleEditClick(b)}>
                         {EditIcon}
                       </button>
