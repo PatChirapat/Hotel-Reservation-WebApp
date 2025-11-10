@@ -2,14 +2,13 @@ import React, { useState } from "react";
 import axios from "axios";
 import "../ui/Signin.css";
 import Navbar from "../components/Navbar";
+import { apiUrl } from "../utils/api";
 
 function Signin() {
   const signinbg = "images/home/proj_home3.jpeg";
   const [activeTab, setActiveTab] = useState("signin");
 
   // --- API base ---
-  const apiBase = import.meta.env.VITE_API_URL;
-
   // --- Sign In state ---
   const [identifier, setIdentifier] = useState(""); // username / phone / email
   const [passwordIn, setPasswordIn] = useState("");
@@ -35,7 +34,7 @@ function Signin() {
     setErrIn("");
     setLoadingIn(true);
     try {
-      const { data } = await axios.post(`${apiBase}/api/auth/signin.php`, {
+      const { data } = await axios.post(apiUrl("api/auth/signin.php"), {
         identifier,
         password: passwordIn,
       }, {
@@ -69,7 +68,7 @@ function Signin() {
 
     setLoadingUp(true);
     try {
-      const { data } = await axios.post(`${apiBase}/api/auth/signup.php`, {
+      const { data } = await axios.post(apiUrl("api/auth/signup.php"), {
         first_name: su.first_name,
         last_name: su.last_name,
         phone: su.phone,
