@@ -1,39 +1,221 @@
-.userpage { background:#fff; min-height:100vh; display:flex; flex-direction:column; }
-.user-container { width:min(1100px, 92%); margin:40px auto 60px; }
-.user-header { margin-bottom:18px; }
-.header-line { display:flex; align-items:center; justify-content:space-between; gap:12px; }
-.title-side h1 { margin:0 0 4px; }
-.muted { color:#777; font-size:.95rem; }
+.userpage {
+    background: #f9f9f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Optima", "URW Classico", "Palatino Linotype", serif;
+    color: #333;
+}
 
-.user-tabs { display:flex; align-items:center; gap:10px; margin:18px 0; }
-.tab { border:1px solid #ddd; background:#fff; padding:8px 14px; border-radius:8px; font-weight:600; }
-.tab.active { border-color:#B89A67; color:#B89A67; }
-.spacer { flex:1; }
-.to-home { border:1px solid #ddd; background:#fff; padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; }
+.user-container {
+    width: min(1100px, 92%);
+    margin: 50px auto 80px;
+}
 
-.panel { border:1px solid #eee; border-radius:14px; background:#fff; padding:18px; }
-.gold { color:#B89A67; }
+.user-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2b2b2b;
+}
 
-.form-grid { display:grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap:14px; }
-.field { display:flex; flex-direction:column; gap:6px; }
-.field label { font-weight:600; color:#333; }
-.field input { border:1px solid #ddd; border-radius:8px; padding:10px 12px; outline:none; background:#fafafa; }
-.actions { display:flex; gap:10px; justify-content:flex-end; margin-top:10px; }
+.muted {
+    color: #777;
+    font-size: 1rem;
+}
 
-.primary { background:#B89A67; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:600; cursor:pointer; transition:.25s; }
-.primary:hover { background:#8b6f45; }
-.cancel-btn { background:#6f6f6f; color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:600; cursor:pointer; transition:.25s; }
-.cancel-btn:hover { background:#555; }
+.user-tabs {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 25px 0;
+}
 
-.profile-photo-box { text-align:center; margin-bottom: 20px; display:flex; flex-direction:column; justify-content:center; align-items:center; }
-.profile-photo { width:120px; height:120px; border-radius:10px; object-fit:cover; border:3px solid #B89A67; background:#fff; }
+.spacer {
+    flex: 1;
+}
 
-.user-error { background:#ffecec; color:#a12626; border:1px solid #f1c4c4; padding:10px 12px; border-radius:8px; margin:10px 0; }
-.userpage-loading { padding:40px; text-align:center; color:#555; }
+.to-home {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    border: 1px solid #b89a67;
+    background: #fff;
+    color: #b89a67;
+    padding: 8px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.25s ease;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
 
-.tier-badge { display:inline-flex; align-items:center; padding:6px 12px; border-radius:999px; font-weight:700; border:1px solid transparent; }
-.tier-badge.silver { color:#6f6f6f; background:#fafafa; border-color:#d9d9d9; }
-.tier-badge.gold { color:#B89A67; background:#fffaf0; border-color:#eed9b6; }
-.tier-badge.platinum { color:#5a6470; background:#f7f9fb; border-color:#dfe6ee; }
+.to-home svg {
+    width: 20px;
+    height: 20px;
+    fill: #b89a67;
+    transition: fill 0.25s ease;
+}
 
-@media (max-width: 960px) { .form-grid { grid-template-columns: 1fr; } }
+.to-home:hover {
+    background: #b89a67;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.to-home:hover svg {
+    fill: #fff;
+}
+
+.panel {
+    border: none;
+    border-radius: 16px;
+    background: #fff;
+    padding: 30px 40px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* header panel */
+.panel-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+}
+
+.panel-header h2 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    color: #b89a67;
+}
+
+.tier-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px 14px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    border: 1px solid transparent;
+    text-transform: capitalize;
+}
+
+.tier-badge.silver {
+    color: #6f6f6f;
+    background: #f3f3f3;
+    border-color: #ddd;
+}
+
+.tier-badge.gold {
+    color: #b89a67;
+    background: #fffaf0;
+    border-color: #eed9b6;
+}
+
+.tier-badge.platinum {
+    color: #5a6470;
+    background: #f7f9fb;
+    border-color: #dfe6ee;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 18px 30px;
+}
+
+.field label {
+    font-weight: 600;
+    color: #222;
+    font-size: 1rem;
+}
+
+.field input {
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    padding: 12px 14px;
+    outline: none;
+    background: #fafafa;
+    font-size: 1rem;
+    color: #333;
+    transition: all 0.25s;
+}
+
+.field input:focus {
+    border-color: #b89a67;
+    background: #fff;
+    box-shadow: 0 0 0 3px rgba(184, 154, 103, 0.2);
+}
+
+.actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+    margin-top: 20px;
+}
+
+/* ปุ่มหลัก: Edit / Save */
+.primary {
+    background-color: #b89a67 !important;
+    color: #fff !important;
+    border: none !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.primary:hover {
+    background-color: #9c804f;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+/* ปุ่ม Cancel */
+.cancel-btn {
+    background-color: #fff !important;
+    color: #b89a67 !important;
+    border: 2px solid #b89a67 !important;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+}
+
+.cancel-btn:hover {
+    background-color: #b89a67;
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.user-error {
+    background: #ffecec;
+    color: #a12626;
+    border: 1px solid #f1c4c4;
+    padding: 10px 12px;
+    border-radius: 8px;
+    margin: 10px 0;
+}
+
+.userpage-loading {
+    padding: 40px;
+    text-align: center;
+    color: #555;
+}
+
+@media (max-width: 960px) {
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+    .panel {
+        padding: 20px;
+    }
+}
