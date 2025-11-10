@@ -42,8 +42,9 @@
 .booking-confirmation-table th,
 .booking-confirmation-table td {
     border: 1px solid #ddd;
-    padding: 10px 12px;
+    padding: 12px 14px;
     text-align: center;
+    vertical-align: middle;
 }
 
 .booking-confirmation-table th {
@@ -61,11 +62,107 @@
 }
 
 /* Actions */
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    background: #f0e9dc;
+    color: #866a34;
+    border: 1px solid #e0d2bb;
+}
+
+.status-badge.confirmed,
+.status-badge.success,
+.status-badge.paid {
+    background: #e3f5eb;
+    color: #2f7a48;
+    border-color: #b9e2c7;
+}
+
+.status-badge.pending,
+.status-badge.processing,
+.status-badge.payment-pending {
+    background: #fff4e0;
+    color: #a46a1f;
+    border-color: #f1d3a3;
+}
+
+.status-badge.failed,
+.status-badge.cancelled {
+    background: #fdebea;
+    color: #b94848;
+    border-color: #f3c3c2;
+}
+
+.payment-btn,
+.pdf-btn,
+.review-btn {
+    border: 1px solid transparent;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-btn {
+    background: #b89a67;
+    color: #fff;
+    border-color: #b89a67;
+}
+
+.payment-btn:hover {
+    background: #a2824d;
+    border-color: #a2824d;
+}
+
+.pdf-btn {
+    background: #fff;
+    color: #b89a67;
+    border-color: #b89a67;
+}
+
+.pdf-btn:hover:not(:disabled) {
+    background: #f8f1e4;
+}
+
+.pdf-btn:disabled {
+    background: #f0f0f0;
+    color: #aaa;
+    border-color: #ddd;
+    cursor: not-allowed;
+}
+
+.review-btn {
+    background: #b89a67;
+    color: #fff;
+    border-color: #b89a67;
+}
+
+.review-btn:hover {
+    background: #a2824d;
+    border-color: #a2824d;
+}
+
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+}
+
 .actions button {
     background: none;
     border: none;
     cursor: pointer;
-    margin: 0 5px;
 }
 
 .actions .edit-btn svg,
