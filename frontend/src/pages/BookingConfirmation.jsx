@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import "../ui/BookingConfirmation.css";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
@@ -7,6 +7,7 @@ import axios from "axios";
 
 function BookingConfirmation() {
   const location = useLocation();
+  const navigate = useNavigate();
   const currentUser = JSON.parse(localStorage.getItem("user") || "null");
   const memberId = currentUser?.member_id || null;
   console.log("📨 BookingConfirmation received state:", location.state);
@@ -136,6 +137,26 @@ function BookingConfirmation() {
     }
   };
 
+  const handleWriteReview = (booking) => {
+    if (!memberId) {
+      alert("Please sign in before writing a review.");
+      navigate("/signin");
+      return;
+    }
+    if (!booking?.booking_id) {
+      alert("Booking information is missing.");
+      return;
+    }
+
+    navigate("/reviews/new", {
+      state: {
+        booking_id: booking.booking_id,
+        room_type_id: booking.room_type_id,
+        room_type_name: booking.room_type_name,
+      },
+    });
+  };
+
     if (loading) return <p>Loading booking data...</p>;
 
   const EditIcon = (
@@ -256,6 +277,13 @@ function BookingConfirmation() {
                     <td><strong>{Number(b.total_amount).toLocaleString()}</strong></td>
                     
                     <td className="actions">
+                      <button
+                        type="button"
+                        className="review-btn"
+                        onClick={() => handleWriteReview(b)}
+                      >
+                        Write Review
+                      </button>
                       <button type="button" className="edit-btn" onClick={() => handleEditClick(b)}>
                         {EditIcon}
                       </button>
