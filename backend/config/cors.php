@@ -1,13 +1,17 @@
 <?php
 $allowed_origins = [
     "http://localhost:5173",
-    "http://localhost:5174"
+    "http://localhost:5174",
 ];
 
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
-if (in_array($origin, $allowed_origins)) {
-    header("Access-Control-Allow-Origin: $origin");
+if ($origin) {
+    if (in_array($origin, $allowed_origins, true)) {
+        header("Access-Control-Allow-Origin: $origin");
+    } elseif (preg_match('/^https?:\/\/(localhost|127\.0\.0\.1)(:\\d+)?$/i', $origin)) {
+        header("Access-Control-Allow-Origin: $origin");
+    }
 }
 
 header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");

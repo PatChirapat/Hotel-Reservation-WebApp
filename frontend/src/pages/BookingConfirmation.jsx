@@ -4,6 +4,7 @@ import "../ui/BookingConfirmation.css";
 import Navbar from "../components/Navbar.jsx";
 import Footer from "../components/Footer.jsx";
 import axios from "axios";
+import { apiUrl, getApiBase } from "../utils/api";
 
 function BookingConfirmation() {
   const location = useLocation();
@@ -52,7 +53,7 @@ function BookingConfirmation() {
 
   // 🟢 รับ booking_ids จาก Booking.jsx
   const booking_ids = location.state?.booking_ids || [];
-  const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
+  const apiBase = getApiBase();
 
   useEffect(() => {
     const fetchBookings = async () => {
@@ -71,7 +72,7 @@ function BookingConfirmation() {
 
         console.log("📤 Fetching bookings with payload:", payload);
         const res = await axios.post(
-          `${apiBase}/Booking/viewBooking.php`,
+          apiUrl("Booking/viewBooking.php"),
           payload,
           { headers: { "Content-Type": "application/json" } }
         );
@@ -98,7 +99,7 @@ function BookingConfirmation() {
   const handleUpdate = async (booking) => {
     try {
       const response = await axios.post(
-        `${apiBase}/Booking/updateBooking.php`,
+        apiUrl("Booking/updateBooking.php"),
         booking,
         { headers: { "Content-Type": "application/json" } }
       );
@@ -120,7 +121,7 @@ function BookingConfirmation() {
 
     try {
       const response = await axios.post(
-        `${apiBase}/Booking/deleteBooking.php`,
+        apiUrl("Booking/deleteBooking.php"),
         { booking_id },
         { headers: { "Content-Type": "application/json" } }
       );
@@ -214,7 +215,7 @@ function BookingConfirmation() {
         }
 
         // 🔹 ส่งข้อมูลอัปเดตไป backend
-        const res = await axios.post(`${apiBase}/Booking/updateBooking.php`, updatedBooking);
+        const res = await axios.post(apiUrl("Booking/updateBooking.php"), updatedBooking);
 
         if (res.data.success) {
           alert(`✅ Booking #${selectedBooking.booking_id} updated successfully!`);
