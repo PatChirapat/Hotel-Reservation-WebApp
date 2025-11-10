@@ -140,7 +140,7 @@
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  padding: 6px 12px;
+  padding: 4px 10px;
   border-radius: 999px;
   background: #f5ede0;
   border: 1px solid #eadbc4;
@@ -148,7 +148,7 @@
 }
 
 .rating .stars {
-  font-size: 1.05rem;
+  font-size: 0.9rem;
 }
 
 .review-body {
