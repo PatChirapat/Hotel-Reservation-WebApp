@@ -92,34 +92,34 @@
 }
 
 .tier-badge {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    display: inline-block;
     padding: 6px 14px;
-    border-radius: 999px;
-    font-weight: 700;
-    font-size: 0.95rem;
+    border-radius: 20px;
     border: 1px solid transparent;
-    text-transform: capitalize;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
 
 .tier-badge.silver {
-    color: #6f6f6f;
-    background: #f3f3f3;
-    border-color: #ddd;
+    color: #4b4b4b;
+    background: #c0c0c0;
+    box-shadow: 0 2px 8px rgba(160,160,160,0.3);
 }
 
 .tier-badge.gold {
-    color: #b89a67;
-    background: #fffaf0;
-    border-color: #eed9b6;
+    color: #6b4e06;
+    background: #e8c676;
+    box-shadow: 0 2px 10px rgba(212,175,55,0.4);
 }
 
 .tier-badge.platinum {
-    color: #5a6470;
-    background: #f7f9fb;
-    border-color: #dfe6ee;
+    color: #ffffff;
+    background:  #6f73a8;
+    box-shadow: 0 2px 12px rgba(162,167,208,0.4);
 }
+
 
 .form-grid {
     display: grid;
