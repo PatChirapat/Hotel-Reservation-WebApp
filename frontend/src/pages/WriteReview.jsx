@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import "../ui/WriteReview.css";
+import { apiUrl } from "../utils/api";
 
 export default function WriteReview() {
   const navigate = useNavigate();
@@ -19,7 +20,6 @@ export default function WriteReview() {
 
   const missingBooking = !booking_id;
 
-  const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +54,7 @@ export default function WriteReview() {
         text: text.trim(),
       };
 
-      const res = await fetch(`${apiBase}/reviewuser/createReview.php`, {
+      const res = await fetch(apiUrl("reviewuser/createReview.php"), {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify(payload),
