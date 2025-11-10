@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import { apiUrl, getApiBase } from "../utils/api";
 import "../ui/Reviews.css";
 
 export default function Reviews({ limit = 6 }) {
@@ -10,7 +9,7 @@ export default function Reviews({ limit = 6 }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const apiBase = getApiBase();
+  const apiBase = (import.meta.env.VITE_API_URL || "").replace(/\/$/, "");
 
   useEffect(() => {
     let alive = true;
@@ -19,7 +18,7 @@ export default function Reviews({ limit = 6 }) {
         setLoading(true);
         setError("");
 
-        const res = await axios.get(apiUrl("reviewuser/getReviews.php"), {
+        const res = await axios.get(`${apiBase}/reviewuser/getReviews.php`, {
           params: { limit, offset: 0 },
         });
         if (!alive) return;
