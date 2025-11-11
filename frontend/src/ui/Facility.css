@@ -3,6 +3,7 @@
     color: #333;
     background-color: #fff;
     padding: 60px 100px;
+    flex-wrap: wrap;
 }
 
 .facility h1 {
@@ -104,4 +105,101 @@
     line-height: 1.8;
 }
 
+/* ===== Responsive Section ===== */
+@media (max-width: 768px) {
+    .facility {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        padding: 20px;
+    }
 
+    .facility h1 {
+        font-size: 2rem;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+    }
+
+    .facility h2 {
+        font-size: 1rem;
+        color: #777;
+        margin-bottom: 1.5rem;
+    }
+
+    .facility p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 40px;
+        padding: 0 10px;
+    }
+
+    .facility-list {
+        flex-direction: column;
+        gap: 40px;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    .facility-item {
+        flex-direction: column;
+        align-items: center;
+        gap: 25px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .facility-image-container {
+        width: 100%;
+        height: auto;
+        position: relative;
+    }
+
+    .facility-image {
+        width: 100%;
+        height: 220px;
+        border-radius: 10px;
+        object-fit: cover;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .image-dots {
+        position: absolute;
+        bottom: 10px;
+        left: 50%;
+        transform: translateX(-50%);
+        display: flex;
+        gap: 6px;
+    }
+
+    .image-dots span {
+        width: 8px;
+        height: 8px;
+        background-color: #ccc;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    .image-dots span.active {
+        background-color: #b89a67;
+    }
+
+    /* ✅ Info section */
+    .facility-info {
+        width: 100%;
+        text-align: left;
+        padding: 0 5px;
+    }
+
+    .facility-info h3 {
+        font-size: 1.4rem;
+        margin-bottom: 0.6rem;
+        color: #b89a67;
+    }
+
+    .facility-info p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 0.4rem;
+        color: #444;
+    }
+}
