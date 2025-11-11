@@ -380,7 +380,7 @@ function BookingConfirmation() {
                 // 🔹 ถ้าลบหมดแล้ว ให้ขึ้นข้อความสวย ๆ แทน แต่ยังอยู่ในหน้าเดิม
                   <tr>
                     <td colSpan="14" style={{ textAlign: "center", padding: "20px", color: "#888" }}>
-                      🗑️ All bookings have been deleted.
+                      No bookings found. Please make a reservation to view your booking details.
                     </td>
                   </tr>
                 )}
