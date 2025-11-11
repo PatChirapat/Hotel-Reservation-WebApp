@@ -299,13 +299,17 @@ function BookingConfirmation() {
               {bookings.length > 0 ? (
                 bookings.map((b) => {
                   const paymentStatusRaw = String(
-                    b.payment_status || b.booking_status || ""
+                    b.payment_status ?? b.booking_status ?? ""
                   ).trim();
-                  const paymentStatus = paymentStatusRaw.toUpperCase();
-                  const statusClass = paymentStatus
-                    ? paymentStatus.replace(/\s+/g, "-").toLowerCase()
+                  const paymentStatus = paymentStatusRaw
+                    ? paymentStatusRaw.toUpperCase()
+                    : "PENDING";
+                  const statusClass = paymentStatusRaw
+                    ? paymentStatusRaw.replace(/\s+/g, "-").toLowerCase()
                     : "pending";
-                  const canViewPdf = paymentStatus === "CONFIRMED";
+                  const isPaid = ["SUCCESS", "CONFIRMED", "PAID"].includes(
+                    paymentStatus
+                  );
 
                   return (
                     <tr key={b.booking_id}>
@@ -322,7 +326,7 @@ function BookingConfirmation() {
                       </td>
                       <td>
                         <span className={`status-badge ${statusClass}`}>
-                          {paymentStatus || "PENDING"}
+                          {paymentStatus}
                         </span>
                       </td>
                       <td>
@@ -331,7 +335,7 @@ function BookingConfirmation() {
                           className="payment-btn"
                           onClick={() => handleGoToPayment(b)}
                         >
-                          {canViewPdf ? "Manage" : "Pay Now"}
+                          {isPaid ? "Manage" : "Pay Now"}
                         </button>
                       </td>
                       <td>
@@ -339,9 +343,9 @@ function BookingConfirmation() {
                           type="button"
                           className="pdf-btn"
                           onClick={() => handleViewPdf(b)}
-                          disabled={!canViewPdf}
+                          disabled={!isPaid}
                           title={
-                            canViewPdf
+                            isPaid
                               ? "View booking PDF"
                               : "Available once payment is confirmed"
                           }
