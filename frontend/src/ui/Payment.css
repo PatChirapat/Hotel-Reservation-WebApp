@@ -1,0 +1,12 @@
+.payment-page { min-height:100vh; display:flex; flex-direction:column; }
+.payment-container { max-width:720px; margin:32px auto; padding:16px; }
+.payment-options { display:grid; gap:10px; margin:16px 0; }
+.payment-options label { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #eee; border-radius:12px; }
+.qr-section { margin:16px 0; text-align:center; }
+.qr-image { width:220px; height:auto; display:inline-block; }
+.loading-text { color:#666; font-style:italic; margin-top:8px; }
+.card-section { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
+.card-row { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; }
+.payment-actions { display:flex; gap:10px; margin-top:16px; }
+.pay-btn, .cancel-btn, .admin-btn { padding:10px 16px; border-radius:10px; border:1px solid #ddd; background:#fff; cursor:pointer; }
+.pay-btn:hover, .cancel-btn:hover, .admin-btn:hover { background:#f7f7f7; }
