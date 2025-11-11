@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import axios from "axios";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../ui/Payment.css";
+import { apiUrl } from "../utils/api";
 
 export default function Payment() {
   const { state } = useLocation();
@@ -34,37 +36,92 @@ export default function Payment() {
     }
   }, [method]);
 
-  const handlePay = () => {
+  const delay = (ms = 0) => new Promise((resolve) => setTimeout(resolve, ms));
+
+  const markPaymentSuccess = async () => {
+    if (!bookingId) {
+      alert("Missing booking information. Please return to your bookings.");
+      return false;
+    }
+
+    try {
+      const response = await axios.post(
+        apiUrl("Booking/updateBooking.php"),
+        {
+          booking_id: bookingId,
+          payment_status: "SUCCESS",
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (response.data?.success) {
+        return true;
+      }
+
+      alert(response.data?.message || "Failed to update payment status.");
+      return false;
+    } catch (error) {
+      console.error("Error updating payment status:", error);
+      alert("Unable to update payment status. Please try again.");
+      return false;
+    }
+  };
+
+  const handlePay = async () => {
     if (!method) {
       alert("Please select a payment method.");
+      return;
+    }
+
+    if (processing) {
       return;
     }
 
     if (method === "QR") {
       setQrVisible(true);
       setProcessing(true);
-      setTimeout(() => {
+      try {
+        await delay(2000);
+        const updated = await markPaymentSuccess();
+        if (updated) {
+          alert("Payment successful via QR!");
+          navigate("/BookingConfirmation");
+        }
+      } finally {
         setProcessing(false);
-        alert("Payment successful via QR!");
-        navigate("/BookingConfirmation");
-      }, 2000);
+      }
       return;
     }
 
     if (method === "Credit" || method === "Debit") {
       setProcessing(true);
-      setTimeout(() => {
+      try {
+        await delay(2000);
+        const updated = await markPaymentSuccess();
+        if (updated) {
+          alert("Card payment successful!");
+          navigate("/BookingConfirmation");
+        }
+      } finally {
         setProcessing(false);
-        alert("Card payment successful!");
-        navigate("/BookingConfirmation");
-      }, 2000);
+      }
       return;
     }
 
     if (method === "Cash") {
       if (isAdmin) {
-        alert("Admin marked payment as received.");
-        navigate("/BookingConfirmation");
+        setProcessing(true);
+        try {
+          const updated = await markPaymentSuccess();
+          if (updated) {
+            alert("Admin marked payment as received.");
+            navigate("/BookingConfirmation");
+          }
+        } finally {
+          setProcessing(false);
+        }
       } else {
         alert("Only admin can mark cash as paid.");
       }

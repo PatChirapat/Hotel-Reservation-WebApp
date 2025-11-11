@@ -33,6 +33,7 @@ if (isset($data["checkin_date"])) $fields[] = "checkin_date = '" . $conn->real_e
 if (isset($data["checkout_date"])) $fields[] = "checkout_date = '" . $conn->real_escape_string($data["checkout_date"]) . "'";
 if (isset($data["guest_count"])) $fields[] = "guest_count = " . intval($data["guest_count"]);
 if (isset($data["booking_status"])) $fields[] = "booking_status = '" . $conn->real_escape_string($data["booking_status"]) . "'";
+if (isset($data["payment_status"])) $fields[] = "payment_status = '" . $conn->real_escape_string($data["payment_status"]) . "'";
 if (isset($data["subtotal_amount"])) $fields[] = "subtotal_amount = " . floatval($data["subtotal_amount"]);
 if (isset($data["discount_amount"])) $fields[] = "discount_amount = " . floatval($data["discount_amount"]);
 if (isset($data["total_amount"])) $fields[] = "total_amount = " . floatval($data["total_amount"]);
