@@ -11,7 +11,7 @@
     margin: 0 auto;
     background-color: #fff;
     min-height: 75vh;
-    max-width: 1200px;
+    width: 100%;
 }
 
 .booking-header {
@@ -32,8 +32,13 @@
 }
 
 /* Table */
-.booking-confirmation-table {
+.table-container {
     width: 100%;
+    overflow-x: auto;
+}
+
+.booking-confirmation-table {
+    min-width: 1200px; /* หรือปรับให้เหมาะกับจำนวน column */
     border-collapse: collapse;
     font-size: 16px;
     margin-top: 20px;
@@ -41,7 +46,7 @@
 
 .booking-confirmation-table th,
 .booking-confirmation-table td {
-    border: 1px solid #ddd;
+    /* border: 1px solid #ddd; */
     padding: 12px 14px;
     text-align: center;
     vertical-align: middle;
@@ -157,12 +162,18 @@
     justify-content: center;
     align-items: center;
     gap: 8px;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
 }
 
 .actions button {
-    background: none;
-    border: none;
-    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
 }
 
 .actions .edit-btn svg,

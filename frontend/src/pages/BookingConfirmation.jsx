@@ -275,10 +275,11 @@ function BookingConfirmation() {
         </div>
 
         <div className="booking-confirmation-body">
-          <table className="booking-confirmation-table">
+          <div className="table-container">
+            <table className="booking-confirmation-table">
             <thead>
               <tr>
-                <th>ID</th>
+                {/* <th>ID</th> */}
                 <th>Room Type</th>
                 <th>Check-In</th>
                 <th>Check-Out</th>
@@ -308,7 +309,7 @@ function BookingConfirmation() {
 
                   return (
                     <tr key={b.booking_id}>
-                      <td>{b.booking_id}</td>
+                      {/* <td>{b.booking_id}</td> */}
                       <td>{b.room_type_name}</td>
                       <td>{b.checkin_date}</td>
                       <td>{b.checkout_date}</td>
@@ -380,12 +381,14 @@ function BookingConfirmation() {
                 // 🔹 ถ้าลบหมดแล้ว ให้ขึ้นข้อความสวย ๆ แทน แต่ยังอยู่ในหน้าเดิม
                   <tr>
                     <td colSpan="14" style={{ textAlign: "center", padding: "20px", color: "#888" }}>
-                      🗑️ All bookings have been deleted.
+                      No bookings found. Please make a reservation to view your booking details.
                     </td>
                   </tr>
                 )}
             </tbody>
           </table>
+          </div>
+          
 
           <div className="booking-confirmation-button">
             {/* UpdateAll */}
