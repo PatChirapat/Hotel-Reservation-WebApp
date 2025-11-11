@@ -14,6 +14,7 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 import UserPage from "./pages/UserPage";
 import AdminRoute from "./components/AdminRoute";
 import WriteReview from "./pages/WriteReview";
+import Payment from "./pages/Payment";
 
 export default function App() {
   return (
@@ -30,6 +31,7 @@ export default function App() {
         <Route path="/admin/users" element={<AdminRoute><AdminUser /></AdminRoute>} />
         <Route path="/admin/bookings" element={<AdminRoute><AdminBooking /></AdminRoute>} />
         <Route path="/BookingConfirmation" element={<BookingConfirmation/>}/>
+        <Route path="/payment" element={<Payment />} />
         <Route path="/reviews/new" element={<WriteReview />} />
         <Route path="/account" element={<UserPage />} />
       </Routes>
