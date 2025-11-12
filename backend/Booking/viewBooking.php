@@ -47,9 +47,26 @@ try {
                     b.subtotal_amount,
                     b.discount_amount,
                     b.total_amount,
-                    b.created_at
+                    b.created_at,
+                    p.payment_status,
+                    p.paid_at    AS payment_paid_at,
+                    p.method     AS payment_method
                 FROM booking b
                 JOIN room_type rt ON b.room_type_id = rt.room_type_id
+                LEFT JOIN (
+                    SELECT 
+                        booking_id,
+                        CASE
+                            WHEN MAX(payment_status = 'Success') = 1 THEN 'Success'
+                            WHEN MAX(payment_status = 'Pending') = 1 THEN 'Pending'
+                            WHEN MAX(payment_status = 'Failed')  = 1 THEN 'Failed'
+                            ELSE NULL
+                        END AS payment_status,
+                        MAX(paid_at) AS paid_at,
+                        MAX(method)  AS method
+                    FROM payment
+                    GROUP BY booking_id
+                ) p ON p.booking_id = b.booking_id
                 WHERE b.booking_id IN ($placeholders)
                 ORDER BY b.checkin_date DESC";
 
@@ -71,9 +88,26 @@ try {
                     b.subtotal_amount,
                     b.discount_amount,
                     b.total_amount,
-                    b.created_at
+                    b.created_at,
+                    p.payment_status,
+                    p.paid_at    AS payment_paid_at,
+                    p.method     AS payment_method
                 FROM booking b
                 JOIN room_type rt ON b.room_type_id = rt.room_type_id
+                LEFT JOIN (
+                    SELECT 
+                        booking_id,
+                        CASE
+                            WHEN MAX(payment_status = 'Success') = 1 THEN 'Success'
+                            WHEN MAX(payment_status = 'Pending') = 1 THEN 'Pending'
+                            WHEN MAX(payment_status = 'Failed')  = 1 THEN 'Failed'
+                            ELSE NULL
+                        END AS payment_status,
+                        MAX(paid_at) AS paid_at,
+                        MAX(method)  AS method
+                    FROM payment
+                    GROUP BY booking_id
+                ) p ON p.booking_id = b.booking_id
                 WHERE b.member_id = ?
                 ORDER BY b.checkin_date DESC";
 
