@@ -115,28 +115,43 @@ function BookingConfirmation() {
     }
   };
 
-  // 🟥 ลบ booking เดี่ยว
-  const handleDelete = async (booking_id) => {
-    if (!window.confirm(`Are you sure you want to delete booking #${booking_id}?`)) return;
+// 🟠 ยกเลิกการจอง (Cancel) และปรับสถานะตามธุรกิจ
+const handleCancel = async (booking) => {
+  const booking_id = booking?.booking_id;
+  if (!booking_id) return;
 
-    try {
-      const response = await axios.post(
-        apiUrl("Booking/deleteBooking.php"),
-        { booking_id },
-        { headers: { "Content-Type": "application/json" } }
+  if (!window.confirm(`Confirm cancellation of booking #${booking_id}?`)) return;
+
+  try {
+    const response = await axios.post(
+      apiUrl("Booking/updateBooking.php"),
+      { action: "cancelAndMarkSuccess", booking_id },
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    if (response.data?.success) {
+      alert(`✅ Booking #${booking_id} has been cancelled.`);
+      // อัปเดตสถานะในตารางทันที
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.booking_id === booking_id
+            ? {
+                ...b,
+                booking_status: "Cancelled",
+                // keep payment_status as-is; do not force to Success
+              }
+            : b
+        )
       );
-
-      if (response.data.success) {
-        alert(`🗑️ Booking #${booking_id} deleted successfully!`);
-        setBookings((prev) => prev.filter((b) => b.booking_id !== booking_id));
-      } else {
-        alert("⚠️ Failed to delete booking.");
-      }
-    } catch (err) {
-      console.error("Error deleting booking:", err);
-      alert("❌ Error connecting to backend.");
+    } else {
+      const msg = response.data?.message || "Failed to cancel booking.";
+      alert("⚠️ " + msg);
     }
-  };
+  } catch (err) {
+    console.error("Error cancelling booking:", err);
+    alert("❌ Error connecting to backend.");
+  }
+};
 
   const handleWriteReview = (booking) => {
     if (!memberId) {
@@ -200,6 +215,12 @@ function BookingConfirmation() {
   );
     //Edit each Room
     const handleEditClick = (booking) => {
+      const status = String(booking?.booking_status || '').toUpperCase();
+      const paid = String(booking?.payment_status || '').toUpperCase() === 'SUCCESS';
+      if (status === 'CANCELLED' || status === 'CONFIRMED' || paid) {
+        // Hard guard: do nothing if not editable
+        return;
+      }
       setSelectedBooking(booking);
       setEditField("");
       setNewValue("");
@@ -298,14 +319,16 @@ function BookingConfirmation() {
             <tbody>
               {bookings.length > 0 ? (
                 bookings.map((b) => {
-                  const paymentStatusRaw = String(
-                    b.payment_status || b.booking_status || ""
-                  ).trim();
+                  // Show actual payment_status only (no fallback to booking_status)
+                  const paymentStatusRaw = String(b.payment_status ?? "").trim();
                   const paymentStatus = paymentStatusRaw.toUpperCase();
                   const statusClass = paymentStatus
                     ? paymentStatus.replace(/\s+/g, "-").toLowerCase()
                     : "pending";
-                  const canViewPdf = paymentStatus === "CONFIRMED";
+                  // Detect cancelled bookings
+                  const isCancelled = String(b.booking_status || '').toUpperCase() === 'CANCELLED';
+                  // Allow PDF when payment is successful (button will still be disabled if cancelled)
+                  const canViewPdf = paymentStatus === "SUCCESS";
 
                   return (
                     <tr key={b.booking_id}>
@@ -321,7 +344,7 @@ function BookingConfirmation() {
                         <strong>{Number(b.total_amount).toLocaleString()}</strong>
                       </td>
                       <td>
-                        <span className={`status-badge ${statusClass}`}>
+                        <span className={`status-badge ${statusClass} ${isCancelled ? 'dimmed' : ''}`}>
                           {paymentStatus || "PENDING"}
                         </span>
                       </td>
@@ -330,8 +353,19 @@ function BookingConfirmation() {
                           type="button"
                           className="payment-btn"
                           onClick={() => handleGoToPayment(b)}
+                          disabled={
+                            String(b.booking_status || '').toUpperCase() === 'CANCELLED' ||
+                            String(b.payment_status || '').toUpperCase() === 'SUCCESS'
+                          }
+                          title={
+                            String(b.booking_status || '').toUpperCase() === 'CANCELLED'
+                              ? 'This booking has been cancelled'
+                              : String(b.payment_status || '').toUpperCase() === 'SUCCESS'
+                              ? 'Payment already completed'
+                              : 'Proceed to payment'
+                          }
                         >
-                          {canViewPdf ? "Manage" : "Pay Now"}
+                          {canViewPdf ? "Paid" : "Pay Now"}
                         </button>
                       </td>
                       <td>
@@ -339,9 +373,11 @@ function BookingConfirmation() {
                           type="button"
                           className="pdf-btn"
                           onClick={() => handleViewPdf(b)}
-                          disabled={!canViewPdf}
+                          disabled={!canViewPdf || isCancelled}
                           title={
-                            canViewPdf
+                            isCancelled
+                              ? "This booking has been cancelled"
+                              : canViewPdf
                               ? "View booking PDF"
                               : "Available once payment is confirmed"
                           }
@@ -354,6 +390,12 @@ function BookingConfirmation() {
                           type="button"
                           className="review-btn"
                           onClick={() => handleWriteReview(b)}
+                          disabled={String(b.booking_status || '').toUpperCase() !== 'CONFIRMED'}
+                          title={
+                            String(b.booking_status || '').toUpperCase() === 'CONFIRMED'
+                              ? 'Write a review for this stay'
+                              : 'Available once booking is confirmed'
+                          }
                         >
                           Write Review
                         </button>
@@ -363,13 +405,27 @@ function BookingConfirmation() {
                           type="button"
                           className="edit-btn"
                           onClick={() => handleEditClick(b)}
+                          disabled={
+                            ['CANCELLED','CONFIRMED'].includes(String(b.booking_status || '').toUpperCase()) ||
+                            String(b.payment_status || '').toUpperCase() === 'SUCCESS'
+                          }
+                          title={
+                            String(b.booking_status || '').toUpperCase() === 'CANCELLED'
+                              ? 'This booking has been cancelled'
+                              : String(b.booking_status || '').toUpperCase() === 'CONFIRMED'
+                              ? 'This booking is confirmed; editing is locked'
+                              : String(b.payment_status || '').toUpperCase() === 'SUCCESS'
+                              ? 'Payment already completed'
+                              : 'Edit this booking'
+                          }
                         >
                           {EditIcon}
                         </button>
                         <button
                           type="button"
                           className="delete-btn"
-                          onClick={() => handleDelete(b.booking_id)}
+                          onClick={() => handleCancel(b)}
+                          title="Cancel this booking"
                         >
                           {DeleteIcon}
                         </button>

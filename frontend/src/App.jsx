@@ -14,6 +14,8 @@ import BookingConfirmation from "./pages/BookingConfirmation";
 import UserPage from "./pages/UserPage";
 import AdminRoute from "./components/AdminRoute";
 import WriteReview from "./pages/WriteReview";
+import ConfirmBooking from "./pages/ConfirmBooking";
+import Payment from "./pages/Payment";
 
 export default function App() {
   return (
@@ -32,6 +34,8 @@ export default function App() {
         <Route path="/BookingConfirmation" element={<BookingConfirmation/>}/>
         <Route path="/reviews/new" element={<WriteReview />} />
         <Route path="/account" element={<UserPage />} />
+        <Route path="/ConfirmBooking" element={<ConfirmBooking />} />
+        <Route path="/payment" element={<Payment />} /> 
       </Routes>
     </BrowserRouter>
   );
