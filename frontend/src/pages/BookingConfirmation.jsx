@@ -115,28 +115,43 @@ function BookingConfirmation() {
     }
   };
 
-  // 🟥 ลบ booking เดี่ยว
-  const handleDelete = async (booking_id) => {
-    if (!window.confirm(`Are you sure you want to delete booking #${booking_id}?`)) return;
+// 🟠 ยกเลิกการจอง (Cancel) และปรับสถานะตามธุรกิจ
+const handleCancel = async (booking) => {
+  const booking_id = booking?.booking_id;
+  if (!booking_id) return;
 
-    try {
-      const response = await axios.post(
-        apiUrl("Booking/deleteBooking.php"),
-        { booking_id },
-        { headers: { "Content-Type": "application/json" } }
+  if (!window.confirm(`Confirm cancellation of booking #${booking_id}?`)) return;
+
+  try {
+    const response = await axios.post(
+      apiUrl("Booking/updateBooking.php"),
+      { action: "cancelAndMarkSuccess", booking_id },
+      { headers: { "Content-Type": "application/json" } }
+    );
+
+    if (response.data?.success) {
+      alert(`✅ Booking #${booking_id} has been cancelled.`);
+      // อัปเดตสถานะในตารางทันที
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.booking_id === booking_id
+            ? {
+                ...b,
+                booking_status: "Cancelled",
+                payment_status: "Success", // ตาม requirement
+              }
+            : b
+        )
       );
-
-      if (response.data.success) {
-        alert(`🗑️ Booking #${booking_id} deleted successfully!`);
-        setBookings((prev) => prev.filter((b) => b.booking_id !== booking_id));
-      } else {
-        alert("⚠️ Failed to delete booking.");
-      }
-    } catch (err) {
-      console.error("Error deleting booking:", err);
-      alert("❌ Error connecting to backend.");
+    } else {
+      const msg = response.data?.message || "Failed to cancel booking.";
+      alert("⚠️ " + msg);
     }
-  };
+  } catch (err) {
+    console.error("Error cancelling booking:", err);
+    alert("❌ Error connecting to backend.");
+  }
+};
 
   const handleWriteReview = (booking) => {
     if (!memberId) {
@@ -200,6 +215,12 @@ function BookingConfirmation() {
   );
     //Edit each Room
     const handleEditClick = (booking) => {
+      const status = String(booking?.booking_status || '').toUpperCase();
+      const paid = String(booking?.payment_status || '').toUpperCase() === 'SUCCESS';
+      if (status === 'CANCELLED' || status === 'CONFIRMED' || paid) {
+        // Hard guard: do nothing if not editable
+        return;
+      }
       setSelectedBooking(booking);
       setEditField("");
       setNewValue("");
@@ -330,6 +351,17 @@ function BookingConfirmation() {
                           type="button"
                           className="payment-btn"
                           onClick={() => handleGoToPayment(b)}
+                          disabled={
+                            String(b.booking_status || '').toUpperCase() === 'CANCELLED' ||
+                            String(b.payment_status || '').toUpperCase() === 'SUCCESS'
+                          }
+                          title={
+                            String(b.booking_status || '').toUpperCase() === 'CANCELLED'
+                              ? 'This booking has been cancelled'
+                              : String(b.payment_status || '').toUpperCase() === 'SUCCESS'
+                              ? 'Payment already completed'
+                              : 'Proceed to payment'
+                          }
                         >
                           {canViewPdf ? "Manage" : "Pay Now"}
                         </button>
@@ -354,6 +386,12 @@ function BookingConfirmation() {
                           type="button"
                           className="review-btn"
                           onClick={() => handleWriteReview(b)}
+                          disabled={String(b.booking_status || '').toUpperCase() === 'CANCELLED'}
+                          title={
+                            String(b.booking_status || '').toUpperCase() === 'CANCELLED'
+                              ? 'This booking has been cancelled'
+                              : 'Write a review for this stay'
+                          }
                         >
                           Write Review
                         </button>
@@ -363,13 +401,27 @@ function BookingConfirmation() {
                           type="button"
                           className="edit-btn"
                           onClick={() => handleEditClick(b)}
+                          disabled={
+                            ['CANCELLED','CONFIRMED'].includes(String(b.booking_status || '').toUpperCase()) ||
+                            String(b.payment_status || '').toUpperCase() === 'SUCCESS'
+                          }
+                          title={
+                            String(b.booking_status || '').toUpperCase() === 'CANCELLED'
+                              ? 'This booking has been cancelled'
+                              : String(b.booking_status || '').toUpperCase() === 'CONFIRMED'
+                              ? 'This booking is confirmed; editing is locked'
+                              : String(b.payment_status || '').toUpperCase() === 'SUCCESS'
+                              ? 'Payment already completed'
+                              : 'Edit this booking'
+                          }
                         >
                           {EditIcon}
                         </button>
                         <button
                           type="button"
                           className="delete-btn"
-                          onClick={() => handleDelete(b.booking_id)}
+                          onClick={() => handleCancel(b)}
+                          title="Cancel this booking"
                         >
                           {DeleteIcon}
                         </button>

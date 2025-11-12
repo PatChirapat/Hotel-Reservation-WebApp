@@ -370,3 +370,30 @@
 .cancel-btn:hover {
   background-color: #b5b5b5;
 }
+
+.payment-btn:disabled {
+    background: #f0f0f0;
+    color: #aaa;
+    border-color: #ddd;
+    cursor: not-allowed;
+}
+
+.payment-btn:disabled:hover {
+    background: #f0f0f0;
+    color: #aaa;
+    border-color: #ddd;
+}
+
+.review-btn:disabled {
+    background: #f0f0f0;
+    color: #aaa;
+    border-color: #ddd;
+    cursor: not-allowed;
+}
+
+.review-btn:disabled:hover {
+    background: #f0f0f0;
+    color: #aaa;
+    border-color: #ddd;
+}
+

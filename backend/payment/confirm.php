@@ -44,8 +44,19 @@ try {
     if (!$b) { throw new Exception("Booking not found: ".$bid); }
 
     $amount = (float)$b['total_amount'];
-    $ins->bind_param('ids', $bid, $amount, $method);
-    if (!$ins->execute()) { throw new Exception($ins->error); }
+
+    // Try to update an existing Pending payment first
+    $upd = $conn->prepare("UPDATE payment SET amount=?, method=?, provider_txn_ref=CONCAT('SIM-', UUID()), payment_status='Success', paid_at=NOW() WHERE booking_id=? AND payment_status='Pending'");
+    if (!$upd) { throw new Exception($conn->error); }
+    $upd->bind_param('dsi', $amount, $method, $bid);
+    if (!$upd->execute()) { throw new Exception($upd->error); }
+
+    if ($upd->affected_rows === 0) {
+      // No pending row existed -> insert a new Success record
+      $ins->bind_param('ids', $bid, $amount, $method);
+      if (!$ins->execute()) { throw new Exception($ins->error); }
+    }
+    $upd->close();
 
     $payments[] = [
       "booking_id" => $bid,
