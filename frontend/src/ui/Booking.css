@@ -4,6 +4,7 @@
     font-family: 'Optima', 'URW Classico', 'Palatino Linotype', 'Book Antiqua', serif;
     width: 100%;
     box-sizing: border-box;
+    flex-wrap: wrap;
 }
 
 .booking-content {
@@ -227,3 +228,158 @@
     text-align: center;
     font-weight: 500;
 }
+
+/* ===== Responsive Section ===== */
+@media (max-width: 768px) {
+    .booking-page {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        padding: 20px 15px;
+    }
+
+    .booking-content {
+        padding: 30px 20px;
+        min-height: auto;
+        max-width: 100%;
+    }
+
+    .booking-content h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .booking-desc {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 30px;
+        padding: 0 10px;
+    }
+
+    .booking-form-section {
+        padding: 20px;
+        border-radius: 10px;
+        margin-bottom: 30px;
+    }
+
+    .form-row {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .form-group {
+        min-width: 100%;
+    }
+
+    .form-group label {
+        font-size: 0.95rem;
+        margin-bottom: 5px;
+    }
+
+    .form-group input {
+        font-size: 0.95rem;
+        padding: 8px 10px;
+    }
+
+    .booking-form {
+        padding: 20px 15px;
+    }
+
+    .booking-form h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .form-grid input,
+    .booking-form textarea {
+        font-size: 0.95rem;
+        padding: 10px;
+    }
+
+    .confirm-btn {
+        width: 100%;
+        padding: 12px;
+        font-size: 1rem;
+        border-radius: 8px;
+        margin-top: 10px;
+    }
+
+    .room-select-title {
+        font-size: 1.4rem;
+        margin: 40px 0 20px;
+    }
+
+    .room-select-list {
+        gap: 16px;
+    }
+
+    .room-option {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 15px;
+        gap: 15px;
+    }
+
+    .room-option-img {
+        width: 100%;
+        height: 200px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+    .room-option-info {
+        width: 100%;
+        text-align: left;
+    }
+
+    .room-option-info h3 {
+        font-size: 1.2rem;
+        margin-bottom: 8px;
+    }
+
+    .room-option-info p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+    }
+
+    .room-count {
+        flex-direction: row;
+        gap: 8px;
+        margin-top: 10px;
+    }
+
+    .room-count input {
+        width: 60px;
+        font-size: 0.9rem;
+        padding: 5px;
+    }
+
+    .select-room-btn {
+        width: 100%;
+        text-align: center;
+        padding: 10px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+    }
+
+    .selected-summary {
+        padding: 20px;
+        margin-top: 40px;
+    }
+
+    .selected-summary h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+    }
+
+    .warning-text {
+        font-size: 0.95rem;
+        padding: 0 10px;
+    }
+}
+

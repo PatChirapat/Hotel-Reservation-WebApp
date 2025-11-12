@@ -7,6 +7,7 @@
     margin-top: -10px; 
     gap: 20px;
     font-family: 'Optima', 'URW Classico', 'Palatino Linotype', 'Book Antiqua', serif;
+    flex-wrap: wrap;
 }
 
 .booking-field {
@@ -114,3 +115,23 @@
     border-bottom-color: #b89a67;
 }
 
+/* ===== Responsive Section ===== */
+@media (max-width: 768px) {
+    .booking-bar {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .booking-field {
+        min-width: 45%;
+    }
+
+    .book-btn {
+        width: 100%;
+        padding: 18px;
+        font-size: 15px;
+        letter-spacing: 1.5px;
+    }
+}

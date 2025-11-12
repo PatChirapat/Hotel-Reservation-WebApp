@@ -154,3 +154,65 @@
 .usermenu-item.danger {
   color: #b00020;
 }
+
+/* ===== Hamburger Button ===== */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  cursor: pointer;
+  gap: 5px;
+}
+
+.hamburger span {
+  width: 25px;
+  height: 3px;
+  background: #000;
+  border-radius: 2px;
+  transition: 0.3s;
+}
+
+/* ===== Responsive Section ===== */
+@media (max-width: 768px) {
+  .navbar {
+    flex-wrap: wrap;
+    position: relative;
+    z-index: 100;
+  }
+
+  .navbar-left {
+    flex: 1;
+  }
+
+  .navbar-right {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background: #fff;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px;
+    gap: 20px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    transform: translateY(-150%);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.4s ease;
+  }
+
+  .navbar-right.active {
+    transform: translateY(0);
+    opacity: 1;
+    visibility: visible;
+  }
+
+  .hamburger {
+    display: flex;
+    z-index: 101; /* ทำให้อยู่หน้าสุด */
+  }
+
+  .navbar-logo {
+    font-size: 20px;
+    text-align: left;
+  }
+}

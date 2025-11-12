@@ -61,6 +61,12 @@ export default function Navbar() {
     }
   };
 
+  // --- Responsive ---
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const toggleMenu = () => setMenuOpen((prev) => !prev);
+  const closeMenu = () => setMenuOpen(false);
+
   return (
     <nav className="navbar">
       <div className="navbar-left">
@@ -76,44 +82,46 @@ export default function Navbar() {
         </button>
       </div>
 
-      <div className="navbar-right">
-        {/* เมนูภายในหน้า Home */}
-        <button type="button" className="nav-link" onClick={() => go("home")}>
+      {/* Hamburger Button */}
+      <button
+        className={`hamburger ${menuOpen ? "open" : ""}`}
+        onClick={toggleMenu}
+        aria-label="Toggle menu"
+      >
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+
+      <div className={`navbar-right ${menuOpen ? "active" : ""}`}>
+        <button type="button" className="nav-link" onClick={() => { go("home"); closeMenu(); }}>
           Home
         </button>
-        <button type="button" className="nav-link" onClick={() => go("about")}>
+        <button type="button" className="nav-link" onClick={() => { go("about"); closeMenu(); }}>
           About
         </button>
-        <button type="button" className="nav-link" onClick={() => go("rooms")}>
+        <button type="button" className="nav-link" onClick={() => { go("rooms"); closeMenu(); }}>
           Rooms &amp; Suites
         </button>
-        <button
-          type="button"
-          className="nav-link"
-          onClick={() => go("facilities")}
-        >
+        <button type="button" className="nav-link" onClick={() => { go("facilities"); closeMenu(); }}>
           Facilities
         </button>
-        <button
-          type="button"
-          className="nav-link"
-          onClick={() => go("reviews")}
-        >
+        <button type="button" className="nav-link" onClick={() => { go("reviews"); closeMenu(); }}>
           Reviews
         </button>
 
-        {/* ปุ่มไปหน้า Booking */}
-        <Link to="/booking" className="booking">
+        <Link to="/booking" className="booking" onClick={closeMenu}>
           Book Now
         </Link>
 
-        {/* ส่วนแสดงสถานะล็อกอิน */}
         {user ? (
-          // เมื่อ login แล้ว
           <UserMenu user={user} onLogout={logout} />
         ) : (
-          // เมื่อยังไม่ได้ login
-          <Link to="/signin" className="nav-link flex items-center gap-1">
+          <Link
+            to="/signin"
+            className="nav-link flex items-center gap-1"
+            onClick={closeMenu}
+          >
             Sign In
           </Link>
         )}

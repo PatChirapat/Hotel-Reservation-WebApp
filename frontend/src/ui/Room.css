@@ -3,6 +3,7 @@
     color: #333;
     background-color: #fff;
     padding: 40px 100px;
+    flex-wrap: wrap;
 }
 
 .room h1 {
@@ -262,4 +263,133 @@
     list-style: disc;
     margin-left: 1.5rem;
     line-height: 1.6;
+}
+
+/* ===== Responsive Section ===== */
+@media (max-width: 768px){
+    .room {
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+        padding: 20px;
+    }
+
+    .room h1 {
+        font-size: 2rem;
+        line-height: 1.3;
+        margin-bottom: 0.5rem;
+    }
+
+    .room h2 {
+        font-size: 1rem;
+        color: #777;
+        margin-bottom: 1.5rem;
+    }
+
+    .room p {
+        font-size: 0.95rem;
+        line-height: 1.6;
+        margin-bottom: 40px;
+        padding: 0 10px;
+    }
+
+    .room-section {
+        flex-direction: column;
+        gap: 25px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .room-section.right-image {
+        flex-direction: column; 
+    }
+
+    .room-image-container {
+        width: 100%;
+        height: auto;
+    }
+
+    .room-image {
+        width: 100%;
+        height: 240px;
+        border-radius: 10px;
+        object-fit: cover;
+    }
+
+    .image-dots {
+        bottom: 10px;
+        gap: 6px;
+    }
+
+    .dot {
+        width: 10px;
+        height: 10px;
+    }
+
+    .room-info {
+        width: 100%;
+    }
+
+    .room-info h3 {
+        font-size: 1.5rem;
+        margin-bottom: 0.6rem;
+    }
+
+    .room-info p {
+        font-size: 1rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .read-more {
+        margin-top: 1rem;
+        font-size: 1rem;
+    }
+
+    .popup-content {
+        width: 90%;
+        padding: 25px 20px;
+        max-width: 600px;
+        max-height: 80vh;
+    }
+
+    .popup-content h2 {
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .popup-container {
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .popup-column {
+        width: 100%;
+    }
+
+    .close-btn {
+        font-size: 1.5rem;
+        right: 15px;
+        top: 10px;
+    }
+
+    /* ===== Popup ===== */
+    .amenity-category h4,
+    .lounge-access h3 {
+        font-size: 1rem;
+    }
+
+    .amenity-category ul,
+    .lounge-access ul {
+        font-size: 1rem;
+        margin-left: 1.2rem;
+    }
+
+    /* ===== General Adjustments ===== */
+    .popup-overlay {
+        padding: 10px;
+    }
+
+    .blurred {
+        filter: blur(4px);
+    }
 }
