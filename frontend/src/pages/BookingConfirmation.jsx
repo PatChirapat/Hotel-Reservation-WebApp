@@ -138,7 +138,7 @@ const handleCancel = async (booking) => {
             ? {
                 ...b,
                 booking_status: "Cancelled",
-                payment_status: "Success", // ตาม requirement
+                // keep payment_status as-is; do not force to Success
               }
             : b
         )
@@ -319,14 +319,16 @@ const handleCancel = async (booking) => {
             <tbody>
               {bookings.length > 0 ? (
                 bookings.map((b) => {
-                  const paymentStatusRaw = String(
-                    b.payment_status || b.booking_status || ""
-                  ).trim();
+                  // Show actual payment_status only (no fallback to booking_status)
+                  const paymentStatusRaw = String(b.payment_status ?? "").trim();
                   const paymentStatus = paymentStatusRaw.toUpperCase();
                   const statusClass = paymentStatus
                     ? paymentStatus.replace(/\s+/g, "-").toLowerCase()
                     : "pending";
-                  const canViewPdf = paymentStatus === "CONFIRMED";
+                  // Detect cancelled bookings
+                  const isCancelled = String(b.booking_status || '').toUpperCase() === 'CANCELLED';
+                  // Allow PDF when payment is successful (button will still be disabled if cancelled)
+                  const canViewPdf = paymentStatus === "SUCCESS";
 
                   return (
                     <tr key={b.booking_id}>
@@ -342,7 +344,7 @@ const handleCancel = async (booking) => {
                         <strong>{Number(b.total_amount).toLocaleString()}</strong>
                       </td>
                       <td>
-                        <span className={`status-badge ${statusClass}`}>
+                        <span className={`status-badge ${statusClass} ${isCancelled ? 'dimmed' : ''}`}>
                           {paymentStatus || "PENDING"}
                         </span>
                       </td>
@@ -363,7 +365,7 @@ const handleCancel = async (booking) => {
                               : 'Proceed to payment'
                           }
                         >
-                          {canViewPdf ? "Manage" : "Pay Now"}
+                          {canViewPdf ? "Paid" : "Pay Now"}
                         </button>
                       </td>
                       <td>
@@ -371,9 +373,11 @@ const handleCancel = async (booking) => {
                           type="button"
                           className="pdf-btn"
                           onClick={() => handleViewPdf(b)}
-                          disabled={!canViewPdf}
+                          disabled={!canViewPdf || isCancelled}
                           title={
-                            canViewPdf
+                            isCancelled
+                              ? "This booking has been cancelled"
+                              : canViewPdf
                               ? "View booking PDF"
                               : "Available once payment is confirmed"
                           }
@@ -386,11 +390,11 @@ const handleCancel = async (booking) => {
                           type="button"
                           className="review-btn"
                           onClick={() => handleWriteReview(b)}
-                          disabled={String(b.booking_status || '').toUpperCase() === 'CANCELLED'}
+                          disabled={String(b.booking_status || '').toUpperCase() !== 'CONFIRMED'}
                           title={
-                            String(b.booking_status || '').toUpperCase() === 'CANCELLED'
-                              ? 'This booking has been cancelled'
-                              : 'Write a review for this stay'
+                            String(b.booking_status || '').toUpperCase() === 'CONFIRMED'
+                              ? 'Write a review for this stay'
+                              : 'Available once booking is confirmed'
                           }
                         >
                           Write Review

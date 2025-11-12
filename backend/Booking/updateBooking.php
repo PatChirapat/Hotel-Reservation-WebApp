@@ -67,7 +67,7 @@ if (isset($data['action']) && $data['action'] === 'confirmPayment') {
 }
 // --- End confirmPayment ---
 
-// --- Action: cancelAndMarkSuccess (set booking Cancelled, mark Payment Success if Pending) ---
+// --- Action: cancelAndMarkSuccess (set booking Cancelled; leave payment_status as-is) ---
 if (isset($data['action']) && $data['action'] === 'cancelAndMarkSuccess') {
     $booking_id = isset($data['booking_id']) ? intval($data['booking_id']) : 0;
     if ($booking_id <= 0) {
@@ -86,22 +86,10 @@ if (isset($data['action']) && $data['action'] === 'cancelAndMarkSuccess') {
         if (!$up1->execute()) { throw new Exception($up1->error); }
         $up1->close();
 
-        // 2) If there's a pending payment, mark it Success (do not create duplicates)
-        $up2 = $conn->prepare("
-            UPDATE payment
-               SET payment_status='Success',
-                   paid_at = IFNULL(paid_at, NOW()),
-                   method = COALESCE(method, 'Cash'),
-                   provider_txn_ref = COALESCE(provider_txn_ref, CONCAT('SIM-', UUID()))
-             WHERE booking_id=? AND payment_status='Pending'
-        ");
-        if (!$up2) { throw new Exception($conn->error); }
-        $up2->bind_param('i', $booking_id);
-        if (!$up2->execute()) { throw new Exception($up2->error); }
-        $up2->close();
+        // Do NOT change payment_status here. Leave it as Pending if unpaid or Success if already paid.
 
         $conn->commit();
-        echo json_encode(["success" => true, "message" => "Booking cancelled and payment marked as Success if pending", "booking_id" => $booking_id]);
+        echo json_encode(["success" => true, "message" => "Booking cancelled", "booking_id" => $booking_id]);
     } catch (Throwable $e) {
         $conn->rollback();
         http_response_code(500);
