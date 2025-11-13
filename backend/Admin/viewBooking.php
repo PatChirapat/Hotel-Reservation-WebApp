@@ -24,7 +24,7 @@ $sql = "
     FROM booking b
     JOIN member m ON b.member_id = m.member_id
     JOIN room_type rt ON b.room_type_id = rt.room_type_id 
-    ORDER BY b.created_at DESC";
+    ORDER BY b.created_at ASC";
 
 
 $result = $conn->query($sql);
