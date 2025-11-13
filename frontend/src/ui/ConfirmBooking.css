@@ -17,3 +17,5 @@
 .ok { color:#1a7f37; }
 .warn { color:#b54708; }
 @media (max-width: 768px) { .grid-two { grid-template-columns: 1fr; } }
+
+font-family: 'Optima', 'URW Classico', 'Palatino Linotype', 'Book Antiqua', serif;
