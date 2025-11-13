@@ -41,9 +41,9 @@
 
 .booking-table th, 
 .booking-table td{
-    border: 1px solid #ddd;
-    padding: 10px 12px;
+    padding: 12px 14px;
     text-align: center;
+    vertical-align: middle;
 }
 
 .booking-table th {
@@ -60,11 +60,25 @@
     background-color: #f2f2f2;
 }
 
+.actions {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    }
+
 .actions button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    margin: 0 5px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 6px;
+    border-radius: 6px;
+    transition: background-color 0.2s ease;
 }
 
 .actions .edit-btn svg {
@@ -236,3 +250,145 @@
     to { transform: scale(1); opacity: 1; }
 }
 
+@media (max-width: 768px) {
+    .admin-booking {
+        overflow-x: hidden;
+    }
+
+    .admin-booking-content {
+        padding: 20px 15px;
+        min-height: auto;
+        max-width: 100%;
+    }
+
+    .admin-booking-header h1 {
+        font-size: 1.8rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .admin-booking-header p {
+        font-size: 0.95rem;
+        line-height: 1.5;
+    }
+
+    .admin-booking-controls {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+    }
+
+    .search-container {
+        width: 100%;
+    }
+
+    .search-input {
+        width: 100%;
+        font-size: 0.95rem;
+        padding: 10px;
+        border-radius: 6px;
+    }
+
+    .add-btn {
+        justify-content: center;
+        width: 100%;
+        padding: 10px;
+        font-size: 0.95rem;
+        border-radius: 6px;
+    }
+
+    .booking-table {
+        display: block;
+        width: 100%;
+        border-collapse: collapse;
+        overflow-x: auto;
+        white-space: nowrap;
+        font-size: 0.9rem;
+        border-radius: 8px;
+    }
+
+    .booking-table th,
+    .booking-table td {
+        padding: 8px;
+    }
+
+    .booking-table th {
+        font-size: 0.95rem;
+    }
+
+    .booking-table::after {
+        display: block;
+        text-align: center;
+        font-size: 0.8rem;
+        color: #b89a67;
+        margin-top: 8px;
+    }
+
+    .actions {
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .actions button {
+        padding: 4px;
+    }
+
+    .actions .edit-btn svg,
+    .actions .delete-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+
+    .modal-content {
+        width: 90%;
+        padding: 20px 16px;
+        border-radius: 10px;
+        animation: scaleUp 0.3s ease;
+    }
+
+    .modal-content h2 {
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+
+    .modal-content p {
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .edit-form {
+        gap: 10px;
+    }
+
+    .edit-form label {
+        font-size: 0.9rem;
+    }
+
+    .edit-form input,
+    .edit-form select {
+        font-size: 0.9rem;
+        padding: 8px 10px;
+    }
+
+    .modal-buttons {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 8px;
+    }
+
+    .save-btn,
+    .cancel-btn {
+        width: 100%;
+        font-size: 0.9rem;
+        padding: 10px;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes scaleUp {
+        from { transform: scale(0.9); opacity: 0; }
+        to { transform: scale(1); opacity: 1; }
+    }
+}
