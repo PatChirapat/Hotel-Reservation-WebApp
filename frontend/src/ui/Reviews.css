@@ -1,11 +1,18 @@
+/* ───────────────────────────────
+   SECTION
+─────────────────────────────── */
 .reviews-section {
   background: #fff;
   padding: 60px 20px;
   margin: 0 auto;
-  font-family: "Optima", "URW Classico", "Palatino Linotype", "Book Antiqua", serif;
+  font-family: "Optima", "URW Classico", "Palatino Linotype",
+    "Book Antiqua", serif;
   scroll-margin-top: 100px;
 }
 
+/* ───────────────────────────────
+   HEADER
+─────────────────────────────── */
 .reviews-header {
   display: flex;
   flex-wrap: wrap;
@@ -30,26 +37,40 @@
   font-weight: 500;
 }
 
-.stars {
+.reviews-avg {
+  font-weight: 600;
+}
+
+.reviews-count {
+  font-size: 0.9rem;
+  color: #888;
+}
+
+/* ───────────────────────────────
+   HEADER STARS (เฉพาะด้านบน)
+─────────────────────────────── */
+.reviews-stars {
   display: inline-flex;
   gap: 3px;
   font-size: 1.2rem;
-  color: #b89a67;
 }
 
-.star {
+.reviews-star {
   color: #d6c6a3;
 }
 
-.star.full,
-.star.half {
+.reviews-star-full,
+.reviews-star-half {
   color: #b89a67;
 }
 
-.star.half {
+.reviews-star-half {
   position: relative;
 }
 
+/* ───────────────────────────────
+   TEXT STATES
+─────────────────────────────── */
 .reviews-error,
 .reviews-loading,
 .reviews-empty {
@@ -63,13 +84,18 @@
   color: #b64b4b;
 }
 
-
+/* ───────────────────────────────
+   GRID
+─────────────────────────────── */
 .reviews-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 24px;
 }
 
+/* ───────────────────────────────
+   REVIEW CARD
+─────────────────────────────── */
 .review-card {
   background: #fff;
   border: 1px solid #eee2cc;
@@ -93,7 +119,8 @@
   gap: 14px;
 }
 
-.avatar {
+/* Avatar */
+.review-avatar {
   width: 46px;
   height: 46px;
   border-radius: 50%;
@@ -105,17 +132,17 @@
   font-size: 1.2rem;
 }
 
-.who {
+.review-who {
   flex: 1;
 }
 
-.who .name {
+.review-name {
   color: #222;
   font-weight: 600;
   margin-bottom: 4px;
 }
 
-.tier {
+.review-tier {
   font-size: 0.8rem;
   letter-spacing: 1px;
   font-weight: 600;
@@ -123,33 +150,63 @@
   text-transform: uppercase;
 }
 
-.tier.gold {
+.review-tier-gold {
   color: #c29435;
 }
 
-.tier.platinum {
+.review-tier-platinum {
   color: #7a7f91;
 }
 
-.tier.diamond {
+.review-tier-diamond {
   color: #59a5d8;
 }
 
-.rating {
+/* ───────────────────────────────
+   ⭐ RATING BOX (ดาวเดียว + ตัวเลข)
+─────────────────────────────── */
+.review-rating-box {
   margin-left: auto;
   display: inline-flex;
   align-items: center;
-  padding: 4px 10px;
+  gap: 4px;
+
+  padding: 5px 16px;
+  min-width: 80px;
+
+  background: #f3e7d0;
+  border: 1px solid #d3bfa3;
   border-radius: 999px;
-  background: #f5ede0;
-  border: 1px solid #eadbc4;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
+
+  justify-content: center;
 }
 
-.rating .stars {
-  font-size: 0.9rem;
+/* ดาวดวงเดียว */
+.review-rating-star {
+  font-size: 1rem;
+  color: #c2903f;
+  font-weight: 700;
+  line-height: 1;
 }
 
+/* ตัวเลข + /5 */
+.review-rating-number {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #5b3b15;
+  line-height: 1;
+}
+
+.review-rating-of {
+  font-size: 0.85rem;
+  color: #8b6a3a;
+  line-height: 1;
+}
+
+/* ───────────────────────────────
+   REVIEW BODY
+─────────────────────────────── */
 .review-body {
   color: #3f372c;
   line-height: 1.65;
@@ -158,7 +215,8 @@
   gap: 10px;
 }
 
-.review-body .room {
+/* room pill */
+.review-room {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -171,15 +229,18 @@
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
 }
 
-.review-body .room::before {
+.review-room::before {
   content: "\1F6CF";
   font-size: 0.9rem;
 }
 
-.review-body .text {
+.review-text {
   margin: 0;
 }
 
+/* ───────────────────────────────
+   FOOT
+─────────────────────────────── */
 .review-foot {
   display: flex;
   justify-content: space-between;
@@ -190,17 +251,20 @@
   gap: 8px;
 }
 
-.review-foot .bid {
+.review-bid {
   background: #efe2ca;
   color: #7c5a21;
   padding: 4px 10px;
   border-radius: 999px;
 }
 
-.review-foot .when {
+.review-when {
   font-weight: 500;
 }
 
+/* ───────────────────────────────
+   RESPONSIVE
+─────────────────────────────── */
 @media (max-width: 768px) {
   .reviews-section {
     padding: 40px 16px;
