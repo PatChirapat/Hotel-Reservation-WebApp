@@ -29,8 +29,26 @@ try {
   $conn->begin_transaction();
 
   // เตรียม statement
-  $sel = $conn->prepare("SELECT booking_id, member_id, phone_entered, checkin_date, checkout_date, guest_count, subtotal_amount, discount_amount, total_amount, booking_status, created_at FROM booking WHERE booking_id=?");
+  $sel = $conn->prepare("SELECT booking_id, member_id, room_type_id, phone_entered, checkin_date, checkout_date, guest_count, subtotal_amount, discount_amount, total_amount, booking_status, created_at FROM booking WHERE booking_id=?");
   $ins = $conn->prepare("INSERT INTO payment (booking_id, amount, method, provider_txn_ref, payment_status, paid_at) VALUES (?, ?, ?, CONCAT('SIM-', UUID()), 'Success', NOW())");
+
+  // หา room_id ที่ว่างสำหรับ room_type + ช่วงวันที่ของ booking นี้
+  $findRoom = $conn->prepare("
+    SELECT r.room_id
+    FROM room r
+    WHERE r.room_type_id = ?
+      AND r.status = 'Available'
+      AND r.room_id NOT IN (
+        SELECT bn.room_id
+        FROM booking_night bn
+        JOIN booking b2 ON b2.booking_id = bn.booking_id
+        WHERE b2.booking_status IN ('Pending', 'Confirmed')
+          AND bn.stay_date >= ?
+          AND bn.stay_date <  ?
+      )
+    LIMIT 1
+  ");
+  if (!$findRoom) { throw new Exception($conn->error); }
 
   $payments = [];
   $bookings = [];
@@ -44,6 +62,9 @@ try {
     if (!$b) { throw new Exception("Booking not found: ".$bid); }
 
     $amount = (float)$b['total_amount'];
+    $roomTypeId = (int)$b['room_type_id'];
+    $checkinDate = $b['checkin_date'];
+    $checkoutDate = $b['checkout_date'];
 
     // Try to update an existing Pending payment first
     $upd = $conn->prepare("UPDATE payment SET amount=?, method=?, provider_txn_ref=CONCAT('SIM-', UUID()), payment_status='Success', paid_at=NOW() WHERE booking_id=? AND payment_status='Pending'");
@@ -57,6 +78,37 @@ try {
       if (!$ins->execute()) { throw new Exception($ins->error); }
     }
     $upd->close();
+
+    // หา room_id ที่ว่างสำหรับ booking นี้
+    $findRoom->bind_param('iss', $roomTypeId, $checkinDate, $checkoutDate);
+    if (!$findRoom->execute()) {
+      throw new Exception($findRoom->error);
+    }
+    $findRoom->bind_result($roomId);
+    if (!$findRoom->fetch()) {
+      $findRoom->free_result();
+      throw new Exception("No available room for booking_id ".$bid);
+    }
+    $findRoom->free_result();
+
+    // สร้าง booking_night ผ่าน Stored Procedure
+    $proc = $conn->prepare("CALL GenerateBookingNightsForBooking(?, ?)");
+    if (!$proc) { throw new Exception($conn->error); }
+    $proc->bind_param('ii', $bid, $roomId);
+    if (!$proc->execute()) {
+      $err = $proc->error;
+      $proc->close();
+      throw new Exception("Failed to generate booking nights: ".$err);
+    }
+    $proc->close();
+
+    // เคลียร์ result set เพิ่มเติมจาก CALL (กัน commands out of sync)
+    while ($conn->more_results() && $conn->next_result()) {
+      $extra = $conn->use_result();
+      if ($extra instanceof mysqli_result) {
+        $extra->free();
+      }
+    }
 
     $payments[] = [
       "booking_id" => $bid,
@@ -76,6 +128,10 @@ try {
   $up = $conn->prepare($sql);
   $up->bind_param($types, ...$booking_ids);
   if (!$up->execute()) { throw new Exception($up->error); }
+
+  if (isset($findRoom) && $findRoom instanceof mysqli_stmt) {
+    $findRoom->close();
+  }
 
   $conn->commit();
 

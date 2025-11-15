@@ -202,6 +202,13 @@ const handleCancel = async (booking) => {
 
     if (loading) return <p>Loading booking data...</p>;
 
+  // Sort bookings by Booking ID ascending (smallest to largest)
+  const sortedBookings = [...bookings].sort((a, b) => {
+    const idA = Number(a.booking_id || 0);
+    const idB = Number(b.booking_id || 0);
+    return idA - idB; // น้อยไปมาก
+  });
+
   const EditIcon = (
     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
       <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -300,7 +307,7 @@ const handleCancel = async (booking) => {
             <table className="booking-confirmation-table">
             <thead>
               <tr>
-                {/* <th>ID</th> */}
+                <th>Booking ID</th>
                 <th>Room Type</th>
                 <th>Check-In</th>
                 <th>Check-Out</th>
@@ -317,8 +324,8 @@ const handleCancel = async (booking) => {
               </tr>
             </thead>
             <tbody>
-              {bookings.length > 0 ? (
-                bookings.map((b) => {
+              {sortedBookings.length > 0 ? (
+                sortedBookings.map((b) => {
                   // Show actual payment_status only (no fallback to booking_status)
                   const paymentStatusRaw = String(b.payment_status ?? "").trim();
                   const paymentStatus = paymentStatusRaw.toUpperCase();
@@ -332,7 +339,7 @@ const handleCancel = async (booking) => {
 
                   return (
                     <tr key={b.booking_id}>
-                      {/* <td>{b.booking_id}</td> */}
+                      <td>{b.booking_id}</td>
                       <td>{b.room_type_name}</td>
                       <td>{b.checkin_date}</td>
                       <td>{b.checkout_date}</td>

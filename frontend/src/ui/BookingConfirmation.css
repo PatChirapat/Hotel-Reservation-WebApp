@@ -503,11 +503,39 @@
 
 /* Dimmed tone for payment badge when booking is cancelled */
 .status-badge.dimmed {
-  filter: grayscale(65%);
+  filter: grayscale(100%);
   opacity: 0.8;
 }
 
 .status-badge.dimmed:hover {
-  filter: grayscale(65%);
+  filter: grayscale(100%);
   opacity: 0.8;
+}
+
+/* ✅ จัดให้ทั้งหน้า Booking Confirmation มาอยู่ตรงกลางอย่างเรียบร้อย */
+
+/* Main content block centered */
+.booking-confirmation-content {
+  max-width: 1600px;   /* กำหนดความกว้างสูงสุดของ content */
+  margin: 0 auto;      /* จัดให้อยู่กลางแนวนอน */
+  padding: 20px 24px;  /* เว้นขอบนิดหน่อยให้หายอึดอัด */
+}
+
+/* Inner body arranged in column and centered */
+.booking-confirmation-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* จัดให้บล็อกด้านในอยู่กลาง */
+}
+
+/* Wrap table and center it */
+.table-container {
+  width: 100%;
+  display: flex;
+  justify-content: center; /* ดัน table ให้มาอยู่ตรงกลาง */
+}
+
+/* Extra safety: override unexpected margins */
+.booking-confirmation-table {
+  margin: 0 auto;
 }

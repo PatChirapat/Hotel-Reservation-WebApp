@@ -74,45 +74,17 @@ try {
         if (!$stmt) throw new Exception("Prepare failed: " . $conn->error);
         $stmt->bind_param($types, ...$ids);
     } else {
-        // Otherwise, filter by member_id
-        $sql = "SELECT 
-                    b.booking_id,
-                    b.member_id,
-                    b.room_type_id,
-                    rt.name AS room_type_name,
-                    b.phone_entered,
-                    b.checkin_date,
-                    b.checkout_date,
-                    b.guest_count,
-                    b.booking_status,
-                    b.subtotal_amount,
-                    b.discount_amount,
-                    b.total_amount,
-                    b.created_at,
-                    p.payment_status,
-                    p.paid_at    AS payment_paid_at,
-                    p.method     AS payment_method
-                FROM booking b
-                JOIN room_type rt ON b.room_type_id = rt.room_type_id
-                LEFT JOIN (
-                    SELECT 
-                        booking_id,
-                        CASE
-                            WHEN MAX(payment_status = 'Success') = 1 THEN 'Success'
-                            WHEN MAX(payment_status = 'Pending') = 1 THEN 'Pending'
-                            WHEN MAX(payment_status = 'Failed')  = 1 THEN 'Failed'
-                            ELSE NULL
-                        END AS payment_status,
-                        MAX(paid_at) AS paid_at,
-                        MAX(method)  AS method
-                    FROM payment
-                    GROUP BY booking_id
-                ) p ON p.booking_id = b.booking_id
-                WHERE b.member_id = ?
-                ORDER BY b.checkin_date DESC";
+        // Otherwise, filter by member_id via stored procedure
+        if ($member_id <= 0) {
+            echo json_encode(["success" => false, "message" => "Invalid member ID"]);
+            exit;
+        }
 
-        $stmt = $conn->prepare($sql);
-        if (!$stmt) throw new Exception("Prepare failed: " . $conn->error);
+        // Use stored procedure GetMemberBookingHistory to fetch bookings for this member
+        $stmt = $conn->prepare("CALL GetMemberBookingHistory(?)");
+        if (!$stmt) {
+            throw new Exception("Prepare failed: " . $conn->error);
+        }
         $stmt->bind_param('i', $member_id);
     }
 
