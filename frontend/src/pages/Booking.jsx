@@ -82,25 +82,41 @@ function Booking() {
     // select room state
     const [selectedRooms, setSelectedRooms] = useState({});
 
+    // available room count per type, based on date + guests
+    const [availability, setAvailability] = useState({});
+    const [loadingAvailability, setLoadingAvailability] = useState(false);
+    const [availabilityError, setAvailabilityError] = useState("");
+
     // toggle room selected
     const toggleRoom = (key) => {
-        setSelectedRooms((prev) => {
+      // if this type has availability info and it's 0, do nothing
+      if (availability[key] === 0) {
+        return;
+      }
+
+      setSelectedRooms((prev) => {
         if (prev[key]) {
-            const copy = { ...prev };
-            delete copy[key];
-            return copy;
+          const copy = { ...prev };
+          delete copy[key];
+          return copy;
         } else {
-            return { ...prev, [key]: 1 }; // เริ่มจาก 1 ห้อง
+          return { ...prev, [key]: 1 }; // start from 1 room
         }
-        });
+      });
     };
 
     // room count
     const updateRoomCount = (key, value) => {
-        setSelectedRooms((prev) => ({
+      const raw = Number(value);
+      if (Number.isNaN(raw)) return;
+
+      const maxRooms = availability[key] != null ? availability[key] : Infinity;
+      const safeValue = Math.max(1, Math.min(raw, maxRooms));
+
+      setSelectedRooms((prev) => ({
         ...prev,
-        [key]: Math.max(1, Number(value)),
-        }));
+        [key]: safeValue,
+      }));
     };
 
     // guest count
@@ -131,6 +147,63 @@ function Booking() {
         setWarning("");
         }
     }, [totalGuests, totalCapacity, selectedRooms]);
+
+    // Fetch available room types from backend based on current dates and guests
+    const fetchAvailability = async () => {
+      // only fetch if we have valid dates
+      if (!checkin || !checkout) return;
+
+      setLoadingAvailability(true);
+      setAvailabilityError("");
+      try {
+        const payload = {
+          checkin_date: checkin,
+          checkout_date: checkout,
+          guest_count: totalGuests,
+        };
+
+        const res = await axios.post(
+          apiUrl("Room/findAvailableTypes.php"),
+          payload,
+          { headers: { "Content-Type": "application/json" } }
+        );
+
+        if (res.data && res.data.success && Array.isArray(res.data.room_types)) {
+          const map = {};
+
+          // build a map from room_type_id to remaining rooms,
+          // then translate to our local keys (classic, premier, ...)
+          const idToKey = Object.entries(roomTypeMap).reduce((acc, [key, id]) => {
+            acc[id] = key;
+            return acc;
+          }, {});
+
+          res.data.room_types.forEach((rt) => {
+            const id = Number(rt.room_type_id);
+            const key = idToKey[id];
+            if (key) {
+              map[key] = Number(rt.available_rooms ?? 0);
+            }
+          });
+
+          setAvailability(map);
+        } else {
+          setAvailability({});
+          setAvailabilityError(res.data?.message || "Failed to load availability.");
+        }
+      } catch (err) {
+        console.error("Failed to fetch availability", err);
+        setAvailability({});
+        setAvailabilityError("Cannot load room availability from server.");
+      } finally {
+        setLoadingAvailability(false);
+      }
+    };
+
+    // Auto-refresh availability whenever dates or guest count change
+    useEffect(() => {
+      fetchAvailability();
+    }, [checkin, checkout, totalGuests]);
 
     // Booking details to send to backend
 
@@ -200,7 +273,7 @@ function Booking() {
 
     alert("✅ All bookings created successfully!");
     navigate("/BookingConfirmation", {
-        state: {booking_ids},
+        state: { booking_ids },
     });
     } else {
     alert("❌ Error: " + res.data.message);
@@ -262,6 +335,23 @@ function Booking() {
                 />
                 </div>
             </div>
+
+            <div className="form-row">
+              <button
+                type="button"
+                className="check-availability-btn"
+                onClick={() => {
+                  if (!checkin || !checkout) {
+                    alert("Please select check-in and check-out dates first.");
+                    return;
+                  }
+                  fetchAvailability();
+                }}
+                disabled={loadingAvailability}
+              >
+                {loadingAvailability ? "Checking availability..." : "Refresh Availability"}
+              </button>
+            </div>
             </div>
 
             {/* Room Selection */}
@@ -270,8 +360,16 @@ function Booking() {
             {Object.keys(room_details).map((key) => {
                 const room = room_details[key];
                 const isSelected = selectedRooms[key];
+                const roomsLeft = availability[key];
+                const isSoldOut = roomsLeft === 0;
+
                 return (
-                <div key={key} className={`room-option ${isSelected ? "selected" : ""}`}>
+                <div
+                  key={key}
+                  className={`room-option ${isSelected ? "selected" : ""} ${
+                    isSoldOut ? "sold-out" : ""
+                  }`}
+                >
                     <img src={room.image} alt={room.name} className="room-option-img" />
                     <div className="room-option-info">
                     <h3>{room.name}</h3>
@@ -280,6 +378,18 @@ function Booking() {
                     <p><strong>Occupancy:</strong> {room.occupancy} guests</p>
                     <p><strong>Price:</strong> THB {room.price.toLocaleString()} / Night</p>
                     
+                    {loadingAvailability ? (
+                      <p className="rooms-left"><em>Checking availability...</em></p>
+                    ) : roomsLeft != null ? (
+                      <p className="rooms-left">
+                        {roomsLeft > 0
+                          ? `${roomsLeft} room${roomsLeft > 1 ? "s" : ""} left for these dates`
+                          : "No rooms available for these dates"}
+                      </p>
+                    ) : (
+                      <p className="rooms-left"><em>Availability info not loaded.</em></p>
+                    )}
+
                     {isSelected && (
                         <div className="room-count">
                         <label>Number of rooms:</label>
@@ -295,6 +405,7 @@ function Booking() {
                     <button
                         className={`select-room-btn ${isSelected ? "active" : ""}`}
                         onClick={() => toggleRoom(key)}
+                        disabled={isSoldOut}
                     >
                         {isSelected ? "Remove" : "Select Room"}
                     </button>
@@ -324,6 +435,12 @@ function Booking() {
             <p>Nights: {nights}</p>
             <p>Total Price: THB {totalPrice.toLocaleString()}</p>
             {warning && <p className="warning-text">{warning}</p>}
+            
+            {availabilityError && (
+              <p className="warning-text">
+                {availabilityError}
+              </p>
+            )}
             
             {/* /* Confirm Button */ }
 
