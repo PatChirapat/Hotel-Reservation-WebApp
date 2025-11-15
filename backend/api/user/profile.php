@@ -1,5 +1,3 @@
-
-
 <?php
 /**
  * backend/api/user/profile.php
@@ -68,8 +66,7 @@ try {
             email,
             phone,
             tier,
-            join_date,
-            profile_image_url
+            join_date
         FROM member
         WHERE member_id = ?
         LIMIT 1
@@ -102,8 +99,7 @@ try {
         'email'             => $row['email']             ?? '',
         'phone'             => $row['phone']             ?? '',
         'tier'              => $row['tier']              ?? 'SILVER',
-        'join_date'         => '',
-        'profile_image_url' => $row['profile_image_url'] ?? ''
+        'join_date'         => ''
     ];
 
     if (!empty($row['join_date'])) {
