@@ -1,135 +1,115 @@
 <?php
 require_once __DIR__ . '/../config/cors.php';
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
-header('Content-Type: application/json; charset=utf-8');
-require_once __DIR__ . '/../config/db_connect.php';
 
-// Get JSON body
+header('Content-Type: application/json; charset=utf-8');
+error_reporting(E_ALL);
+
+require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
+
 $data = json_decode(file_get_contents("php://input"), true);
 
-// --- Action: confirmPayment (upsert Success, set booking Confirmed) ---
-if (isset($data['action']) && $data['action'] === 'confirmPayment') {
-    $booking_ids = [];
-    if (isset($data['booking_id'])) { $booking_ids[] = (int)$data['booking_id']; }
-    if (isset($data['booking_ids']) && is_array($data['booking_ids'])) {
-        foreach ($data['booking_ids'] as $bid) { $booking_ids[] = (int)$bid; }
-    }
-    $booking_ids = array_values(array_unique(array_filter($booking_ids)));
-    $method = (isset($data['method']) && in_array($data['method'], ['Credit','Debit','Cash','QR'], true)) ? $data['method'] : 'QR';
+// --------------------
+// Basic input
+// --------------------
+$booking_id = intval($data["booking_id"] ?? 0);
+$member_id  = intval($data["member_id"] ?? 0);
 
-    if (!$booking_ids) { echo json_encode(["success"=>false,"message"=>"Missing booking_id(s)"]); $conn->close(); exit; }
-
-    try {
-        $conn->begin_transaction();
-
-        $sel = $conn->prepare("SELECT booking_id, total_amount FROM booking WHERE booking_id=?");
-        $ins = $conn->prepare("INSERT INTO payment (booking_id, amount, method, provider_txn_ref, payment_status, paid_at) VALUES (?, ?, ?, CONCAT('SIM-', UUID()), 'Success', NOW())");
-
-        foreach ($booking_ids as $bid) {
-            $sel->bind_param('i', $bid);
-            if (!$sel->execute()) { throw new Exception($sel->error); }
-            $res = $sel->get_result();
-            $b = $res->fetch_assoc();
-            if (!$b) { throw new Exception("Booking not found: ".$bid); }
-
-            $amount = (float)$b['total_amount'];
-
-            // Update pending → success first
-            $upd = $conn->prepare("UPDATE payment SET amount=?, method=?, provider_txn_ref=CONCAT('SIM-', UUID()), payment_status='Success', paid_at=NOW() WHERE booking_id=? AND payment_status='Pending'");
-            if (!$upd) { throw new Exception($conn->error); }
-            $upd->bind_param('dsi', $amount, $method, $bid);
-            if (!$upd->execute()) { throw new Exception($upd->error); }
-            if ($upd->affected_rows === 0) {
-                // No pending row existed -> insert
-                $ins->bind_param('ids', $bid, $amount, $method);
-                if (!$ins->execute()) { throw new Exception($ins->error); }
-            }
-            $upd->close();
-        }
-
-        // Set bookings to Confirmed
-        $ph = implode(',', array_fill(0, count($booking_ids), '?'));
-        $types = str_repeat('i', count($booking_ids));
-        $up = $conn->prepare("UPDATE booking SET booking_status='Confirmed' WHERE booking_id IN ($ph)");
-        $up->bind_param($types, ...$booking_ids);
-        if (!$up->execute()) { throw new Exception($up->error); }
-        $up->close();
-
-        $conn->commit();
-        echo json_encode(["success"=>true, "message"=>"Payment confirmed", "booking_ids"=>$booking_ids]);
-    } catch (Throwable $e) {
-        $conn->rollback();
-        http_response_code(500);
-        echo json_encode(["success"=>false,"message"=>"Payment failed","detail"=>$e->getMessage()]);
-    }
-    $conn->close();
+if ($booking_id <= 0 || $member_id <= 0) {
+    echo json_encode(["success" => false, "message" => "Missing booking_id or member_id"]);
     exit;
 }
-// --- End confirmPayment ---
 
-// --- Action: cancelAndMarkSuccess (set booking Cancelled; leave payment_status as-is) ---
+// ต้องเป็น user ที่ login จริง
+requireUser($conn, $member_id);
+
+// --------------------
+// เช็ค owner ก่อน
+// --------------------
+$stmt = $conn->prepare("SELECT member_id FROM booking WHERE booking_id=?");
+$stmt->bind_param("i", $booking_id);
+$stmt->execute();
+$owner = $stmt->get_result()->fetch_assoc()['member_id'] ?? null;
+$stmt->close();
+
+requireOwner($owner, $member_id);
+
+// --------------------
+// 1) เคส Cancel Booking (ปุ่ม Delete ในหน้า BookingConfirmation)
+// --------------------
 if (isset($data['action']) && $data['action'] === 'cancelAndMarkSuccess') {
-    $booking_id = isset($data['booking_id']) ? intval($data['booking_id']) : 0;
-    if ($booking_id <= 0) {
-        echo json_encode(["success" => false, "message" => "Missing or invalid booking_id"]);
-        $conn->close();
-        exit;
+
+    // เปลี่ยนสถานะ booking เป็น Cancelled
+    $stmt = $conn->prepare("UPDATE booking SET booking_status='Cancelled' WHERE booking_id=?");
+    $stmt->bind_param("i", $booking_id);
+    $stmt->execute();
+    $stmt->close();
+
+    logActivity(
+        $conn,
+        $member_id,
+        "USER_CANCEL_BOOKING",
+        "User{$member_id}: cancelled booking {$booking_id}"
+    );
+
+    echo json_encode([
+        "success" => true,
+        "message" => "Booking cancelled",
+        "booking_id" => $booking_id
+    ]);
+    exit;
+}
+
+// --------------------
+// 2) Default: Dynamic update fields (ใช้กับ Edit / Update All)
+// --------------------
+$allowed = [
+    "room_type_id",
+    "checkin_date",
+    "checkout_date",
+    "guest_count",
+    "subtotal_amount",
+    "discount_amount",
+    "total_amount"
+];
+
+$setParts = [];
+$values = [];
+$types = "";
+
+// วนทุก field ที่อนุญาต ถ้ามีใน $data ก็เอามาอัปเดต
+foreach ($allowed as $field) {
+    if (isset($data[$field])) {
+        $setParts[] = "$field=?";
+        $values[] = $data[$field];
+        $types .= "s";
     }
-
-    try {
-        $conn->begin_transaction();
-
-        // 1) Update booking status to Cancelled
-        $up1 = $conn->prepare("UPDATE booking SET booking_status='Cancelled' WHERE booking_id=?");
-        if (!$up1) { throw new Exception($conn->error); }
-        $up1->bind_param('i', $booking_id);
-        if (!$up1->execute()) { throw new Exception($up1->error); }
-        $up1->close();
-
-        // Do NOT change payment_status here. Leave it as Pending if unpaid or Success if already paid.
-
-        $conn->commit();
-        echo json_encode(["success" => true, "message" => "Booking cancelled", "booking_id" => $booking_id]);
-    } catch (Throwable $e) {
-        $conn->rollback();
-        http_response_code(500);
-        echo json_encode(["success" => false, "message" => "Cancel failed", "detail" => $e->getMessage()]);
-    }
-    $conn->close();
-    exit;
 }
-// --- End cancelAndMarkSuccess ---
 
-// --- Default: dynamic update fields (legacy path) ---
-if (!isset($data["booking_id"])) {
-    echo json_encode(["success" => false, "message" => "Missing booking_id"]);
-    $conn->close();
+if (empty($setParts)) {
+    echo json_encode(["success" => false, "message" => "No valid fields"]);
     exit;
 }
 
-$booking_id = (int)$data["booking_id"];
-$fields = [];
+$sql = "UPDATE booking SET " . implode(",", $setParts) . " WHERE booking_id=?";
+$stmt = $conn->prepare($sql);
 
-if (isset($data["checkin_date"])) $fields[] = "checkin_date = '" . $conn->real_escape_string($data["checkin_date"]) . "'";
-if (isset($data["checkout_date"])) $fields[] = "checkout_date = '" . $conn->real_escape_string($data["checkout_date"]) . "'";
-if (isset($data["guest_count"])) $fields[] = "guest_count = " . intval($data["guest_count"]);
-if (isset($data["booking_status"])) $fields[] = "booking_status = '" . $conn->real_escape_string($data["booking_status"]) . "'";
-if (isset($data["subtotal_amount"])) $fields[] = "subtotal_amount = " . floatval($data["subtotal_amount"]);
-if (isset($data["discount_amount"])) $fields[] = "discount_amount = " . floatval($data["discount_amount"]);
-if (isset($data["total_amount"])) $fields[] = "total_amount = " . floatval($data["total_amount"]);
+// เพิ่ม type และค่า booking_id ต่อท้าย
+$types .= "i";
+$values[] = $booking_id;
 
-if (empty($fields)) {
-    echo json_encode(["success" => false, "message" => "No fields to update"]);
-    $conn->close();
-    exit;
-}
+$stmt->bind_param($types, ...$values);
+$stmt->execute();
+$stmt->close();
 
-$sql = "UPDATE booking SET " . implode(", ", $fields) . " WHERE booking_id = " . intval($booking_id);
-if ($conn->query($sql) === TRUE) {
-    echo json_encode(["success" => true, "message" => "Booking updated successfully"]);
-} else {
-    echo json_encode(["success" => false, "message" => "Error updating booking: " . $conn->error]);
-}
+// log ว่า user แก้ booking
+logActivity(
+    $conn,
+    $member_id,
+    "USER_EDIT_BOOKING",
+    "User{$member_id}: edited booking {$booking_id}"
+);
 
-$conn->close();
-?>
+echo json_encode(["success" => true, "message" => "Booking updated"]);
