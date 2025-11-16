@@ -1,37 +1,53 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST");
-header("Content-Type: application/json; charset=UTF-8");
+require_once __DIR__ . '/../config/cors.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
-include_once __DIR__ . '/../config/db_connect.php';
+header("Content-Type: application/json; charset=utf-8");
+error_reporting(0);
+
+require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!isset($data['member_id'])) {
+$request_user_id = intval($data['request_user_id'] ?? 0);
+$targetUserId    = intval($data['member_id'] ?? 0);
+
+requireAdmin($conn, $request_user_id);
+
+# ตรวจว่ามี booking ที่ยังค้างอยู่ไหม
+$stmt = $conn->prepare("SELECT booking_id FROM booking WHERE member_id=?");
+$stmt->bind_param("i", $targetUserId);
+$stmt->execute();
+$stmt->store_result();
+
+if ($stmt->num_rows > 0) {
     echo json_encode([
         "success" => false,
-        "message" => "Missing member_id."
+        "message" => "Cannot delete this user because they have existing bookings."
     ]);
     exit;
 }
+$stmt->close();
 
-$member_id = intval($data['member_id']);
+$sql = "DELETE FROM member WHERE member_id=?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("i", $targetUserId);
 
-$sql = "DELETE FROM member WHERE member_id = $member_id";
-$result = $conn->query($sql);
-
-if ($result) {
-    echo json_encode([
-        "success" => true,
-        "message" => "User deleted successfully."
-    ]);
-} else {
+if (!$stmt->execute()) {
     echo json_encode([
         "success" => false,
-        "message" => "Failed to delete user: " . $conn->error
+        "message" => $stmt->error
     ]);
+    exit;
 }
+$stmt->close();
 
-$conn->close();
-?>
+logActivity($conn, $request_user_id, "ADMIN_DELETE_USER", "Deleted user $targetUserId");
+
+echo json_encode([
+    "success" => true,
+    "message" => "User deleted",
+    "member_id" => $targetUserId
+]);
