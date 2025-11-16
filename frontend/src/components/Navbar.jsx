@@ -115,7 +115,11 @@ export default function Navbar() {
         </Link>
 
         {user ? (
-          <UserMenu user={user} onLogout={logout} />
+          <UserMenu 
+            user={user}
+            role={user.role}
+            onLogout={logout}
+          />
         ) : (
           <Link
             to="/signin"
