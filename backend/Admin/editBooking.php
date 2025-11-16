@@ -37,8 +37,8 @@ $stmt->close();
 
 // recal total
 $sql2 = "SELECT b.checkin_date, b.checkout_date, rt.base_price
-         FROM booking b JOIN room_type rt ON b.room_type_id=rt.room_type_id
-         WHERE b.booking_id=?";
+        FROM booking b JOIN room_type rt ON b.room_type_id=rt.room_type_id
+        WHERE b.booking_id=?";
 $stmt2 = $conn->prepare($sql2);
 $stmt2->bind_param("i", $bookingId);
 $stmt2->execute();
@@ -61,7 +61,7 @@ logActivity(
     $conn,
     $requestUserId,
     "ADMIN_EDIT_BOOKING",
-    "Admin {$requestUserId}: edited booking {$bookingId}: {$field} -> {$newValue}"
+    "Admin {$requestUserId}: edited booking {$bookingId}({$field} -> {$newValue})"
 );
 
 echo json_encode([
