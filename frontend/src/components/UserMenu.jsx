@@ -65,6 +65,11 @@ export default function UserMenu({ user, onLogout }) {
               Admin
             </Link>
           )}
+          {user?.role === "DEVELOPER" && (
+            <Link to="/dev" className="usermenu-item">
+              Developer
+            </Link>
+          )}
           <button onClick={onLogout} className="usermenu-item danger">
             Sign out
           </button>
