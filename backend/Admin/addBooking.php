@@ -1,97 +1,71 @@
 <?php
-header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
 
-include_once __DIR__ . '/../config/db_connect.php';
+header("Content-Type: application/json; charset=utf-8");
+error_reporting(0);
+
+require_once __DIR__ . '/../config/cors.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+
+header("Content-Type: application/json; charset=utf-8");
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (
-    !isset($data['member_id']) ||
-    !isset($data['room_type_id']) ||
-    !isset($data['checkin_date']) ||
-    !isset($data['checkout_date']) ||
-    !isset($data['guest_count']) ||
-    !isset($data['booking_status'])
-) {
-    echo json_encode(["success" => false, "message" => "Missing parameters"]);
+$requestUserId   = intval($data['request_user_id'] ?? 0);
+$bookingMemberId = intval($data['member_id'] ?? 0);
+
+requireAdmin($conn, $requestUserId);
+
+$roomTypeId   = intval($data['room_type_id'] ?? 0);
+$checkin      = $data['checkin_date'] ?? null;
+$checkout     = $data['checkout_date'] ?? null;
+$guestCount   = intval($data['guest_count'] ?? 1);
+$phoneEntered = $data['phone_entered'] ?? "";
+$totalAmount  = floatval($data['total_amount'] ?? 0); // ตอนนี้ไม่คำนวณก็ได้
+
+if (!$bookingMemberId || !$roomTypeId || !$checkin || !$checkout) {
+    echo json_encode(["success" => false, "message" => "Missing required fields"]);
     exit;
 }
 
-$member_id = intval($data['member_id']);
-$room_type_id = intval($data['room_type_id']);
-$checkin_date = $data['checkin_date'];
-$checkout_date = $data['checkout_date'];
-$guest_count = intval($data['guest_count']);
-$booking_status = $data['booking_status'];
+$sql = "INSERT INTO booking 
+        (member_id, room_type_id, phone_entered, checkin_date, checkout_date, guest_count,
+        subtotal_amount, discount_amount, total_amount, booking_status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, 0, ?, ?)";
 
-$sql_info = "
-    SELECT rt.base_price, m.phone
-    FROM room_type rt
-    JOIN member m
-    ON m.member_id = ?
-    WHERE rt.room_type_id = ?
-";
-$stmt = $conn->prepare($sql_info);
-$stmt->bind_param("ii", $member_id, $room_type_id);
+$bookingStatus = $data['booking_status'] ?? 'Pending';
+
+$stmt = $conn->prepare($sql);
+$stmt->bind_param(
+    "iisssidss",
+    $bookingMemberId,
+    $roomTypeId,
+    $phoneEntered,
+    $checkin,
+    $checkout,
+    $guestCount,
+    $totalAmount,
+    $totalAmount,
+    $bookingStatus
+);
 $stmt->execute();
-$res = $stmt->get_result();
-$info = $res->fetch_assoc();
+$bookingId = $stmt->insert_id;
 $stmt->close();
 
-if (!$info) {
-    echo json_encode(["success" => false, "message" => "Invalid member or room type"]);
-    exit;
-}
-
-$base_price = floatval($info['base_price']);
-$phone_entered = $info['phone'];
-
-$in = new DateTime($checkin_date);
-$out = new DateTime($checkout_date);
-$days = $in->diff($out)->days;
-if ($days <= 0) $days = 1;
-
-$total_amount = $base_price * $days;
-
-$sql_insert = "
-    INSERT INTO booking (
-        member_id, 
-        room_type_id, 
-        checkin_date, 
-        checkout_date, 
-        guest_count, 
-        booking_status, 
-        phone_entered, 
-        total_amount
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-";
-
-$stmt = $conn->prepare($sql_insert);
-$stmt->bind_param(
-    "iississd",
-    $member_id,
-    $room_type_id,
-    $checkin_date,
-    $checkout_date,
-    $guest_count,
-    $booking_status,
-    $phone_entered,
-    $total_amount
+logActivity(
+    $conn,
+    $requestUserId,
+    "ADMIN_ADD_BOOKING",
+    "Admin {$requestUserId} created booking {$bookingId} for member {$bookingMemberId}"
 );
 
-if ($stmt->execute()) {
-    echo json_encode(["success" => true, "message" => "Booking added successfully"]);
-} else {
-    echo json_encode([
-        "success" => false,
-        "message" => "Failed to add booking",
-        "error" => $stmt->error
-    ]);
-}
-
-$stmt->close();
-$conn->close();
-?>
+echo json_encode([
+    "success" => true,
+    "message" => "Booking added",
+    "booking_id" => $bookingId
+]);
