@@ -22,13 +22,40 @@ function requireAdmin($conn, $memberId) {
     }
 }
 
-function requireAdminOrDev($conn, $memberId) {
-    $role = getUserRoleFromDB($conn, $memberId);
-    if (!in_array($role, ['admin', 'developer'])) {
+function requireUser($conn, $memberId) {
+    if (!$memberId || $memberId <= 0) {
         http_response_code(403);
         echo json_encode([
             "success" => false,
-            "message" => "Access denied: Admin or Developer only."
+            "message" => "Unauthorized: No member id"
+        ]);
+        exit;
+    }
+
+    // เช็คว่า user มีจริง
+    $sql = "SELECT member_id FROM member WHERE member_id=? LIMIT 1";
+    $stmt = $conn->prepare($sql);
+    $stmt->bind_param("i", $memberId);
+    $stmt->execute();
+    $row = $stmt->get_result()->fetch_assoc();
+    $stmt->close();
+
+    if (!$row) {
+        http_response_code(403);
+        echo json_encode([
+            "success" => false,
+            "message" => "Unauthorized user"
+        ]);
+        exit;
+    }
+}
+
+function requireOwner($ownerId, $loggedId) {
+    if ($ownerId != $loggedId) {
+        http_response_code(403);
+        echo json_encode([
+            "success" => false,
+            "message" => "You cannot modify others' booking"
         ]);
         exit;
     }
