@@ -1,67 +1,71 @@
 <?php
 header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
+error_reporting(0);
 
-include_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../config/cors.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+
+header("Content-Type: application/json; charset=utf-8");
+error_reporting(E_ALL);
+ini_set("display_errors", 1);
+
+require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-if (!isset($data['booking_id']) || !isset($data['field']) || !isset($data['new_value'])) {
-    echo json_encode(["success" => false, "message" => "Missing parameters"]);
-    exit;
-}
+$requestUserId = intval($data['request_user_id'] ?? 0);
+requireAdmin($conn, $requestUserId);
 
-$booking_id = $data['booking_id'];
-$field = $data['field'];
-$new_value = $data['new_value'];
+$bookingId = intval($data['booking_id'] ?? 0);
+$field     = $data['field'] ?? "";
+$newValue  = $data['new_value'] ?? "";
 
 $allowed = ['room_type_id', 'checkin_date', 'checkout_date', 'guest_count', 'booking_status'];
-if (!in_array($field, $allowed)) {
+if (!in_array($field, $allowed, true)) {
     echo json_encode(["success" => false, "message" => "Invalid field"]);
     exit;
 }
 
-$sql = "UPDATE booking SET $field = ? WHERE booking_id = ?";
+// update field
+$sql = "UPDATE booking SET $field=? WHERE booking_id=?";
 $stmt = $conn->prepare($sql);
-$stmt->bind_param("si", $new_value, $booking_id);
+$stmt->bind_param("si", $newValue, $bookingId);
 $stmt->execute();
 $stmt->close();
 
-$sql_get = "
-    SELECT 
-        b.checkin_date, 
-        b.checkout_date, 
-        b.room_type_id,
-        rt.base_price
-    FROM booking b
-    JOIN room_type rt ON b.room_type_id = rt.room_type_id
-    WHERE b.booking_id = ?
-";
-$stmt2 = $conn->prepare($sql_get);
-$stmt2->bind_param("i", $booking_id);
+// recal total
+$sql2 = "SELECT b.checkin_date, b.checkout_date, rt.base_price
+         FROM booking b JOIN room_type rt ON b.room_type_id=rt.room_type_id
+         WHERE b.booking_id=?";
+$stmt2 = $conn->prepare($sql2);
+$stmt2->bind_param("i", $bookingId);
 $stmt2->execute();
-$result = $stmt2->get_result();
-$data_now = $result->fetch_assoc();
+$row = $stmt2->get_result()->fetch_assoc();
 $stmt2->close();
 
-if ($data_now) {
-    $checkin = new DateTime($data_now['checkin_date']);
-    $checkout = new DateTime($data_now['checkout_date']);
-    $interval = $checkin->diff($checkout);
-    $nights = max($interval->days, 1);
+if ($row) {
+    $checkin  = new DateTime($row['checkin_date']);
+    $checkout = new DateTime($row['checkout_date']);
+    $nights   = max($checkin->diff($checkout)->days, 1);
+    $total    = floatval($row['base_price']) * $nights;
 
-    $base_price = floatval($data_now['base_price']);
-    $total_amount = $base_price * $nights;
-
-    $update_total = "UPDATE booking SET total_amount = ? WHERE booking_id = ?";
-    $stmt3 = $conn->prepare($update_total);
-    $stmt3->bind_param("di", $total_amount, $booking_id);
-    $stmt3->execute();
-    $stmt3->close();
+    $u = $conn->prepare("UPDATE booking SET total_amount=? WHERE booking_id=?");
+    $u->bind_param("di", $total, $bookingId);
+    $u->execute();
+    $u->close();
 }
 
-echo json_encode(["success" => true, "message" => "Booking updated successfully"]);
-$conn->close();
-?>
+logActivity(
+    $conn,
+    $requestUserId,
+    "ADMIN_EDIT_BOOKING",
+    "Admin {$requestUserId} edited booking {$bookingId}: {$field} -> {$newValue}"
+);
+
+echo json_encode([
+    "success" => true,
+    "message" => "Booking edited",
+    "booking_id" => $bookingId
+]);
