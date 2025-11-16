@@ -98,11 +98,11 @@ function BookingConfirmation() {
   // 🟩 อัปเดต booking เดี่ยว
   const handleUpdate = async (booking) => {
     try {
-      const response = await axios.post(
-        apiUrl("Booking/updateBooking.php"),
-        booking,
-        { headers: { "Content-Type": "application/json" } }
-      );
+      const response = axios.post(apiUrl("Booking/updateBooking.php"), {
+        member_id: memberId,
+        ...booking
+      })
+
 
       if (response.data.success) {
         alert(`✅ Booking #${booking.booking_id} updated successfully!`);
@@ -125,8 +125,11 @@ const handleCancel = async (booking) => {
   try {
     const response = await axios.post(
       apiUrl("Booking/updateBooking.php"),
-      { action: "cancelAndMarkSuccess", booking_id },
-      { headers: { "Content-Type": "application/json" } }
+      {
+        member_id: memberId,
+        action: "cancelAndMarkSuccess",
+        booking_id
+      }
     );
 
     if (response.data?.success) {
@@ -455,12 +458,12 @@ const handleCancel = async (booking) => {
 
           <div className="booking-confirmation-button">
             {/* UpdateAll */}
-            <button
+            {/* <button
               className="save-btn"
               onClick={() => bookings.forEach((b) => handleUpdate(b))}
             >
               Update All
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
