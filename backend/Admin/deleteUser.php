@@ -44,7 +44,11 @@ if (!$stmt->execute()) {
 }
 $stmt->close();
 
-logActivity($conn, $request_user_id, "ADMIN_DELETE_USER", "Deleted user $targetUserId");
+logActivity(
+    $conn, 
+    $request_user_id, 
+    "ADMIN_DELETE_USER", 
+    "Admin{$request_user_id}: Deleted user $targetUserId");
 
 echo json_encode([
     "success" => true,

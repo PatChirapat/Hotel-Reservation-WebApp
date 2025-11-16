@@ -44,7 +44,7 @@ logActivity(
     $conn,
     $requestUserId,
     "ADMIN_DELETE_BOOKING",
-    "Admin {$requestUserId} deleted booking {$bookingId}"
+    "Admin {$requestUserId}: deleted booking {$bookingId}"
 );
 
 echo json_encode([

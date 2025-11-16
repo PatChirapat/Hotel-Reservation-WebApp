@@ -72,7 +72,11 @@ if (!$stmt->execute()) {
 $newId = $stmt->insert_id;
 $stmt->close();
 
-logActivity($conn, $request_user_id, "ADMIN_ADD_USER", "Added user $newId");
+logActivity(
+    $conn, 
+    $request_user_id, 
+    "ADMIN_ADD_USER", 
+    "Admin{$request_user_id}: Added user $newId");
 
 echo json_encode([
     "success" => true,

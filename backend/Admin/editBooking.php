@@ -61,7 +61,7 @@ logActivity(
     $conn,
     $requestUserId,
     "ADMIN_EDIT_BOOKING",
-    "Admin {$requestUserId} edited booking {$bookingId}: {$field} -> {$newValue}"
+    "Admin {$requestUserId}: edited booking {$bookingId}: {$field} -> {$newValue}"
 );
 
 echo json_encode([

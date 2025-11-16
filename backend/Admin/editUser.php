@@ -39,7 +39,11 @@ if (!$stmt->execute()) {
 }
 $stmt->close();
 
-logActivity($conn, $request_user_id, "ADMIN_EDIT_USER", "Edited user $targetUserId");
+logActivity(
+    $conn, 
+    $request_user_id, 
+    "ADMIN_EDIT_USER", 
+    "Admin{$request_user_id}: Edited user $targetUserId");
 
 echo json_encode([
     "success" => true,
