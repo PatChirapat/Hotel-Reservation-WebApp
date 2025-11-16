@@ -1,46 +1,32 @@
-const stripSlashes = (value = "") => value.replace(/^\/+|\/+$/g, "");
-const stripTrailingSlash = (value = "") => value.replace(/\/+$/, "");
+// ===============================================
+// CONFIG — Point frontend to MAMP backend
+// ===============================================
 
-const buildFromLocation = () => {
-  if (typeof window === "undefined") return "";
+// กำหนด backend ของ MAMP แบบคงที่
+const BACKEND_BASE = "http://localhost:8888/CSS326/Project/Hotel-Reservation-WebApp/backend";
 
-  const { origin, pathname } = window.location;
-  const normalizedPath = pathname.replace(/\/+/g, "/");
-
-  const rootMatch = normalizedPath.match(/^(.*?)(?=\/frontend(?:\/(?:dist|public))?(?:\/|$))/);
-  const basePath = rootMatch ? rootMatch[1] : "";
-
-  const segments = [stripSlashes(basePath), "backend"].filter(Boolean);
-  const joinedPath = segments.length ? `/${segments.join("/")}` : "/backend";
-
-  return stripTrailingSlash(new URL(joinedPath, origin).toString());
-};
-
+/**
+ * คืนค่า BASE URL ให้ระบบอื่นยังใช้งานได้
+ */
 export const getApiBase = () => {
-  const envValue = typeof import.meta !== "undefined" ? import.meta.env?.VITE_API_URL : "";
+  // ถ้าอยากใช้ ENV (production) ก็ใช้ VITE_API_URL ก่อน
+  const envValue = import.meta?.env?.VITE_API_URL;
+
   if (envValue && typeof envValue === "string" && envValue.trim().length > 0) {
-    return stripTrailingSlash(envValue.trim());
+    return envValue.trim().replace(/\/+$/, "");
   }
 
-  const derived = buildFromLocation();
-  if (derived) {
-    if (typeof import.meta !== "undefined" && import.meta.env?.DEV) {
-      console.warn(
-        "VITE_API_URL is not set. Falling back to",
-        derived,
-        "which assumes the backend is hosted next to the built frontend."
-      );
-    }
-    return derived;
-  }
-
-  return "/backend";
+  // ถ้าไม่มี ENV → ใช้ MAMP BASE แทน
+  return BACKEND_BASE;
 };
 
+/**
+ * สร้าง URL สำหรับเรียก backend
+ */
 export const apiUrl = (path = "") => {
   const base = getApiBase();
-  if (!path) return base;
-
   return `${base}/${String(path).replace(/^\/+/, "")}`;
 };
 
+// export เผื่อ component อื่นใช้
+export const API_BASE = BACKEND_BASE;
