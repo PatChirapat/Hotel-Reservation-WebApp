@@ -244,7 +244,7 @@ function Booking() {
         // 🟩 เชื่อมไปที่ addBooking.php (ไฟล์เดียว รองรับหลายห้องแล้ว)
         const res = await axios.post(
         apiUrl("Booking/addBooking.php"),
-        { bookings }, // ✅ ส่ง array bookings
+        { member_id: user.member_id, bookings }, // ✅ ส่ง array bookings
         { headers: { "Content-Type": "application/json" } }
         );
 
