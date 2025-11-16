@@ -1,53 +1,48 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type");
-header("Access-Control-Allow-Methods: POST");
-header("Content-Type: application/json; charset=UTF-8");
+require_once __DIR__ . '/../config/cors.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 
-include_once __DIR__ . '/../config/db_connect.php';
+header("Content-Type: application/json; charset=utf-8");
+error_reporting(0);
+
+require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-// ตรวจว่าข้อมูลครบมั้ย
-if (!isset($data['member_id'], $data['field'], $data['value'])) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Missing required fields."
-    ]);
+$request_user_id = intval($data['request_user_id'] ?? 0);
+$targetUserId    = intval($data['member_id'] ?? 0);
+$field           = $data['field'] ?? "";
+$newValue        = $data['new_value'] ?? "";
+
+requireAdmin($conn, $request_user_id);
+
+$allowed = ['first_name','last_name','phone','email','username','tier','role'];
+if (!in_array($field, $allowed)) {
+    echo json_encode(["success" => false, "message" => "Invalid field"]);
     exit;
 }
 
-$member_id = intval($data['member_id']);
-$field = $data['field'];
-$value = $data['value'];
+# special rule: role lowercase
+if ($field === "role") {
+    $newValue = strtolower($newValue);
+}
 
-// col ที่แก้ได้(อิงตามที่ view ได้)
-$allowed_fields = ['username', 'first_name', 'last_name', 'phone', 'email', 'tier'];
-if (!in_array($field, $allowed_fields)) {
-    echo json_encode([
-        "success" => false,
-        "message" => "Invalid field."
-    ]);
+$sql = "UPDATE member SET $field=? WHERE member_id=?";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("si", $newValue, $targetUserId);
+
+if (!$stmt->execute()) {
+    echo json_encode(["success" => false, "message" => $stmt->error]);
     exit;
 }
+$stmt->close();
 
-// กัน sql injection
-$value_safe = $conn->real_escape_string($value);
-$sql = "UPDATE member SET $field = '$value_safe' WHERE member_id = $member_id";
-$result = $conn->query($sql);
+logActivity($conn, $request_user_id, "ADMIN_EDIT_USER", "Edited user $targetUserId");
 
-if ($result) {
-    echo json_encode([
-        "success" => true,
-        "message" => "User updated successfully."
-    ]);
-} 
-else {
-    echo json_encode([
-        "success" => false,
-        "message" => "Query failed: " . $conn->error
-    ]);
-}
-
-$conn->close();
-?>
+echo json_encode([
+    "success" => true,
+    "message" => "User updated",
+    "member_id" => $targetUserId
+]);
