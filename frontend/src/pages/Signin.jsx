@@ -1,3 +1,4 @@
+// frontend/src/pages/Signin.jsx
 import React, { useState } from "react";
 import axios from "axios";
 import "../ui/Signin.css";
@@ -8,9 +9,8 @@ function Signin() {
   const signinbg = "images/home/proj_home3.jpeg";
   const [activeTab, setActiveTab] = useState("signin");
 
-  // --- API base ---
   // --- Sign In state ---
-  const [identifier, setIdentifier] = useState(""); // username / phone / email
+  const [identifier, setIdentifier] = useState("");
   const [passwordIn, setPasswordIn] = useState("");
   const [loadingIn, setLoadingIn] = useState(false);
   const [errIn, setErrIn] = useState("");
@@ -29,34 +29,69 @@ function Signin() {
   const [errUp, setErrUp] = useState("");
   const [okUp, setOkUp] = useState("");
 
+  // -----------------------------------------
+  // ⭐ SIGN IN
+  // -----------------------------------------
   async function handleSignin(e) {
     e.preventDefault();
     setErrIn("");
     setLoadingIn(true);
+
     try {
-      const { data } = await axios.post(apiUrl("api/auth/signin.php"), {
-        identifier,
-        password: passwordIn,
-      }, {
-        headers: { "Content-Type": "application/json" }
-      });
-      // Keep simple local session
-      localStorage.setItem("user", JSON.stringify(data));
-      // Redirect (adjust target as you wish)
+      const { data } = await axios.post(
+        apiUrl("api/auth/signin.php"),
+        {
+          identifier,
+          password: passwordIn,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      if (!data.success) {
+        setErrIn("Invalid login credentials");
+        return;
+      }
+
+      // ⭐ Create clean user object
+      const userObj = {
+        member_id: data.member_id,
+        username: data.username,
+        first_name: data.first_name,
+        last_name: data.last_name,
+        phone: data.phone,
+        email: data.email,
+        tier: data.tier,
+        join_date: data.join_date,
+        role: data.role, // ⭐ the IMPORTANT part
+      };
+
+      // ⭐ Save to localStorage (used by Navbar)
+      localStorage.setItem("user", JSON.stringify(userObj));
+
       window.location.href = "/";
+
     } catch (err) {
-      const msg = err?.response?.data?.error || err?.response?.data?.errors?.join(", ") || err.message;
+      const msg =
+        err?.response?.data?.error ||
+        err?.response?.data?.errors?.join(", ") ||
+        err.message;
       setErrIn(msg);
     } finally {
       setLoadingIn(false);
     }
   }
 
+  // -----------------------------------------
+  // ⭐ SIGN UP
+  // -----------------------------------------
   async function handleSignup(e) {
     e.preventDefault();
     setErrUp("");
     setOkUp("");
 
+    // Validate
     if (su.password.length < 6) {
       setErrUp("Password must be at least 6 characters");
       return;
@@ -67,35 +102,63 @@ function Signin() {
     }
 
     setLoadingUp(true);
+
     try {
-      const { data } = await axios.post(apiUrl("api/auth/signup.php"), {
+      const { data } = await axios.post(
+        apiUrl("api/auth/signup.php"),
+        {
+          first_name: su.first_name,
+          last_name: su.last_name,
+          phone: su.phone,
+          username: su.username,
+          password: su.password,
+          email: su.email,
+        },
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+
+      // ⭐ Auto-login after signup (role = USER)
+      const userObj = {
+        member_id: data.member_id,
+        username: data.username,
         first_name: su.first_name,
         last_name: su.last_name,
         phone: su.phone,
-        username: su.username,
-        password: su.password,
         email: su.email,
-      }, {
-        headers: { "Content-Type": "application/json" }
-      });
-      // Optionally auto-signin user after signup
-      localStorage.setItem("user", JSON.stringify({ member_id: data.member_id, username: data.username }));
+        tier: "SILVER",
+        join_date: new Date().toISOString().split("T")[0],
+        role: "USER", // ⭐ always normal USER
+      };
+
+      localStorage.setItem("user", JSON.stringify(userObj));
+
       setOkUp("Account created!");
       setActiveTab("signin");
+
     } catch (err) {
-      const msg = err?.response?.data?.error || err?.response?.data?.errors?.join(", ") || err.message;
+      const msg =
+        err?.response?.data?.error ||
+        err?.response?.data?.errors?.join(", ") ||
+        err.message;
       setErrUp(msg);
     } finally {
       setLoadingUp(false);
     }
   }
 
+  // -----------------------------------------
+  // RENDER
+  // -----------------------------------------
   return (
     <div className="signin">
       <Navbar />
       <img src={signinbg} alt="Signin Background" className="bg-img" />
+
       <div className="form-overlay" style={{ maxHeight: "100vh", overflowY: "auto" }}>
         <div className="form-container" style={{ maxHeight: "calc(100vh - 80px)", overflowY: "auto" }}>
+
           <div className="form-header">
             <button
               className={activeTab === "signin" ? "active" : ""}
@@ -103,6 +166,7 @@ function Signin() {
             >
               Sign In
             </button>
+
             <button
               className={activeTab === "signup" ? "active" : ""}
               onClick={() => setActiveTab("signup")}
@@ -111,9 +175,13 @@ function Signin() {
             </button>
           </div>
 
+          {/* --------------------------------- */}
+          {/* SIGN IN FORM */}
+          {/* --------------------------------- */}
           {activeTab === "signin" ? (
             <form className="form" onSubmit={handleSignin}>
               {errIn && <div className="msg error">{errIn}</div>}
+
               <h2>Username / Phone / Email</h2>
               <input
                 type="text"
@@ -121,6 +189,7 @@ function Signin() {
                 value={identifier}
                 onChange={(e) => setIdentifier(e.target.value)}
               />
+
               <h2>Password</h2>
               <input
                 type="password"
@@ -128,20 +197,24 @@ function Signin() {
                 value={passwordIn}
                 onChange={(e) => setPasswordIn(e.target.value)}
               />
+
               <button className="submit-btn" type="submit" disabled={loadingIn}>
                 {loadingIn ? "Signing in..." : "Sign In"}
               </button>
             </form>
           ) : (
+            // ---------------------------------
+            // SIGN UP FORM
+            // ---------------------------------
             <form className="form" onSubmit={handleSignup}>
               <button
                 type="button"
                 className="link-back"
                 onClick={() => setActiveTab("signin")}
-                aria-label="Back to Sign In"
               >
                 ← Back to Sign In
               </button>
+
               {errUp && <div className="msg error">{errUp}</div>}
               {okUp && <div className="msg success">{okUp}</div>}
 
@@ -152,6 +225,7 @@ function Signin() {
                 value={su.first_name}
                 onChange={(e) => setSu({ ...su, first_name: e.target.value })}
               />
+
               <h2>Last name</h2>
               <input
                 type="text"
@@ -159,13 +233,15 @@ function Signin() {
                 value={su.last_name}
                 onChange={(e) => setSu({ ...su, last_name: e.target.value })}
               />
+
               <h2>Phone</h2>
               <input
                 type="text"
-                placeholder="e.g. 0812345678"
+                placeholder="0812345678"
                 value={su.phone}
                 onChange={(e) => setSu({ ...su, phone: e.target.value })}
               />
+
               <h2>Username</h2>
               <input
                 type="text"
@@ -173,6 +249,7 @@ function Signin() {
                 value={su.username}
                 onChange={(e) => setSu({ ...su, username: e.target.value })}
               />
+
               <h2>Password</h2>
               <input
                 type="password"
@@ -180,6 +257,7 @@ function Signin() {
                 value={su.password}
                 onChange={(e) => setSu({ ...su, password: e.target.value })}
               />
+
               <h2>Confirm Password</h2>
               <input
                 type="password"
@@ -187,6 +265,7 @@ function Signin() {
                 value={su.confirm}
                 onChange={(e) => setSu({ ...su, confirm: e.target.value })}
               />
+
               <h2>Email (optional)</h2>
               <input
                 type="email"
