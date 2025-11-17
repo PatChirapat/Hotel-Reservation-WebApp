@@ -53,7 +53,7 @@ if (isset($data["bookings"]) && is_array($data["bookings"])) {
         $newId = $conn->insert_id;
         $ids[] = $newId;
 
-        // 🔥 Log user add booking
+        //  Log user add booking
         logActivity(
             $conn,
             $b["member_id"],
@@ -69,43 +69,3 @@ if (isset($data["bookings"]) && is_array($data["bookings"])) {
     ]);
     exit;
 }
-
-// ------------------------------
-// SINGLE BOOKING MODE
-// ------------------------------
-$member_id = intval($data["member_id"] ?? 0);
-requireUser($conn, $member_id);
-
-$stmt = $conn->prepare("
-    INSERT INTO booking (
-        member_id, room_type_id, phone_entered,
-        checkin_date, checkout_date, guest_count,
-        booking_status, subtotal_amount, discount_amount, total_amount
-    )
-    VALUES (?, ?, ?, ?, ?, ?, 'Pending', ?, ?, ?)
-");
-
-$stmt->bind_param(
-    "iisssdddd",
-    $member_id,
-    $data["room_type_id"],
-    $data["phone_entered"],
-    $data["checkin_date"],
-    $data["checkout_date"],
-    $data["guest_count"],
-    $data["subtotal_amount"],
-    $data["discount_amount"],
-    $data["total_amount"]
-);
-
-$stmt->execute();
-$newId = $stmt->insert_id;
-
-logActivity(
-    $conn,
-    $member_id,
-    "USER_ADD_BOOKING",
-    "User{$member_id}: created booking $newId"
-);
-
-echo json_encode(["success"=>true, "booking_id"=>$newId]);

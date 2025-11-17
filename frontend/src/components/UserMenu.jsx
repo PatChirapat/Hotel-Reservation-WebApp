@@ -25,6 +25,7 @@ export default function UserMenu({ user, onLogout }) {
   }, []);
 
   const toggleMenu = () => setOpen((v) => !v);
+  const role = (user?.role || "").toLowerCase().trim();
 
   return (
     <div className="usermenu" ref={ref}>
@@ -57,19 +58,24 @@ export default function UserMenu({ user, onLogout }) {
           <Link to="/account" className="usermenu-item">
             Account
           </Link>
-          <Link to="/BookingConfirmation" className="usermenu-item">
-            My Bookings
-          </Link>
-          {user?.role === "ADMIN" && (
+          {role === "user" && (
+            <Link to="/BookingConfirmation" className="usermenu-item">
+              My Bookings
+            </Link>
+          )}
+
+          {role === "admin" && (
             <Link to="/admin" className="usermenu-item">
               Admin
             </Link>
           )}
-          {user?.role === "DEVELOPER" && (
+
+          {role === "developer" && (
             <Link to="/dev" className="usermenu-item">
               Developer
             </Link>
           )}
+
           <button onClick={onLogout} className="usermenu-item danger">
             Sign out
           </button>

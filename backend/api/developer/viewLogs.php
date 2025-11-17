@@ -1,5 +1,7 @@
 <?php
 require_once __DIR__ . '/../utils/authorize.php';
+require_once __DIR__ . '/../config/db_connect_dev.php';
+
 
 $data = json_decode(file_get_contents("php://input"), true);
 $request_user_id = intval($data['request_user_id'] ?? 0);

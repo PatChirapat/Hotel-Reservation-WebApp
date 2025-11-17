@@ -3,7 +3,7 @@ require_once __DIR__ . '/../config/cors.php';
 header("Content-Type: application/json; charset=utf-8");
 error_reporting(E_ALL);
 
-require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../config/db_connect_admin.php';
 
 $sql = "SELECT * FROM member";
 $result = $conn->query($sql);

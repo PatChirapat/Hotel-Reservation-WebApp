@@ -30,7 +30,7 @@ function Signin() {
   const [okUp, setOkUp] = useState("");
 
   // -----------------------------------------
-  // ⭐ SIGN IN
+  // SIGN IN
   // -----------------------------------------
   async function handleSignin(e) {
     e.preventDefault();
@@ -54,7 +54,7 @@ function Signin() {
         return;
       }
 
-      // ⭐ Create clean user object
+      // Create clean user object
       const userObj = {
         member_id: data.member_id,
         username: data.username,
@@ -67,7 +67,7 @@ function Signin() {
         role: data.role, // ⭐ the IMPORTANT part
       };
 
-      // ⭐ Save to localStorage (used by Navbar)
+      // Save to localStorage (used by Navbar)
       localStorage.setItem("user", JSON.stringify(userObj));
 
       window.location.href = "/";
@@ -84,7 +84,7 @@ function Signin() {
   }
 
   // -----------------------------------------
-  // ⭐ SIGN UP
+  // SIGN UP
   // -----------------------------------------
   async function handleSignup(e) {
     e.preventDefault();
@@ -119,7 +119,7 @@ function Signin() {
         }
       );
 
-      // ⭐ Auto-login after signup (role = USER)
+      // Auto-login after signup (role = USER)
       const userObj = {
         member_id: data.member_id,
         username: data.username,
@@ -129,7 +129,7 @@ function Signin() {
         email: su.email,
         tier: "SILVER",
         join_date: new Date().toISOString().split("T")[0],
-        role: "USER", // ⭐ always normal USER
+        role: "USER", // always normal USER
       };
 
       localStorage.setItem("user", JSON.stringify(userObj));

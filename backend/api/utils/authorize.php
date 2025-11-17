@@ -32,8 +32,8 @@ function requireUser($conn, $memberId) {
         exit;
     }
 
-    // เช็คว่า user มีจริง
-    $sql = "SELECT member_id FROM member WHERE member_id=? LIMIT 1";
+    // ดึง role
+    $sql = "SELECT member_id, role FROM member WHERE member_id=? LIMIT 1";
     $stmt = $conn->prepare($sql);
     $stmt->bind_param("i", $memberId);
     $stmt->execute();
@@ -48,7 +48,19 @@ function requireUser($conn, $memberId) {
         ]);
         exit;
     }
+
+    // Block admin + developer
+    if (strtolower($row["role"]) !== "user") {
+        http_response_code(403);
+        echo json_encode([
+            "success" => false,
+            "message" => "Access Denied: Only users can perform booking actions."
+        ]);
+        exit;
+    }
 }
+
+
 
 function requireOwner($ownerId, $loggedId) {
     if ($ownerId != $loggedId) {

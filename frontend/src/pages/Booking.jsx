@@ -12,6 +12,20 @@ function Booking() {
     const navigate = useNavigate();
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
+    // BLOCK ADMIN + DEVELOPER
+    useEffect(() => {
+      const u = JSON.parse(localStorage.getItem("user") || "{}");
+
+      if (!u.role) return; // รอข้อมูลก่อน
+
+      const role = (u.role || "").toLowerCase().trim();
+
+      if (role !== "user") {
+        alert("Access Denied: Only users can make bookings.");
+        navigate("/");
+      }
+    }, []);
+
     const roomTypeMap = {
     classic: 1,
     premier: 2,

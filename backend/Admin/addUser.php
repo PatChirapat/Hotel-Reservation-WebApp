@@ -5,7 +5,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
 header("Content-Type: application/json; charset=utf-8");
 error_reporting(0);
 
-require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../config/db_connect_admin.php';
 require_once __DIR__ . '/../api/utils/authorize.php';
 require_once __DIR__ . '/../api/utils/auth.php';
 

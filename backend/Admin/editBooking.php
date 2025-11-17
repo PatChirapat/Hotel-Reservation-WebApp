@@ -9,7 +9,7 @@ header("Content-Type: application/json; charset=utf-8");
 error_reporting(E_ALL);
 ini_set("display_errors", 1);
 
-require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../config/db_connect_admin.php';
 require_once __DIR__ . '/../api/utils/authorize.php';
 require_once __DIR__ . '/../api/utils/auth.php';
 
