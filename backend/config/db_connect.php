@@ -3,8 +3,8 @@
 // Minimal DB connector for MAMP. Do NOT echo anything here.
 
 $DB_HOST = 'localhost';
-$DB_USER = 'root';
-$DB_PASS = 'root';
+$DB_USER = 'hotel_user';
+$DB_PASS = 'UserPass123!';
 $DB_NAME = 'hotel_db';
 $DB_PORT = 8889; // MAMP MySQL default port. Change if yours differs.
 
