@@ -3,6 +3,8 @@ header("Content-Type: application/json; charset=utf-8");
 header("Access-Control-Allow-Origin: *");
 
 include_once __DIR__ . '/../config/db_connect_admin.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
 
 $sql = "SELECT room_type_id, name FROM room_type ORDER BY room_type_id ASC";
 $result = $conn->query($sql);

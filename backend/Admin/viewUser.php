@@ -4,6 +4,8 @@ header("Content-Type: application/json; charset=utf-8");
 error_reporting(E_ALL);
 
 require_once __DIR__ . '/../config/db_connect_admin.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
 
 $sql = "SELECT * FROM member";
 $result = $conn->query($sql);
