@@ -60,3 +60,17 @@ function requireOwner($ownerId, $loggedId) {
         exit;
     }
 }
+
+function requireDeveloper($conn, $member_id) {
+    $stmt = $conn->prepare("SELECT role FROM member WHERE member_id=?");
+    $stmt->bind_param("i", $member_id);
+    $stmt->execute();
+    $role = $stmt->get_result()->fetch_assoc()['role'] ?? null;
+
+    if ($role !== "developer") {
+        http_response_code(403);
+        echo json_encode(["success" => false, "message" => "Developer only"]);
+        exit;
+    }
+}
+
