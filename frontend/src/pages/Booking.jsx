@@ -173,7 +173,8 @@ function Booking() {
         const payload = {
           checkin_date: checkin,
           checkout_date: checkout,
-          guest_count: totalGuests,
+          // NOTE: we intentionally do NOT send guest_count here,
+          // so availability is based only on dates, not current guests.
         };
 
         const res = await axios.post(
@@ -214,10 +215,10 @@ function Booking() {
       }
     };
 
-    // Auto-refresh availability whenever dates or guest count change
+    // Auto-refresh availability whenever dates change
     useEffect(() => {
       fetchAvailability();
-    }, [checkin, checkout, totalGuests]);
+    }, [checkin, checkout]);
 
     // Booking details to send to backend
 
@@ -394,15 +395,15 @@ function Booking() {
                     
                     {loadingAvailability ? (
                       <p className="rooms-left"><em>Checking availability...</em></p>
+                    ) : availabilityError ? (
+                      <p className="rooms-left"><em>Availability info not loaded.</em></p>
                     ) : roomsLeft != null ? (
                       <p className="rooms-left">
                         {roomsLeft > 0
                           ? `${roomsLeft} room${roomsLeft > 1 ? "s" : ""} left for these dates`
                           : "No rooms available for these dates"}
                       </p>
-                    ) : (
-                      <p className="rooms-left"><em>Availability info not loaded.</em></p>
-                    )}
+                    ) : null}
 
                     {isSelected && (
                         <div className="room-count">

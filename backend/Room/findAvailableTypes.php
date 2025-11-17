@@ -17,19 +17,18 @@ if (!is_array($data)) {
 
 $checkin  = $data['checkin_date']  ?? null;
 $checkout = $data['checkout_date'] ?? null;
-$guests   = $data['guest_count']   ?? null;
+// guest_count is optional for this endpoint; if not provided, default to 1
+$guests   = isset($data['guest_count']) ? (int)$data['guest_count'] : 1;
 
-// Basic validation
-if (!$checkin || !$checkout || !$guests) {
+// Basic validation (only require dates)
+if (!$checkin || !$checkout) {
     echo json_encode([
         "success" => false,
-        "message" => "Missing checkin_date, checkout_date, or guest_count"
+        "message" => "Missing checkin_date or checkout_date"
     ], JSON_UNESCAPED_UNICODE);
     $conn->close();
     exit;
 }
-
-$guests = (int)$guests;
 
 try {
     // CALL FindAvailableRoomTypes(?, ?, ?)
