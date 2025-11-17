@@ -3,7 +3,7 @@
 // ===============================================
 
 // กำหนด backend ของ MAMP แบบคงที่
-const BACKEND_BASE = "http://localhost:8888/CSS326/Project/Hotel-Reservation-WebApp/backend";
+const BACKEND_BASE = "http://localhost/CSS326/Project/Hotel-Reservation-WebApp/backend";
 
 /**
  * คืนค่า BASE URL ให้ระบบอื่นยังใช้งานได้

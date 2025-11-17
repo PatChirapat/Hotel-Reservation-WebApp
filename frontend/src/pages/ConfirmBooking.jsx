@@ -24,35 +24,10 @@ export default function ConfirmBooking() {
     }
   }, []);
 
-  // BOOKING (fallback values)
-  const booking = state?.booking || {
-    booking_id: 123456,
-    member_id: user?.member_id ?? 12,
-    phone_entered: user?.phone ?? "0812345678",
-    checkin_date: "2025-12-24",
-    checkout_date: "2025-12-26",
-    guest_count: 2,
-    subtotal_amount: 4000,
-    discount_amount: 0,
-    total_amount: 4000,
-    created_at: new Date().toISOString(),
-  };
-
-  const room = state?.room || {
-    name: "Deluxe",
-    room_number: "101",
-    capacity: 2,
-  };
-
-  const payment = state?.payment || {
-    payment_id: 5555,
-    booking_id: booking.booking_id,
-    amount: booking.total_amount,
-    method: "QR",
-    provider_txn_ref: "TXN-2025-1120-ABCDEF",
-    payment_status: "Success",
-    paid_at: new Date().toISOString(),
-  };
+  // BOOKING / ROOM / PAYMENT (real data only from navigation state)
+  const booking = state?.booking ?? null;
+  const room = state?.room ?? null;
+  const payment = state?.payment ?? null;
 
   // HELPERS
   const fmt = (n) =>
@@ -69,6 +44,7 @@ export default function ConfirmBooking() {
     });
 
   const nights = (() => {
+    if (!booking) return 0;
     const ci = new Date(booking.checkin_date);
     const co = new Date(booking.checkout_date);
     return Math.max(1, (co - ci) / (1000 * 60 * 60 * 24));
@@ -80,6 +56,54 @@ export default function ConfirmBooking() {
       ? `${user.first_name} ${user.last_name}`
       : null) ||
     "Guest";
+
+  // Derive safe room label and capacity from real data
+  const roomLabel = (() => {
+    if (!room && !booking) return "Room";
+    const baseName =
+      room?.name ||
+      booking?.room_type_name ||
+      "Room";
+    const num =
+      room?.room_number ||
+      booking?.room_number ||
+      "";
+    return num ? `${baseName} — No.${num}` : baseName;
+  })();
+
+  // Room type name to use for capacity lookup
+  const roomTypeName =
+    room?.name ||
+    booking?.room_type_name ||
+    null;
+
+  // Capacity mapping based on room_type table (Classic=2, others=3)
+  const capacityByRoomType = {
+    Classic: 2,
+    Premier: 3,
+    Executive: 3,
+    Diplomatic: 3,
+    Royal: 3,
+  };
+
+  const roomCapacity =
+    room?.capacity ??
+    booking?.capacity ??
+    (roomTypeName ? capacityByRoomType[roomTypeName] ?? null : null);
+
+  const bookingStatus = booking?.booking_status || "Pending";
+
+  // Prefer payment information coming from the booking row (DB),
+  // then fall back to explicit payment state, and finally to safe defaults.
+  const paymentStatus =
+    booking?.payment_status ||
+    payment?.payment_status ||
+    "Pending";
+
+  const paymentMethod =
+    booking?.payment_method ||
+    payment?.method ||
+    "-";
 
   // SAVE PNG
   const saveAsImage = async () => {
@@ -93,7 +117,8 @@ export default function ConfirmBooking() {
       });
       const link = document.createElement("a");
       link.href = canvas.toDataURL("image/png");
-      link.download = `booking_${booking.booking_id}.png`;
+      const idForFile = booking?.booking_id ?? "unknown";
+      link.download = `booking_${idForFile}.png`;
       link.click();
     } catch {
       setSaveError("Cannot save image. Please try again.");
@@ -151,16 +176,18 @@ export default function ConfirmBooking() {
         }
       }
 
+      const idForFile = booking?.booking_id ?? "unknown";
       if (mode === "save") {
-        pdf.save(`booking_${booking.booking_id}.pdf`);
+        pdf.save(`booking_${idForFile}.pdf`);
       } else {
         const url = pdf.output("bloburl");
         window.open(url, "_blank");
       }
     } catch (err) {
       console.error(err);
-      setSaveError("Failed to save PDF. Trying Print-to-PDF instead.");
-      window.print(); // fallback เสมอเพื่อให้ผู้ใช้เซฟ PDF ได้
+      // Disable PDF error message completely
+      setSaveError("");
+      window.print();
     } finally {
       setSaving(false);
     }
@@ -182,11 +209,10 @@ export default function ConfirmBooking() {
     }
   };
 
-  // Auto-generate PDF once after confirmation page renders
+  // After confirmation page renders, mark PDF init once (no auto-generate to avoid popup blocking)
   useEffect(() => {
     if (autoPDFOnceRef.current) return;
     autoPDFOnceRef.current = true;
-    // Avoid auto-generating PDF to prevent popup/download blocking.
   }, []);
 
   return (
@@ -196,10 +222,23 @@ export default function ConfirmBooking() {
       <main className="confirm-container">
         <div className="confirm-card" ref={cardRef}>
           <div className="confirm-header">
-            <div className="badge-success">Payment Success</div>
-            <h1>Booking Confirmed</h1>
+            <div className="badge-success">
+              {bookingStatus === "Cancelled"
+                ? "Booking Cancelled"
+                : paymentStatus === "Success"
+                ? "Payment Success"
+                : "Payment Pending"}
+            </div>
+            <h1>
+              {bookingStatus === "Confirmed"
+                ? "Booking Confirmed"
+                : bookingStatus === "Cancelled"
+                ? "Booking Cancelled"
+                : "Booking Summary"}
+            </h1>
             <p className="muted">
-              Thank you, {fullName}. Your reservation is confirmed.
+              Thank you, {fullName}. Your reservation status is{" "}
+              {bookingStatus.toLowerCase()}.
             </p>
           </div>
 
@@ -208,13 +247,13 @@ export default function ConfirmBooking() {
             <section className="panel">
               <h2 className="gold">Stay Details</h2>
               <div className="rows">
-                <div className="row"><span>Booking ID</span> <strong>{booking.booking_id}</strong></div>
+                <div className="row"><span>Booking ID</span> <strong>{booking?.booking_id ?? "-"}</strong></div>
                 <div className="row"><span>Name</span> <strong>{fullName}</strong></div>
-                <div className="row"><span>Phone</span> <strong>{booking.phone_entered}</strong></div>
-                <div className="row"><span>Check-in</span> <strong>{fmtDate(booking.checkin_date)}</strong></div>
-                <div className="row"><span>Check-out</span> <strong>{fmtDate(booking.checkout_date)}</strong></div>
+                <div className="row"><span>Phone</span> <strong>{booking?.phone_entered ?? "-"}</strong></div>
+                <div className="row"><span>Check-in</span> <strong>{booking?.checkin_date ? fmtDate(booking.checkin_date) : "-"}</strong></div>
+                <div className="row"><span>Check-out</span> <strong>{booking?.checkout_date ? fmtDate(booking.checkout_date) : "-"}</strong></div>
                 <div className="row"><span>Nights</span> <strong>{nights}</strong></div>
-                <div className="row"><span>Guests</span> <strong>{booking.guest_count}</strong></div>
+                <div className="row"><span>Guests</span> <strong>{booking?.guest_count ?? "-"}</strong></div>
               </div>
             </section>
 
@@ -222,17 +261,16 @@ export default function ConfirmBooking() {
             <section className="panel">
               <h2 className="gold">Room & Payment</h2>
               <div className="rows">
-                <div className="row"><span>Room</span> <strong>{room.name} — No.{room.room_number}</strong></div>
-                <div className="row"><span>Capacity</span> <strong>{room.capacity} guests</strong></div>
+                <div className="row"><span>Room</span> <strong>{roomLabel}</strong></div>
+                <div className="row"><span>Capacity</span> <strong>{roomCapacity != null ? `${roomCapacity} guests` : "-"}</strong></div>
                 <div className="row"><span>Subtotal</span> <strong>{fmt(booking.subtotal_amount)}</strong></div>
                 <div className="row"><span>Discount</span> <strong>-{fmt(booking.discount_amount)}</strong></div>
                 <div className="row total"><span>Total</span> <strong>{fmt(booking.total_amount)}</strong></div>
-                <div className="row"><span>Method</span> <strong>{payment.method}</strong></div>
-                <div className="row"><span>Ref</span> <strong>{payment.provider_txn_ref}</strong></div>
+                <div className="row"><span>Method</span> <strong>{paymentMethod}</strong></div>
                 <div className="row">
                   <span>Status</span>
-                  <strong className={payment.payment_status === "Success" ? "ok" : "warn"}>
-                    {payment.payment_status}
+                  <strong className={paymentStatus === "Success" ? "ok" : "warn"}>
+                    {paymentStatus}
                   </strong>
                 </div>
               </div>
@@ -240,16 +278,12 @@ export default function ConfirmBooking() {
           </div>
 
           <div className="footer-note">
-            Confirmation recorded on {fmtDate(booking.created_at)}.
+            Confirmation recorded on{" "}
+            {booking?.created_at ? fmtDate(booking.created_at) : "-"}.
           </div>
         </div>
 
-        {saveError && <div className="error">{saveError}</div>}
-
         <div className="actions">
-          <button className="btn btn-gold" onClick={() => navigate("/")}>
-            Back to Home
-          </button>
 
           {/* View / Save PDF */}
           <button className="btn" onClick={handleViewPDF} disabled={saving}>
@@ -259,9 +293,6 @@ export default function ConfirmBooking() {
             {saving ? "Saving…" : "Save as PDF"}
           </button>
 
-          <button className="btn btn-dark" onClick={saveAsImage} disabled={saving}>
-            {saving ? "Saving…" : "Save as PNG"}
-          </button>
         </div>
       </main>
 
