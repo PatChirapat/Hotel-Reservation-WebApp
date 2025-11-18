@@ -121,9 +121,6 @@ export default function Navbar() {
           Reviews
         </button>
 
-        {/* ---------------------------- */}
-        {/*     ROLE-BASED MAIN BUTTON   */}
-        {/* ---------------------------- */}
         {user ? (
           <>
             {/* Admin */}

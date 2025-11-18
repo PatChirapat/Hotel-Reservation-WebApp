@@ -64,7 +64,7 @@ function Signin() {
         email: data.email,
         tier: data.tier,
         join_date: data.join_date,
-        role: data.role, // ⭐ the IMPORTANT part
+        role: data.role,
       };
 
       // Save to localStorage (used by Navbar)

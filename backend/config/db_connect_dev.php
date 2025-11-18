@@ -1,12 +1,9 @@
 <?php
-// backend/config/db_connect.php
-// Minimal DB connector for MAMP. Do NOT echo anything here.
-
 $DB_HOST = 'localhost';
 $DB_USER = 'hotel_dev';
 $DB_PASS = 'DevPass123!';
 $DB_NAME = 'hotel_db';
-$DB_PORT = 8889; // MAMP MySQL default port. Change if yours differs.
+$DB_PORT = 8889;
 
 $conn = @new mysqli($DB_HOST, $DB_USER, $DB_PASS, $DB_NAME, $DB_PORT);
 if ($conn->connect_error) {

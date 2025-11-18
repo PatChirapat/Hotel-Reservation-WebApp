@@ -6,7 +6,7 @@ export default function UserMenu({ user, onLogout }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
 
-  // 🔹 ปิด dropdown เมื่อคลิกข้างนอก หรือกด Escape
+  // ปิด dropdown เมื่อคลิกข้างนอก หรือกด Escape
   useEffect(() => {
     function handleKey(e) {
       if (e.key === "Escape") setOpen(false);

@@ -16,7 +16,7 @@ function DeveloperLogs() {
 
             const res = await axios.get(apiUrl("api/logs/viewLogs.php"))
 
-            // ✔ Correct response format
+            // Correct response format
             if (res.data?.success && Array.isArray(res.data.logs)) {
                 setLogs(res.data.logs);
             } else {

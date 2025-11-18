@@ -4,12 +4,12 @@ import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import "../ui/Payment.css";
 import axios from "axios";
-import { apiUrl } from "../utils/api"; // ในโปรเจกต์ของเธอมี util นี้อยู่แล้ว
+import { apiUrl } from "../utils/api";
 
 export default function Payment() {
   const { state } = useLocation();
-  const booking = state?.booking;              // ถ้ามี
-  const booking_id = state?.booking_id || booking?.booking_id; // รองรับสองแบบ
+  const booking = state?.booking;  
+  const booking_id = state?.booking_id || booking?.booking_id;
   const navigate = useNavigate();
 
   const [method, setMethod] = useState("");

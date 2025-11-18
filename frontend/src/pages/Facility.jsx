@@ -81,6 +81,7 @@ function Facility() {
         pool: 0,
     });
 
+    // อัปเดต index ของรูปใน state ตามชื่อห้อง
     const handleImageChange = (room, index) => {
         setCurrentImages(prev => ({ ...prev, [room]: index }));
     };

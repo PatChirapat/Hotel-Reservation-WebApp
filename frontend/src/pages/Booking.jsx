@@ -173,7 +173,7 @@ function Booking() {
         const payload = {
           checkin_date: checkin,
           checkout_date: checkout,
-          // NOTE: we intentionally do NOT send guest_count here,
+          // not send guest_count here,
           // so availability is based only on dates, not current guests.
         };
 
@@ -227,17 +227,17 @@ function Booking() {
     try {
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user) {
-        alert("⚠️ Please log in before making a booking.");
+        alert("Please log in before making a booking.");
         navigate("/Signin");
         return;
         }
 
         if (Object.keys(selectedRooms).length === 0) {
-        alert("⚠️ Please select at least one room before confirming.");
+        alert("Please select at least one room before confirming.");
         return;
         }
 
-        // 🟢 สร้าง array ของ bookings ทั้งหมด
+        // สร้าง array ของ bookings ทั้งหมด
         const bookings = [];
         for (const [roomKey, count] of Object.entries(selectedRooms)) {
         const room_type_id = roomTypeMap[roomKey];
@@ -256,47 +256,47 @@ function Booking() {
         }
         }
 
-        // 🟩 เชื่อมไปที่ addBooking.php (ไฟล์เดียว รองรับหลายห้องแล้ว)
+        // เชื่อมไปที่ addBooking.php (ไฟล์เดียว รองรับหลายห้องแล้ว)
         const res = await axios.post(
         apiUrl("Booking/addBooking.php"),
-        { member_id: user.member_id, bookings }, // ✅ ส่ง array bookings
+        { member_id: user.member_id, bookings }, // ส่ง array bookings
         { headers: { "Content-Type": "application/json" } }
         );
 
     if (res.data.success) {
-    console.log("📦 Backend Response:", res.data);
+    console.log("Backend Response:", res.data);
 
-    // 🟢 ตรวจให้แน่ใจว่า booking_ids เป็น array เสมอ
+    // ตรวจให้แน่ใจว่า booking_ids เป็น array เสมอ
     let booking_ids = [];
 
-    // ✅ ถ้า backend ส่ง booking_ids มา (หลายห้อง)
+    // ถ้า backend ส่ง booking_ids มา (หลายห้อง)
     if (Array.isArray(res.data.booking_ids)) {
         booking_ids = res.data.booking_ids;
     }
-    // ✅ ถ้า backend ส่ง booking_id ตัวเดียว (จองห้องเดียว)
+    // ถ้า backend ส่ง booking_id ตัวเดียว (จองห้องเดียว)
     else if (res.data.booking_id) {
         booking_ids = [res.data.booking_id];
     }
 
-    console.log("➡️ Booking IDs prepared to send:", booking_ids);
+    console.log("Booking IDs prepared to send:", booking_ids);
 
-    // ⚠️ ถ้าไม่มี booking_id ใดเลย
+    // ถ้าไม่มี booking_id ใดเลย
     if (booking_ids.length === 0) {
-        alert("⚠️ Booking created but no booking IDs returned from backend!");
+        alert("Booking created but no booking IDs returned from backend!");
         return;
     }
 
-    alert("✅ All bookings created successfully!");
+    alert("All bookings created successfully!");
     navigate("/BookingConfirmation", {
         state: { booking_ids },
     });
     } else {
-    alert("❌ Error: " + res.data.message);
+    alert("Error: " + res.data.message);
     }
 
     } catch (err) {
         console.error("Error:", err);
-        alert("⚠️ Failed to connect to backend. Please check server path.");
+        alert("Failed to connect to backend. Please check server path.");
     }
 };
 
@@ -457,9 +457,7 @@ function Booking() {
               </p>
             )}
             
-            {/* /* Confirm Button */ }
-
-            
+            {/*Confirm Button */ }
             <button
                 className="confirm-btn"
                 disabled={totalGuests > totalCapacity}

@@ -15,7 +15,7 @@ function BookingConfirmation() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // 🔹 คำนวณจำนวนคืน (night count)
+  // คำนวณจำนวนคืน (night count)
   const calculateNights = (checkin, checkout) => {
     const inDate = new Date(checkin);
     const outDate = new Date(checkout);
@@ -24,7 +24,7 @@ function BookingConfirmation() {
     return nights;
   };
 
-  // 🔹 คำนวณ subtotal/total ใหม่
+  // คำนวณ subtotal/total ใหม่
   const recalculatePrice = (booking) => {
     const nights = calculateNights(booking.checkin_date, booking.checkout_date);
     const roomPrice = roomPrices[booking.room_type_id] || 0;
@@ -34,13 +34,13 @@ function BookingConfirmation() {
   };
 
 
-  // 🟦 สำหรับ modal edit
+  // สำหรับ modal edit
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedBooking, setSelectedBooking] = useState(null);
   const [editField, setEditField] = useState("");
   const [newValue, setNewValue] = useState("");
 
-    // 💰 Room price mapping
+    // Room price mapping
   const roomPrices = {
     1: 3200, // Classic
     2: 4200, // Premier
@@ -51,7 +51,7 @@ function BookingConfirmation() {
 
 
 
-  // 🟢 รับ booking_ids จาก Booking.jsx
+  // รับ booking_ids จาก Booking.jsx
   const booking_ids = location.state?.booking_ids || [];
   const apiBase = getApiBase();
 
@@ -70,14 +70,14 @@ function BookingConfirmation() {
           return;
         }
 
-        console.log("📤 Fetching bookings with payload:", payload);
+        console.log("Fetching bookings with payload:", payload);
         const res = await axios.post(
           apiUrl("Booking/viewBooking.php"),
           payload,
           { headers: { "Content-Type": "application/json" } }
         );
 
-        console.log("📥 Bookings fetched:", res.data);
+        console.log("Bookings fetched:", res.data);
         if (res.data?.success) {
           setBookings(Array.isArray(res.data.bookings) ? res.data.bookings : []);
         } else {
@@ -85,7 +85,7 @@ function BookingConfirmation() {
         }
       } catch (err) {
         console.error("Error fetching bookings:", err);
-        alert("❌ Failed to fetch booking data.");
+        alert("Failed to fetch booking data.");
       } finally {
         setLoading(false);
       }
@@ -95,7 +95,7 @@ function BookingConfirmation() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [apiBase, memberId, JSON.stringify(booking_ids)]);
 
-  // 🟩 อัปเดต booking เดี่ยว
+  // อัปเดต booking เดี่ยว
   const handleUpdate = async (booking) => {
     try {
       const response = axios.post(apiUrl("Booking/updateBooking.php"), {
@@ -105,17 +105,17 @@ function BookingConfirmation() {
 
 
       if (response.data.success) {
-        alert(`✅ Booking #${booking.booking_id} updated successfully!`);
+        alert(`Booking #${booking.booking_id} updated successfully!`);
       } else {
-        alert("⚠️ Update failed: " + response.data.message);
+        alert("Update failed: " + response.data.message);
       }
     } catch (error) {
       console.error("Error updating booking:", error);
-      alert("❌ Error connecting to backend.");
+      alert("Error connecting to backend.");
     }
   };
 
-// 🟠 ยกเลิกการจอง (Cancel) และปรับสถานะตามธุรกิจ
+// ยกเลิกการจอง (Cancel) และปรับสถานะตามธุรกิจ
 const handleCancel = async (booking) => {
   const booking_id = booking?.booking_id;
   if (!booking_id) return;
@@ -133,7 +133,7 @@ const handleCancel = async (booking) => {
     );
 
     if (response.data?.success) {
-      alert(`✅ Booking #${booking_id} has been cancelled.`);
+      alert(`Booking #${booking_id} has been cancelled.`);
       // อัปเดตสถานะในตารางทันที
       setBookings((prev) =>
         prev.map((b) =>
@@ -152,7 +152,7 @@ const handleCancel = async (booking) => {
     }
   } catch (err) {
     console.error("Error cancelling booking:", err);
-    alert("❌ Error connecting to backend.");
+    alert("Error connecting to backend.");
   }
 };
 
@@ -247,12 +247,12 @@ const handleCancel = async (booking) => {
       e.preventDefault();
 
       if (!editField) {
-        alert("⚠️ Please select a field to edit.");
+        alert("Please select a field to edit.");
         return;
       }
 
       try {
-        // 🟢 สร้าง booking object ใหม่ที่อัปเดตแล้ว
+        // สร้าง booking object ใหม่ที่อัปเดตแล้ว
         let updatedBooking = {
           ...selectedBooking,
           [editField]: newValue,
@@ -276,7 +276,7 @@ const handleCancel = async (booking) => {
         const res = await axios.post(apiUrl("Booking/updateBooking.php"), updatedBooking);
 
         if (res.data.success) {
-          alert(`✅ Booking #${selectedBooking.booking_id} updated successfully!`);
+          alert(`Booking #${selectedBooking.booking_id} updated successfully!`);
 
           setShowEditModal(false);
 
@@ -287,11 +287,11 @@ const handleCancel = async (booking) => {
             )
           );
         } else {
-          alert("❌ Update failed: " + res.data.message);
+          alert("Update failed: " + res.data.message);
         }
       } catch (err) {
         console.error("Error updating booking:", err);
-        alert("❌ Error connecting to backend.");
+        alert("Error connecting to backend.");
       }
     };
 
@@ -444,7 +444,7 @@ const handleCancel = async (booking) => {
                   );
                 })
               ) : (
-                // 🔹 ถ้าลบหมดแล้ว ให้ขึ้นข้อความสวย ๆ แทน แต่ยังอยู่ในหน้าเดิม
+                // ถ้าลบหมดแล้ว ให้ขึ้นข้อความสวย ๆ แทน แต่ยังอยู่ในหน้าเดิม
                   <tr>
                     <td colSpan="14" style={{ textAlign: "center", padding: "20px", color: "#888" }}>
                       No bookings found. Please make a reservation to view your booking details.
