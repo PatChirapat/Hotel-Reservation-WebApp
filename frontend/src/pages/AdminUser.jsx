@@ -6,21 +6,34 @@ import Footer from "../components/Footer.jsx";
 import { apiUrl } from "../utils/api";
 
 function AdminUser() {
+    const admin = JSON.parse(localStorage.getItem("user"));
+
     const EditIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="m16.862 4.487 
+            1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 
+            1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Z" />
         </svg>
     );
 
     const DeleteIcon = (
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 2.25M12 13.875l2.25-2.25M12 13.875l-2.25 2.25M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v1.5c0 .621.504 1.125 1.125 1.125Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="m20.25 7.5-.625 
+            10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 
+            1-2.247-2.118L3.75 7.5m6 4.125 2.25 2.25m0 0 2.25 
+            2.25M12 13.875l2.25-2.25M12 13.875l-2.25 
+            2.25M3.375 7.5h17.25c.621 0 1.125-.504 
+            1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375c-.621 
+            0-1.125.504-1.125 1.125v1.5c0 .621.504 
+            1.125 1.125 1.125Z" />
         </svg>
     );
 
     const AddIcon = (
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15" />
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" 
+        strokeWidth={1.5} stroke="currentColor" className="size-6">
+        <path strokeLinecap="round" strokeLinejoin="round" 
+            d="M12 4.5v15m7.5-7.5h-15" />
         </svg>
     );
 
@@ -28,30 +41,47 @@ function AdminUser() {
     const [filteredUsers, setFilteredUsers] = useState([]);
     const [searchTerm, setSearchTerm] = useState("");
     const [loading, setLoading] = useState(true);
-    const [error, setError] = useState(null);
     const [toastMessage, setToastMessage] = useState("");
 
-    //VIEW
+    // Modals
+    const [showAddPUD, setShowAddPUD] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDelModal, setShowDelModal] = useState(false);
 
+    // Add user form
+    const [newUser, setNewUser] = useState({
+        first_name: "",
+        last_name: "",
+        phone: "",
+        username: "",
+        email: "",
+        tier: "SILVER",
+        role: "user",
+        password: "" 
+    });
+
+    // Edit user form
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [editField, setEditField] = useState("");
+    const [newValue, setNewValue] = useState("");
+
+    // Delete user
+    const [delUser, setDelUser] = useState(null);
+
+    // Fetch users
     const fetchUsers = async () => {
         try {
-        const res = await axios.get(apiUrl("Admin/viewUser.php"));
-        if (Array.isArray(res.data)) {
-            setUsers(res.data);
-            setFilteredUsers(res.data);
-        } 
-        else {
-            setUsers([]);
-            setFilteredUsers([]);
-        }
-
-        await new Promise((resolve) => setTimeout(resolve, 800));
-        } 
-        catch (err) {
+            const res = await axios.get(apiUrl("Admin/viewUser.php"));
+            if (Array.isArray(res.data)) {
+                setUsers(res.data);
+                setFilteredUsers(res.data);
+            } else {
+                setUsers([]);
+                setFilteredUsers([]);
+            }
+        } catch (err) {
             console.error("Error fetching users:", err);
-            setError("Failed to fetch users");
-        } 
-        finally {
+        } finally {
             setLoading(false);
         }
     };
@@ -60,46 +90,44 @@ function AdminUser() {
         fetchUsers();
     }, []);
 
+    // Search
     const handleSearch = (e) => {
-        const value = e.target.value.toLowerCase();
-        setSearchTerm(value);
-        const filtered = users.filter((u) =>
-            u.first_name.toLowerCase().includes(value) ||
-            u.last_name.toLowerCase().includes(value) ||
-            u.phone.includes(value) ||
-            (u.username && u.username.toLowerCase().includes(value)) ||
-            (u.email && u.email.toLowerCase().includes(value)) ||
-            u.tier.toLowerCase().includes(value)
+        const val = e.target.value.toLowerCase();
+        setSearchTerm(val);
+        setFilteredUsers(
+            users.filter((u) =>
+                u.first_name.toLowerCase().includes(val) ||
+                u.last_name.toLowerCase().includes(val) ||
+                u.phone.includes(val) ||
+                (u.username && u.username.toLowerCase().includes(val)) ||
+                (u.email && u.email.toLowerCase().includes(val)) ||
+                (u.role && u.role.toLowerCase().includes(val)) ||
+                u.tier.toLowerCase().includes(val)
+            )
         );
-        setFilteredUsers(filtered);
     };
 
-    // ADD
-    const [showAddPUD, setShowAddPUD] = useState(false);
-    const [newUser, setNewUser] = useState({
-        first_name: "",
-        last_name: "",
-        phone: "",
-        username: "",
-        email: "",
-        tier: "SILVER",
-    });
-
-    const handleAddUser = () => setShowAddPUD(true);
+    // ADD USER
+    const handleAddUserOpen = () => setShowAddPUD(true);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setNewUser({ ...newUser, [name]: value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleAddSubmit = async (e) => {
         e.preventDefault();
         try {
-            const res = await axios.post(apiUrl("Admin/addUser.php"), newUser);
+            const res = await axios.post(apiUrl("Admin/addUser.php"), {
+                request_user_id: admin.member_id,
+                ...newUser
+            });
+
             if (res.data.success) {
                 setToastMessage("User added successfully!");
-                setTimeout(() => setToastMessage(""), 2500);
+                fetchUsers();
                 setShowAddPUD(false);
+
                 setNewUser({
                     first_name: "",
                     last_name: "",
@@ -107,24 +135,20 @@ function AdminUser() {
                     username: "",
                     email: "",
                     tier: "SILVER",
+                    role: "user",
+                    password: "" 
                 });
-                fetchUsers();
             } else {
                 setToastMessage("Failed: " + res.data.message);
-                setTimeout(() => setToastMessage(""), 2500);
             }
         } catch (err) {
             setToastMessage("Error adding user: " + err.message);
-            setTimeout(() => setToastMessage(""), 3000);
+        } finally {
+            setTimeout(() => setToastMessage(""), 2500);
         }
     };
 
-    // EDIT
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [editField, setEditField] = useState("");
-    const [newValue, setNewValue] = useState("");
-
+    // EDIT USER
     const handleEditClick = (user) => {
         setSelectedUser(user);
         setEditField("");
@@ -148,53 +172,50 @@ function AdminUser() {
 
         try {
             const res = await axios.post(apiUrl("Admin/editUser.php"), {
+                request_user_id: admin.member_id,
                 member_id: selectedUser.member_id,
                 field: editField,
-                value: newValue,
+                new_value: newValue
             });
+
             if (res.data.success) {
                 setToastMessage("User updated successfully!");
-                setTimeout(() => setToastMessage(""), 2500);
-                setShowEditModal(false);
                 fetchUsers();
+                setShowEditModal(false);
             } else {
                 setToastMessage("Failed: " + res.data.message);
-                setTimeout(() => setToastMessage(""), 2500);
             }
         } catch (err) {
             setToastMessage("Error updating user: " + err.message);
-            setTimeout(() => setToastMessage(""), 3000);
+        } finally {
+            setTimeout(() => setToastMessage(""), 2500);
         }
     };
 
-    // DELETE
-    const [showDelModal, setShowDelModal] = useState(false);
-    const [delUser, setDelUser] = useState(null);
-
+    // DELETE USER
     const handleDelClick = (user) => {
-        setShowDelModal(true);
         setDelUser(user);
+        setShowDelModal(true);
     };
 
     const handleConfirmDelete = async () => {
         try {
             const res = await axios.post(apiUrl("Admin/deleteUser.php"), {
-                member_id: delUser.member_id,
+                request_user_id: admin.member_id,
+                member_id: delUser.member_id
             });
+
             if (res.data.success) {
                 setToastMessage("User deleted successfully!");
-                setTimeout(() => setToastMessage(""), 2500);
+                fetchUsers();
                 setShowDelModal(false);
                 setDelUser(null);
-                fetchUsers();
-            } 
-            else {
+            } else {
                 setToastMessage("Failed: " + res.data.message);
-                setTimeout(() => setToastMessage(""), 2500);
             }
-        } 
-        catch (err) {
+        } catch (err) {
             setToastMessage("Error deleting user: " + err.message);
+        } finally {
             setTimeout(() => setToastMessage(""), 3000);
         }
     };
@@ -208,102 +229,136 @@ function AdminUser() {
                     <p>Loading users...</p>
                 </div>
             )}
+
             {toastMessage && <div className="toast-message">{toastMessage}</div>}
 
             <div className="adminUser-content">
                 <div className="adminUser-header">
                     <h1>Hotel User Dashboard</h1>
-                    <p>Keep track of your hotel's users with simple and powerful management tools.</p>
+                    <p>Manage your users with powerful admin tools.</p>
                 </div>
 
                 <div className="adminUser-controls">
                     <div className="search-container">
                         <input
-                        type="text"
-                        placeholder="Search users..."
-                        value={searchTerm}
-                        onChange={handleSearch}
-                        className="search-input"
+                            type="text"
+                            placeholder="Search users..."
+                            value={searchTerm}
+                            onChange={handleSearch}
+                            className="search-input"
                         />
                     </div>
-                    <button className="add-btn" onClick={handleAddUser}>
+                    <button className="add-btn" onClick={handleAddUserOpen}>
                         {AddIcon}
                         <span>Add User</span>
                     </button>
                 </div>
 
                 <div className="adminUser-body">
-                    {!loading && !error && (
-                        Array.isArray(filteredUsers) && filteredUsers.length > 0 ? (
-                            <table className="user-table">
-                                <thead>
-                                    <tr>
-                                        {/* <th>ID</th> */}
-                                        <th>Username</th>
-                                        <th>First Name</th>
-                                        <th>Last Name</th>
-                                        <th>Phone</th>
-                                        <th>Email</th>
-                                        <th>Tier</th>
-                                        <th>Join Date</th>
-                                        <th>Actions</th>
+                    {!loading && filteredUsers.length > 0 ? (
+                        <table className="user-table">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>First</th>
+                                    <th>Last</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Tier</th>
+                                    <th>Role</th>
+                                    <th>Join Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                {filteredUsers.map((user) => (
+                                    <tr key={user.member_id}>
+                                        <td>{user.username}</td>
+                                        <td>{user.first_name}</td>
+                                        <td>{user.last_name}</td>
+                                        <td>{user.phone}</td>
+                                        <td>{user.email}</td>
+                                        <td>{user.tier}</td>
+                                        <td>{user.role}</td>
+                                        <td>{user.join_date}</td>
+
+                                        <td className="actions">
+                                            <button className="edit-btn" onClick={() => handleEditClick(user)}>
+                                                {EditIcon}
+                                            </button>
+                                            <button className="delete-btn" onClick={() => handleDelClick(user)}>
+                                                {DeleteIcon}
+                                            </button>
+                                        </td>
                                     </tr>
-                                </thead>
-                                <tbody>
-                                    {filteredUsers.map((user) => (
-                                        <tr key={user.member_id}>
-                                            {/* <td>{user.member_id}</td> */}
-                                            <td>{user.username}</td>
-                                            <td>{user.first_name}</td>
-                                            <td>{user.last_name}</td>
-                                            <td>{user.phone}</td>
-                                            <td>{user.email}</td>
-                                            <td>{user.tier}</td>
-                                            <td>{user.join_date}</td>
-                                            <td className="actions">
-                                                <button className="edit-btn" onClick={() => handleEditClick(user)}>{EditIcon}</button>
-                                                <button className="delete-btn" onClick={() => handleDelClick(user)}>{DeleteIcon}</button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        ) : (
-                            <p>Users Not found.</p>
-                        )
+                                ))}
+                            </tbody>
+                        </table>
+                    ) : (
+                        <p>No users found.</p>
                     )}
                 </div>
             </div>
+
             <Footer />
 
+            {/* ADD USER MODAL */}
             {showAddPUD && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h2>Add New User</h2>
-                        <form onSubmit={handleSubmit} className="add-user-form">
-                            <input name="username" placeholder="Username" value={newUser.username} onChange={handleInputChange} required />
-                            <input name="first_name" placeholder="First Name" value={newUser.first_name} onChange={handleInputChange} required />
-                            <input name="last_name" placeholder="Last Name" value={newUser.last_name} onChange={handleInputChange} required />
-                            <input name="phone" placeholder="Phone Number" value={newUser.phone} onChange={handleInputChange} required />
-                            <input type="email" name="email" placeholder="Email" value={newUser.email} onChange={handleInputChange} />
+
+                        <form onSubmit={handleAddSubmit} className="add-user-form">
+                            <input name="username" placeholder="Username" value={newUser.username}
+                                onChange={handleInputChange} required />
+
+                            <input
+                                type="password" name="password" placeholder="Password"
+                                value={newUser.password} onChange={handleInputChange} required/>
+
+                            <input name="first_name" placeholder="First Name" value={newUser.first_name}
+                                onChange={handleInputChange} required />
+
+                            <input name="last_name" placeholder="Last Name" value={newUser.last_name}
+                                onChange={handleInputChange} required />
+
+                            <input name="phone" placeholder="Phone Number" value={newUser.phone}
+                                onChange={handleInputChange} required />
+
+                            <input type="email" name="email" placeholder="Email" value={newUser.email}
+                                onChange={handleInputChange} />
+
                             <select name="tier" value={newUser.tier} onChange={handleInputChange}>
                                 <option value="SILVER">SILVER</option>
                                 <option value="GOLD">GOLD</option>
                                 <option value="PLATINUM">PLATINUM</option>
                             </select>
 
+                            <label>Role</label>
+                            <select name="role" value={newUser.role} onChange={handleInputChange}>
+                                <option value="user">User</option>
+                                <option value="developer">Developer</option>
+                                <option value="admin">Admin</option>
+                            </select>
+
                             <div className="modal-buttons">
                                 <button type="submit" className="save-btn">Submit</button>
-                                <button type="button" className="cancel-btn" onClick={() => setShowAddPUD(false)}>Cancel</button>
+                                <button type="button" className="cancel-btn" onClick={() => setShowAddPUD(false)}>
+                                    Cancel
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
+
+            {/* EDIT USER MODAL */}
             {showEditModal && selectedUser && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h2>Edit User (ID: {selectedUser.member_id})</h2>
+
                         <form onSubmit={handleEditSubmit} className="add-user-form">
                             <label>Select field to edit</label>
                             <select value={editField} onChange={handleFieldChange} required>
@@ -314,48 +369,46 @@ function AdminUser() {
                                 <option value="phone">Phone</option>
                                 <option value="email">Email</option>
                                 <option value="tier">Tier</option>
+                                <option value="role">Role</option>
                             </select>
 
                             {editField && (
                                 <>
                                     <label>Old Value</label>
-                                    <input
-                                        type="text"
-                                        value={selectedUser[editField] || ""}
-                                        readOnly
-                                    />
+                                    <input type="text" value={selectedUser[editField] || ""} readOnly />
 
                                     <label>New Value</label>
                                     {editField === "tier" ? (
-                                    <select
-                                        value={newValue}
-                                        onChange={(e) => setNewValue(e.target.value)}
-                                        required
-                                    >
-                                        <option value="SILVER">SILVER</option>
-                                        <option value="GOLD">GOLD</option>
-                                        <option value="PLATINUM">PLATINUM</option>
-                                    </select>
-                                ) : (
-                                    <input
-                                        type="text"
-                                        value={newValue}
-                                        onChange={(e) => setNewValue(e.target.value)}
-                                        required
-                                    />
-                                )}
+                                        <select value={newValue} onChange={(e) => setNewValue(e.target.value)} required>
+                                            <option value="SILVER">SILVER</option>
+                                            <option value="GOLD">GOLD</option>
+                                            <option value="PLATINUM">PLATINUM</option>
+                                        </select>
+                                    ) : editField === "role" ? (
+                                        <select value={newValue} onChange={(e) => setNewValue(e.target.value)} required>
+                                            <option value="user">User</option>
+                                            <option value="developer">Developer</option>
+                                            <option value="admin">Admin</option>
+                                        </select>
+                                    ) : (
+                                        <input type="text" value={newValue} onChange={(e) => setNewValue(e.target.value)} required />
+                                    )}
                                 </>
                             )}
 
                             <div className="modal-buttons">
-                                <button type="submit" className="save-btn" >Save</button>
-                                <button type="button" className="cancel-btn" onClick={() => setShowEditModal(false)}>Cancel</button>
+                                <button type="submit" className="save-btn">Save</button>
+                                <button type="button" className="cancel-btn" onClick={() => setShowEditModal(false)}>
+                                    Cancel
+                                </button>
                             </div>
                         </form>
                     </div>
                 </div>
             )}
-            {showDelModal && delUser &&(
+
+            {/* DELETE USER MODAL */}
+            {showDelModal && delUser && (
                 <div className="modal-overlay">
                     <div className="modal-content">
                         <h2>Confirm Delete</h2>

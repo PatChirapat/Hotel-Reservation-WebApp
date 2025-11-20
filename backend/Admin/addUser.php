@@ -1,44 +1,85 @@
 <?php
+require_once __DIR__ . '/../config/cors.php';
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+
 header("Content-Type: application/json; charset=utf-8");
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST");
-header("Access-Control-Allow-Headers: Content-Type");
+error_reporting(0);
 
-include_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../config/db_connect_admin.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
 
-// รับ json ที่ axios ส่งมา
 $data = json_decode(file_get_contents("php://input"), true);
+$request_user_id = intval($data['request_user_id'] ?? 0);
 
-if (
-    isset($data["first_name"]) &&
-    isset($data["last_name"]) &&
-    isset($data["phone"]) &&
-    isset($data["username"]) &&
-    isset($data["tier"])
-) {
-    $first_name = $conn->real_escape_string($data["first_name"]);
-    $last_name = $conn->real_escape_string($data["last_name"]);
-    $phone = $conn->real_escape_string($data["phone"]);
-    $email = isset($data["email"]) ? $conn->real_escape_string($data["email"]) : null;
-    $tier = $conn->real_escape_string($data["tier"]);
-    $username = $conn->real_escape_string($data["username"]);
+requireAdmin($conn, $request_user_id);
 
-    // default pass
-    $default_password = "123456";
-    $password_hash = password_hash($default_password, PASSWORD_BCRYPT);
+$first    = trim($data['first_name'] ?? '');
+$last     = trim($data['last_name'] ?? '');
+$phone    = trim($data['phone'] ?? '');
+$username = trim($data['username'] ?? '');
+$password = trim($data['password'] ?? '');
+$email    = trim($data['email'] ?? null);
+$role     = strtolower(trim($data['role'] ?? 'user'));
 
-    $sql = "INSERT INTO member (first_name, last_name, phone, username, password_hash, email, tier)
-            VALUES ('$first_name', '$last_name', '$phone', '$username', '$password_hash', " . 
-            ($email ? "'$email'" : "NULL") . ", '$tier')";
-
-    if ($conn->query($sql) === TRUE) {
-        echo json_encode(["success" => true, "message" => "User added successfully"]);
-    } else {
-        echo json_encode(["success" => false, "message" => "Database error: " . $conn->error]);
-    }
-} else {
+if (!$first || !$last || !$phone || !$username || !$password) {
     echo json_encode(["success" => false, "message" => "Missing required fields"]);
+    exit;
 }
 
-$conn->close();
-?>
+# ---------------------------
+# CHECK duplicate username
+# ---------------------------
+$stmt = $conn->prepare("SELECT member_id FROM member WHERE username=?");
+$stmt->bind_param("s", $username);
+$stmt->execute();
+$stmt->store_result();
+if ($stmt->num_rows > 0) {
+    echo json_encode(["success" => false, "message" => "Username already exists"]);
+    exit;
+}
+$stmt->close();
+
+# ---------------------------
+# CHECK duplicate email (ถ้าไม่ว่าง)
+# ---------------------------
+if ($email !== null && $email !== "") {
+    $stmt = $conn->prepare("SELECT member_id FROM member WHERE email=?");
+    $stmt->bind_param("s", $email);
+    $stmt->execute();
+    $stmt->store_result();
+    if ($stmt->num_rows > 0) {
+        echo json_encode(["success" => false, "message" => "Email already exists"]);
+        exit;
+    }
+    $stmt->close();
+} else {
+    $email = NULL;
+}
+
+$hash = password_hash($password, PASSWORD_BCRYPT);
+
+$sql = "INSERT INTO member (first_name,last_name,phone,username,password_hash,email,role)
+        VALUES (?,?,?,?,?,?,?)";
+$stmt = $conn->prepare($sql);
+$stmt->bind_param("sssssss", $first, $last, $phone, $username, $hash, $email, $role);
+
+if (!$stmt->execute()) {
+    echo json_encode(["success" => false, "message" => $stmt->error]);
+    exit;
+}
+
+$newId = $stmt->insert_id;
+$stmt->close();
+
+logActivity(
+    $conn, 
+    $request_user_id, 
+    "ADMIN_ADD_USER", 
+    "Admin{$request_user_id}: Added user $newId");
+
+echo json_encode([
+    "success" => true,
+    "message" => "User added",
+    "member_id" => $newId
+]);

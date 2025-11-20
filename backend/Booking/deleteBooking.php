@@ -1,41 +1,37 @@
 <?php
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+require_once __DIR__ . '/../config/cors.php';
 header("Content-Type: application/json; charset=UTF-8");
 
-// ✅ เชื่อมต่อฐานข้อมูล
-include_once(__DIR__ . "/../config/db_connect.php");
+require_once __DIR__ . '/../config/db_connect.php';
+require_once __DIR__ . '/../api/utils/authorize.php';
+require_once __DIR__ . '/../api/utils/auth.php';
 
-// ✅ รับข้อมูลจาก frontend
 $data = json_decode(file_get_contents("php://input"), true);
-$booking_id = $data["booking_id"] ?? null;
 
-if (!$booking_id) {
-    echo json_encode([
-        "success" => false,
-        "message" => "No booking_id provided."
-    ]);
-    exit;
-}
+$booking_id = intval($data["booking_id"] ?? 0);
+$member_id  = intval($data["member_id"] ?? 0);
 
-// ✅ เตรียมคำสั่ง SQL ลบข้อมูล
-$sql = "DELETE FROM booking WHERE booking_id = ?";
-$stmt = $conn->prepare($sql);
+requireUser($conn, $member_id);
+
+// ---- CHECK OWNER ----
+$stmt = $conn->prepare("SELECT member_id FROM booking WHERE booking_id=?");
 $stmt->bind_param("i", $booking_id);
-
-if ($stmt->execute()) {
-    echo json_encode([
-        "success" => true,
-        "message" => "Booking ID #$booking_id deleted successfully."
-    ]);
-} else {
-    echo json_encode([
-        "success" => false,
-        "message" => "Failed to delete booking: " . $stmt->error
-    ]);
-}
-
+$stmt->execute();
+$owner = $stmt->get_result()->fetch_assoc()['member_id'] ?? null;
 $stmt->close();
-$conn->close();
-?>
+
+requireOwner($owner, $member_id);
+
+$stmt = $conn->prepare("DELETE FROM booking WHERE booking_id=?");
+$stmt->bind_param("i", $booking_id);
+$stmt->execute();
+$stmt->close();
+
+logActivity(
+    $conn,
+    $member_id,
+    "USER_DELETE_BOOKING",
+    "User{$member_id}: deleted booking {$booking_id}"
+);
+
+echo json_encode(["success"=>true, "message"=>"Booking deleted"]);

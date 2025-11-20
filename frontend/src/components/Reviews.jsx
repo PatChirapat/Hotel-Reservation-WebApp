@@ -82,7 +82,7 @@ export default function Reviews({ limit = 6 }) {
   );
 }
 
-// ⭐ ดาวเฉลี่ยด้านบน (ใช้ class ชุดใหม่ ไม่ชนของการ์ด)
+// ดาวเฉลี่ยด้านบน (ใช้ class ชุดใหม่ ไม่ชนของการ์ด)
 function HeaderStars({ value = 0 }) {
   const full = Math.floor(value);
   const half = value - full >= 0.5;
@@ -115,7 +115,7 @@ function HeaderStars({ value = 0 }) {
   );
 }
 
-// ⭐ การ์ดรีวิวแต่ละคน
+// การ์ดรีวิวแต่ละคน
 function ReviewCard({ review }) {
   const name =
     review?.member_name ||
@@ -145,7 +145,7 @@ function ReviewCard({ review }) {
           </div>
         </div>
 
-        {/* ⭐ ดาวดวงเดียว + ตัวเลข */}
+        {/* ดาวดวงเดียว + ตัวเลข */}
         <div className="review-rating-box">
           <span className="review-rating-star">★</span>
           <span className="review-rating-number">

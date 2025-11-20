@@ -1,12 +1,148 @@
-.payment-page { min-height:100vh; display:flex; flex-direction:column; }
-.payment-container { max-width:720px; margin:32px auto; padding:16px; }
-.payment-options { display:grid; gap:10px; margin:16px 0; }
-.payment-options label { display:flex; align-items:center; gap:10px; padding:12px; border:1px solid #eee; border-radius:12px; }
-.qr-section { margin:16px 0; text-align:center; }
-.qr-image { width:220px; height:auto; display:inline-block; }
-.loading-text { color:#666; font-style:italic; margin-top:8px; }
-.card-section { display:flex; flex-direction:column; gap:8px; margin:16px 0; }
-.card-row { display:grid; grid-template-columns: 1fr 1fr 1fr; gap:8px; }
-.payment-actions { display:flex; gap:10px; margin-top:16px; }
-.pay-btn, .cancel-btn, .admin-btn { padding:10px 16px; border-radius:10px; border:1px solid #ddd; background:#fff; cursor:pointer; }
-.pay-btn:hover, .cancel-btn:hover, .admin-btn:hover { background:#f7f7f7; }
+.payment-page {
+    background: #f9f9f9;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    font-family: "Optima", "URW Classico", "Palatino Linotype", serif;
+    color: #2b2b2b;
+}
+
+/* Container */
+.payment-container {
+    width: min(720px, 92%);
+    margin: 40px auto 80px;
+    background: #fff;
+    padding: 32px 40px;
+    border-radius: 20px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+}
+
+/* Title */
+.payment-container h1 {
+    font-size: 2rem;
+    margin-bottom: 10px;
+    font-weight: 600;
+    color: #b89a67;
+}
+
+.payment-container p {
+    color: #555;
+    font-size: 1rem;
+}
+
+/* Payment Option Boxes */
+.payment-options {
+    display: grid;
+    gap: 14px;
+    margin: 24px 0;
+}
+
+.payment-options label {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.payment-options label:hover {
+    border-color: #b89a67;
+    background: #fefaf4;
+}
+
+/* QR Section */
+.qr-section {
+    margin: 20px 0;
+    text-align: center;
+}
+
+.qr-image {
+    width: 230px;
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+}
+
+/* Loading */
+.loading-text {
+    margin-top: 10px;
+    font-style: italic;
+    color: #999;
+}
+
+/* Card Inputs */
+.card-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin: 20px 0;
+}
+
+.card-section input {
+    padding: 10px 12px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    background: #fff;
+    transition: 0.2s;
+}
+
+.card-section input:focus {
+    border-color: #b89a67;
+    outline: none;
+    background: #fefaf4;
+}
+
+.card-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+}
+
+/* Cash */
+.cash-section p {
+    t-size: 1rem;
+    color: #444;
+}
+
+.note {
+    color: #b24d4d;
+    font-weight: 500;
+}
+
+/* Buttons */
+.payment-actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 26px;
+}
+
+.pay-btn,
+.cancel-btn,
+.admin-btn {
+    padding: 12px 20px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #b89a67;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+    color: #2b2b2b;
+}
+
+.pay-btn:hover,
+.cancel-btn:hover,
+.admin-btn:hover {
+    background: #b89a67;
+    color: #fff;
+}
+
+.pay-btn:disabled,
+.admin-btn:disabled {
+    background: #ddd;
+    border-color: #ccc;
+    cursor: not-allowed;
+}

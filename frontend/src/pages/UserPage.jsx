@@ -79,7 +79,7 @@ export default function UserPage() {
       };
     }, []);
 
-    // ✅ กด Save แล้วค่อยอัปเดต DB
+    // กด Save แล้วค่อยอัปเดต DB
     const onSaveProfile = async (e) => {
       e.preventDefault();
       if (!isEditing) return;

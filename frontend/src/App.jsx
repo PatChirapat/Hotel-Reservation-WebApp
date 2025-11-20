@@ -16,6 +16,8 @@ import AdminRoute from "./components/AdminRoute";
 import WriteReview from "./pages/WriteReview";
 import ConfirmBooking from "./pages/ConfirmBooking";
 import Payment from "./pages/Payment";
+import DeveloperLogs from "./pages/DeveloperLogs";
+import DevRoute from "./components/DevRoute";
 
 export default function App() {
   return (
@@ -36,6 +38,7 @@ export default function App() {
         <Route path="/account" element={<UserPage />} />
         <Route path="/ConfirmBooking" element={<ConfirmBooking />} />
         <Route path="/payment" element={<Payment />} /> 
+        <Route path="/dev" element={<DevRoute><DeveloperLogs /></DevRoute>} /> 
       </Routes>
     </BrowserRouter>
   );

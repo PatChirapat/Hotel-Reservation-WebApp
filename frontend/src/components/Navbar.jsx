@@ -8,19 +8,35 @@ export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
 
-  // --- Auth state (อ่านข้อมูล user จาก localStorage) ---
+  // --- Auth state ---
   const [user, setUser] = useState(null);
 
   useEffect(() => {
     try {
       const raw = localStorage.getItem("user");
-      if (raw) setUser(JSON.parse(raw));
+      if (raw) {
+        const parsed = JSON.parse(raw);
+
+        // ⭐ Normalize ROLE ให้เป็น lowercase เสมอ
+        if (parsed.role) {
+          parsed.role = parsed.role.toLowerCase();
+        }
+
+        setUser(parsed);
+      }
     } catch {}
 
     // Sync user ระหว่างแท็บ
     const onStorage = (e) => {
-      if (e.key === "user")
-        setUser(e.newValue ? JSON.parse(e.newValue) : null);
+      if (e.key === "user") {
+        const newVal = e.newValue ? JSON.parse(e.newValue) : null;
+
+        if (newVal?.role) {
+          newVal.role = newVal.role.toLowerCase(); // ⭐ normalize
+        }
+
+        setUser(newVal);
+      }
     };
     window.addEventListener("storage", onStorage);
     return () => window.removeEventListener("storage", onStorage);
@@ -35,15 +51,12 @@ export default function Navbar() {
     navigate("/signin");
   };
 
-  // --- Scroll within the same page ---
+  // --- Scroll within same page ---
   const scrollToId = (id) => {
     const el = document.getElementById(id);
-    if (el) {
-      el.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
-  // --- Go to a section (or navigate home first if not on /) ---
   const go = (id) => {
     if (location.pathname === "/") {
       scrollToId(id);
@@ -52,7 +65,7 @@ export default function Navbar() {
     }
   };
 
-  // --- Handle logo click ---
+  // --- Logo click ---
   const handleLogoClick = () => {
     if (location.pathname === "/") {
       scrollToId("home");
@@ -61,16 +74,15 @@ export default function Navbar() {
     }
   };
 
-  // --- Responsive ---
+  // --- Responsive menu ---
   const [menuOpen, setMenuOpen] = useState(false);
-
   const toggleMenu = () => setMenuOpen((prev) => !prev);
   const closeMenu = () => setMenuOpen(false);
 
   return (
     <nav className="navbar">
+      {/* Left Logo */}
       <div className="navbar-left">
-        {/* ปุ่มโลโก้ */}
         <button
           type="button"
           onClick={handleLogoClick}
@@ -82,17 +94,16 @@ export default function Navbar() {
         </button>
       </div>
 
-      {/* Hamburger Button */}
+      {/* Hamburger */}
       <button
         className={`hamburger ${menuOpen ? "open" : ""}`}
         onClick={toggleMenu}
         aria-label="Toggle menu"
       >
-        <span></span>
-        <span></span>
-        <span></span>
+        <span></span><span></span><span></span>
       </button>
 
+      {/* Right Menu */}
       <div className={`navbar-right ${menuOpen ? "active" : ""}`}>
         <button type="button" className="nav-link" onClick={() => { go("home"); closeMenu(); }}>
           Home
@@ -110,12 +121,47 @@ export default function Navbar() {
           Reviews
         </button>
 
-        <Link to="/booking" className="booking" onClick={closeMenu}>
-          Book Now
-        </Link>
-
         {user ? (
-          <UserMenu user={user} onLogout={logout} />
+          <>
+            {/* Admin */}
+            {user.role === "admin" && (
+              <Link
+                to="/admin"
+                className="booking"
+                onClick={closeMenu}
+              >
+                Admin
+              </Link>
+            )}
+
+            {/* Developer */}
+            {user.role === "developer" && (
+              <Link
+                to="/dev"
+                className="booking"
+                onClick={closeMenu}
+              >
+                Developer
+              </Link>
+            )}
+
+            {/* Normal User */}
+            {user.role === "user" && (
+              <Link
+                to="/booking"
+                className="booking"
+                onClick={closeMenu}
+              >
+                Book Now
+              </Link>
+            )}
+
+            <UserMenu
+              user={user}
+              role={user.role}
+              onLogout={logout}
+            />
+          </>
         ) : (
           <Link
             to="/signin"

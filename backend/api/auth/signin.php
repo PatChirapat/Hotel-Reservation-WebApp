@@ -1,53 +1,32 @@
 <?php
-/**
- * backend/api/auth/signin.php
- * signin endpoint — readable version (uses shared CORS + DB configs)
- * Flow: CORS → JSON → read → validate → query → verify → respond
- */
-
-// -----------------------------------------------------------------------------
-// CORS (must be first) — handled via shared config
-// -----------------------------------------------------------------------------
 require_once __DIR__ . '/../../config/cors.php';
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { http_response_code(204); exit; }
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') { 
+    http_response_code(204); 
+    exit; 
+}
 
-// Always JSON response
 header('Content-Type: application/json; charset=utf-8');
-
-// Dev only — show PHP errors (remove/disable on production as needed)
 error_reporting(E_ALL);
 ini_set('display_errors', 1);
 
-// -----------------------------------------------------------------------------
-// DB connect (shared config provides $conn with utf8mb4)
-// -----------------------------------------------------------------------------
 require_once __DIR__ . '/../../config/db_connect.php';
 
-// -----------------------------------------------------------------------------
-// Read & validate input
-// -----------------------------------------------------------------------------
+// Read input
 $raw  = file_get_contents('php://input');
 $data = json_decode($raw, true);
 if (!is_array($data)) { $data = $_POST; }
 
-$identifier = trim($data['identifier'] ?? ''); // username OR phone OR email
+$identifier = trim($data['identifier'] ?? '');
 $password   = (string)($data['password'] ?? '');
 
-$errors = [];
-if ($identifier === '') { $errors[] = 'identifier is required'; }
-if ($password   === '') { $errors[] = 'password is required'; }
-
-if ($errors) {
+if ($identifier === '' || $password === '') {
   http_response_code(400);
-  echo json_encode([ 'success' => false, 'errors' => $errors ], JSON_UNESCAPED_UNICODE);
-  $conn->close();
+  echo json_encode(['success' => false, 'error' => 'Missing identifier or password']);
   exit;
 }
 
-// -----------------------------------------------------------------------------
-// Find user by username/phone/email
-// -----------------------------------------------------------------------------
-$sql = "SELECT member_id, first_name, last_name, phone, email, username, password_hash, tier, join_date
+// Query user
+$sql = "SELECT member_id, first_name, last_name, phone, email, username, password_hash, tier, join_date, role
         FROM member
         WHERE username = ? OR phone = ? OR email = ?
         LIMIT 1";
@@ -60,45 +39,20 @@ $stmt->close();
 
 if (!$user) {
   http_response_code(401);
-  echo json_encode([ 'success' => false, 'error' => 'invalid credentials' ]);
-  $conn->close();
+  echo json_encode(['success' => false, 'error' => 'Invalid credentials']);
   exit;
 }
 
-// -----------------------------------------------------------------------------
-// Verify password
-// -----------------------------------------------------------------------------
 if (!password_verify($password, $user['password_hash'])) {
   http_response_code(401);
-  echo json_encode([ 'success' => false, 'error' => 'invalid credentials' ]);
-  $conn->close();
+  echo json_encode(['success' => false, 'error' => 'Invalid credentials']);
   exit;
 }
 
-// -----------------------------------------------------------------------------
-// Determine role via server-side allowlist loaded from config (no DB change)
-// -----------------------------------------------------------------------------
-$allow = @require __DIR__ . '/../../config/admin_allowlist.php';
-if (!is_array($allow)) {
-  // Fallback to empty allowlist if the config is missing/misconfigured
-  $allow = ['usernames' => [], 'emails' => [], 'member_ids' => []];
-}
+// ⭐ Use role from DB directly
+$role = strtoupper($user['role'] ?? 'USER');
 
-$isAdmin = false;
-if (!empty($allow['usernames']) && in_array($user['username'], $allow['usernames'], true)) {
-  $isAdmin = true;
-}
-if (!$isAdmin && !empty($allow['emails']) && in_array($user['email'], $allow['emails'], true)) {
-  $isAdmin = true;
-}
-if (!$isAdmin && !empty($allow['member_ids']) && in_array((int)$user['member_id'], $allow['member_ids'], true)) {
-  $isAdmin = true;
-}
-$role = $isAdmin ? 'ADMIN' : 'USER';
-
-// -----------------------------------------------------------------------------
-// Respond
-// -----------------------------------------------------------------------------
+// Response
 $out = [
   'success'    => true,
   'member_id'  => (int)$user['member_id'],
@@ -112,5 +66,5 @@ $out = [
   'role'       => $role,
 ];
 
-$conn->close();
 echo json_encode($out, JSON_UNESCAPED_UNICODE);
+$conn->close();

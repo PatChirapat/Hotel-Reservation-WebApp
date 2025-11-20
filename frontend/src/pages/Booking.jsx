@@ -12,6 +12,20 @@ function Booking() {
     const navigate = useNavigate();
     const tomorrow = new Date(Date.now() + 86400000).toISOString().split("T")[0];
 
+    // BLOCK ADMIN + DEVELOPER
+    useEffect(() => {
+      const u = JSON.parse(localStorage.getItem("user") || "{}");
+
+      if (!u.role) return; // รอข้อมูลก่อน
+
+      const role = (u.role || "").toLowerCase().trim();
+
+      if (role !== "user") {
+        alert("Access Denied: Only users can make bookings.");
+        navigate("/");
+      }
+    }, []);
+
     const roomTypeMap = {
     classic: 1,
     premier: 2,
@@ -159,7 +173,8 @@ function Booking() {
         const payload = {
           checkin_date: checkin,
           checkout_date: checkout,
-          guest_count: totalGuests,
+          // not send guest_count here,
+          // so availability is based only on dates, not current guests.
         };
 
         const res = await axios.post(
@@ -200,10 +215,10 @@ function Booking() {
       }
     };
 
-    // Auto-refresh availability whenever dates or guest count change
+    // Auto-refresh availability whenever dates change
     useEffect(() => {
       fetchAvailability();
-    }, [checkin, checkout, totalGuests]);
+    }, [checkin, checkout]);
 
     // Booking details to send to backend
 
@@ -212,17 +227,17 @@ function Booking() {
     try {
         const user = JSON.parse(localStorage.getItem("user"));
         if (!user) {
-        alert("⚠️ Please log in before making a booking.");
+        alert("Please log in before making a booking.");
         navigate("/Signin");
         return;
         }
 
         if (Object.keys(selectedRooms).length === 0) {
-        alert("⚠️ Please select at least one room before confirming.");
+        alert("Please select at least one room before confirming.");
         return;
         }
 
-        // 🟢 สร้าง array ของ bookings ทั้งหมด
+        // สร้าง array ของ bookings ทั้งหมด
         const bookings = [];
         for (const [roomKey, count] of Object.entries(selectedRooms)) {
         const room_type_id = roomTypeMap[roomKey];
@@ -241,47 +256,47 @@ function Booking() {
         }
         }
 
-        // 🟩 เชื่อมไปที่ addBooking.php (ไฟล์เดียว รองรับหลายห้องแล้ว)
+        // เชื่อมไปที่ addBooking.php (ไฟล์เดียว รองรับหลายห้องแล้ว)
         const res = await axios.post(
         apiUrl("Booking/addBooking.php"),
-        { bookings }, // ✅ ส่ง array bookings
+        { member_id: user.member_id, bookings }, // ส่ง array bookings
         { headers: { "Content-Type": "application/json" } }
         );
 
     if (res.data.success) {
-    console.log("📦 Backend Response:", res.data);
+    console.log("Backend Response:", res.data);
 
-    // 🟢 ตรวจให้แน่ใจว่า booking_ids เป็น array เสมอ
+    // ตรวจให้แน่ใจว่า booking_ids เป็น array เสมอ
     let booking_ids = [];
 
-    // ✅ ถ้า backend ส่ง booking_ids มา (หลายห้อง)
+    // ถ้า backend ส่ง booking_ids มา (หลายห้อง)
     if (Array.isArray(res.data.booking_ids)) {
         booking_ids = res.data.booking_ids;
     }
-    // ✅ ถ้า backend ส่ง booking_id ตัวเดียว (จองห้องเดียว)
+    // ถ้า backend ส่ง booking_id ตัวเดียว (จองห้องเดียว)
     else if (res.data.booking_id) {
         booking_ids = [res.data.booking_id];
     }
 
-    console.log("➡️ Booking IDs prepared to send:", booking_ids);
+    console.log("Booking IDs prepared to send:", booking_ids);
 
-    // ⚠️ ถ้าไม่มี booking_id ใดเลย
+    // ถ้าไม่มี booking_id ใดเลย
     if (booking_ids.length === 0) {
-        alert("⚠️ Booking created but no booking IDs returned from backend!");
+        alert("Booking created but no booking IDs returned from backend!");
         return;
     }
 
-    alert("✅ All bookings created successfully!");
+    alert("All bookings created successfully!");
     navigate("/BookingConfirmation", {
         state: { booking_ids },
     });
     } else {
-    alert("❌ Error: " + res.data.message);
+    alert("Error: " + res.data.message);
     }
 
     } catch (err) {
         console.error("Error:", err);
-        alert("⚠️ Failed to connect to backend. Please check server path.");
+        alert("Failed to connect to backend. Please check server path.");
     }
 };
 
@@ -380,15 +395,15 @@ function Booking() {
                     
                     {loadingAvailability ? (
                       <p className="rooms-left"><em>Checking availability...</em></p>
+                    ) : availabilityError ? (
+                      <p className="rooms-left"><em>Availability info not loaded.</em></p>
                     ) : roomsLeft != null ? (
                       <p className="rooms-left">
                         {roomsLeft > 0
                           ? `${roomsLeft} room${roomsLeft > 1 ? "s" : ""} left for these dates`
                           : "No rooms available for these dates"}
                       </p>
-                    ) : (
-                      <p className="rooms-left"><em>Availability info not loaded.</em></p>
-                    )}
+                    ) : null}
 
                     {isSelected && (
                         <div className="room-count">
@@ -442,9 +457,7 @@ function Booking() {
               </p>
             )}
             
-            {/* /* Confirm Button */ }
-
-            
+            {/*Confirm Button */ }
             <button
                 className="confirm-btn"
                 disabled={totalGuests > totalCapacity}

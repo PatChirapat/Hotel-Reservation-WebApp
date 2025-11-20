@@ -39,7 +39,7 @@ $updates = [];
 $params = [];
 $types = "";
 
-// ✅ ตรวจสอบและจัดเก็บเฉพาะฟิลด์ที่อนุญาต
+// ตรวจสอบและจัดเก็บเฉพาะฟิลด์ที่อนุญาต
 foreach ($allowed_fields as $field) {
     if (isset($data[$field])) {
         $value = trim($data[$field]);
@@ -49,14 +49,14 @@ foreach ($allowed_fields as $field) {
     }
 }
 
-// ❌ ไม่มีฟิลด์ให้อัปเดต
+// ไม่มีฟิลด์ให้อัปเดต
 if (empty($updates)) {
     http_response_code(400);
     echo json_encode(["success" => false, "message" => "No fields to update."]);
     exit;
 }
 
-// ✅ เตรียมคำสั่ง UPDATE
+// เตรียมคำสั่ง UPDATE
 $sql = "UPDATE member SET " . implode(", ", $updates) . " WHERE member_id = ?";
 $params[] = $member_id;
 $types .= "i";
@@ -68,7 +68,7 @@ if (!$stmt) {
     exit;
 }
 
-// ✅ bind parameter อย่างปลอดภัย
+// bind parameter อย่างปลอดภัย
 $stmt->bind_param($types, ...$params);
 
 try {
@@ -76,7 +76,7 @@ try {
         throw new Exception("Query failed: " . $stmt->error);
     }
 
-    // ✅ ดึงข้อมูลที่อัปเดตกลับมาส่งให้ frontend
+    // ดึงข้อมูลที่อัปเดตกลับมาส่งให้ frontend
     $res = $conn->prepare("SELECT member_id, first_name, last_name, username, email, phone, tier, join_date FROM member WHERE member_id = ? LIMIT 1");
     $res->bind_param("i", $member_id);
     $res->execute();
