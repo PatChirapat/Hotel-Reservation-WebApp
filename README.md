@@ -1,170 +1,123 @@
-# Hotel-Reservation-WebApp
-# 🏨 Hotel Reservation System – SQL Query List
+# Hotel Reservation WebApp  
+This project helps customers book rooms easily while reducing hotel staff’s manual work through an online system that manages reservations and customer data automatically. The goal is to improve efficiency, accuracy, and user convenience allowing both guests and staff to handle bookings faster and more effectively.
 
-**Database:** `hotel_db`  
-**Last Update:** 5 November 2025  
-**Course:** CSS326 – Database Lab  
 
----
+# Features
 
-## 👤 Member Management
+### User
+- Register / Login
+- View room types and availability
+- Make booking 
+- Cancel booking
+- Pay for booking (QR, cash, card)
+- View booking history
 
-### 1️⃣ แสดงรายชื่อสมาชิกทั้งหมด (READ) (yes)
+### Admin
+- Manage users (view, add, edit, delete)
+- Manage rooms (view, add, edit, delete)
+- Manage payment status
+- Manage roles
+
+### Developer
+- View logs (system activity)
+
+# Tech Stacks 
+- React + Vite
+- PHP + MySQL
+- MAMP
+
+
+# Installation & Usage
+### Backend Setup
+1.Use any local PHP development environment(e.g. MAMP) and place the backend folder in web server directory(htdocs/ if using MAMP).
+
+2.Import database hotel_db.sql on phpMyAdmin
 ```sql
-SELECT member_id, first_name, last_name, phone, email, tier, join_date
-FROM member
-ORDER BY member_id;
+backend/database/hotel_db.sql
 ```
 
-### 2️⃣ เพิ่มสมาชิกใหม่ (INSERT) (yes)
+3.Create database user & Permissions on phpMyAdmin
 ```sql
-INSERT INTO member (first_name, last_name, phone, email, tier)
-VALUES ('[First]', '[Last]', '[08xxxxxxxx]', '[email@example.com]', 'SILVER');
-```
+CREATE USER 'hotel_user'@'localhost' 
+IDENTIFIED BY 'UserPass123!';
 
-### 3️⃣ ลบสมาชิก (DELETE) (yes)
-```sql
-DELETE FROM member
-WHERE member_id = [member_id];
-```
+CREATE USER 'hotel_admin'@'localhost' 
+IDENTIFIED BY 'AdminPass123!';
 
-### 4️⃣ แก้ไขข้อมูลสมาชิก (UPDATE) (yes)
-```sql
-UPDATE member
-SET first_name = '[First]', last_name = '[Last]', phone = '[08xxxxxxxx]', email = '[email@example.com]', tier = 'GOLD'
-WHERE member_id = [member_id];
-```
+CREATE USER 'hotel_dev'@'localhost' 
+IDENTIFIED BY 'DevPass123!';
 
-### 5️⃣ ค้นหาสมาชิกตามชื่อ (SEARCH) (yes maybe)
-```sql
-SELECT member_id, first_name, last_name, phone, email, tier, join_date
-FROM member
-WHERE first_name LIKE '%[keyword]%' OR last_name LIKE '%[keyword]%';
-```
 
-### 🔠 ตัวอย่าง Pattern ในการใช้ LIKE และ %
+GRANT USAGE ON *.* TO `hotel_admin`@`localhost`;
 
-| ตัวอย่าง pattern | ความหมาย |
-|------------------|-----------|
-| `'A%'` | ขึ้นต้นด้วย A |
-| `'%A'` | ลงท้ายด้วย A |
-| `'%A%'` | มี A อยู่ตรงไหนก็ได้ |
-| `'A_%'` | ขึ้นต้นด้วย A และตามด้วยอักขระอย่างน้อย 1 ตัว |
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE TEMPORARY TABLES, EXECUTE ON `hotel_db`.* TO `hotel_admin`@`localhost`;
 
-### 6️⃣ แสดงสมาชิกตามระดับ (FILTER) (yes)
-```sql
-SELECT member_id, first_name, last_name, phone, email, tier, join_date
-FROM member
-WHERE tier = '[SILVER|GOLD|PLATINUM]'
-ORDER BY member_id;
-```
-[SILVER|GOLD|PLATINUM] เลือกอย่างใดอย่างนึง
+GRANT SELECT, INSERT ON `hotel_db`.`activity_log` TO `hotel_admin`@`localhost`;
 
----
+GRANT SELECT, INSERT, UPDATE, DELETE ON `hotel_db`.`booking_night` TO `hotel_admin`@`localhost`;
 
-## 📅 Booking & Payment Management
+GRANT SELECT, INSERT, UPDATE, DELETE ON `hotel_db`.`booking` TO `hotel_admin`@`localhost`;
 
-### 7️⃣ แสดงรายการจองทั้งหมด (READ) (yes)
-```sql
-SELECT booking_id,
-       member_id,
-       phone_entered,
-       checkin_date,
-       checkout_date,
-       guest_count,
-       booking_status,
-       subtotal_amount,
-       discount_amount,
-       total_amount,
-       created_at
-FROM booking
-ORDER BY created_at DESC;
-```
+GRANT SELECT, INSERT, UPDATE, DELETE ON `hotel_db`.`member` TO `hotel_admin`@`localhost`;
 
-### 8️⃣ เพิ่มการจองใหม่ (INSERT) (น่าจะยังไม่ถูก)
-```sql
-INSERT INTO booking (
-  member_id,
-  phone_entered,
-  checkin_date,
-  checkout_date,
-  guest_count,
-  booking_status,
-  subtotal_amount,
-  discount_amount,
-  total_amount
-)
-VALUES (
-  [member_id],
-  '[08xxxxxxxx]',
-  '2025-12-24',
-  '2025-12-26',
-  2,
-  'Confirmed',
-  5000.00,
-  0.00,
-  5000.00
-);
-```
+GRANT SELECT, INSERT, UPDATE, DELETE ON `hotel_db`.`payment` TO `hotel_admin`@`localhost`;
 
-### 9️⃣ ยกเลิกการจอง (UPDATE) (yes)
-```sql
-UPDATE booking
-SET booking_status = 'CANCELLED'
-WHERE booking_id = [booking_id];
-```
+GRANT SELECT, INSERT, UPDATE, DELETE ON `hotel_db`.`review` TO `hotel_admin`@`localhost`;
 
-### 🔟 ลบการจอง (DELETE) (yes)
-```sql
-DELETE FROM booking
-WHERE booking_id = [booking_id];
-```
+GRANT SELECT, INSERT, UPDATE, DELETE ON `hotel_db`.`room_type` TO `hotel_admin`@`localhost`;
 
-### 1️⃣1️⃣ แสดงการชำระเงินทั้งหมด (READ) (no)
-```sql
-SELECT payment_id, booking_id, amount, payment_date, payment_method
-FROM payment
-ORDER BY payment_id;
-```
+GRANT SELECT, INSERT, UPDATE, DELETE ON `hotel_db`.`room` TO `hotel_admin`@`localhost`;
 
-### 1️⃣2️⃣ เพิ่มข้อมูลการชำระเงิน (INSERT) (no)
-```sql
-INSERT INTO payment (booking_id, amount, payment_date, payment_method)
-VALUES ([booking_id], [amount], '[YYYY-MM-DD]', '[CASH|CREDIT|DEBIT]');
-```
 
-### 1️⃣3️⃣ แก้ไขข้อมูลการชำระเงิน (UPDATE) (yes)
-```sql
-UPDATE payment
-SET 
-    amount = [new_amount],
-    method = '[Credit|Debit|Cash|QR]',
-    provider_txn_ref = '[new_reference]',
-    payment_status = '[Success|Pending|Failed]'
-WHERE payment_id = [payment_id];
+GRANT USAGE ON *.* TO `hotel_dev`@`localhost`;
+
+GRANT SELECT, INSERT, UPDATE, DELETE, CREATE, DROP, INDEX, ALTER, EXECUTE, EVENT, TRIGGER ON `hotel_db`.* TO `hotel_dev`@`localhost`;
+
+
+GRANT USAGE ON *.* TO `hotel_user`@`localhost`;
+
+GRANT SELECT, INSERT, UPDATE, EXECUTE ON `hotel_db`.* TO `hotel_user`@`localhost`;
+
+GRANT SELECT ON `hotel_db`.`booking_night` TO `hotel_user`@`localhost`;
+
+GRANT SELECT, INSERT, UPDATE ON `hotel_db`.`booking` TO `hotel_user`@`localhost`;
+
+GRANT SELECT, INSERT, UPDATE ON `hotel_db`.`member` TO `hotel_user`@`localhost`;
+
+GRANT SELECT, INSERT, UPDATE ON `hotel_db`.`payment` TO `hotel_user`@`localhost`;
+
+GRANT SELECT, INSERT ON `hotel_db`.`review` TO `hotel_user`@`localhost`;
+
+GRANT SELECT ON `hotel_db`.`room_type` TO `hotel_user`@`localhost`;
+
+GRANT SELECT ON `hotel_db`.`room` TO `hotel_user`@`localhost`;
+
 ```
 
 
-### 1️⃣4️⃣ ลบข้อมูลการชำระเงิน (DELETE) (yes)
-```sql
-DELETE FROM payment
-WHERE payment_id = [payment_id];
+### Frontend Setup
+1.Navigate to frontend directory:
+
+``` bash
+cd frontend/
 ```
 
----
+2.Install dependencies:
 
-## 🛏️ Room & Room Type Management
-
-### 1️⃣5️⃣ แสดงข้อมูลห้องพักทั้งหมด (READ) (yes)
-```sql
-SELECT *
-FROM room
-ORDER BY room_id;
+```bash
+npm install
 ```
 
-### 1️⃣6️⃣ แสดงข้อมูลประเภทห้องพักทั้งหมด (READ) (yes)
-```sql
-SELECT room_type_id, name, capacity, description
-FROM room_type
-ORDER BY room_type_id;
+3.Start development server:
+
+``` bash
+npm run dev
 ```
+
+# Demo Accounts
+
+| **Role**     | **Username** | **Password** |
+| ------------ | ------------ | ------------ |
+| Developer | `dev1`       | `123456`     |
+| Admin     | `admin`      | `123456`     |
+| User      | `demouser`   | `123456`     |
